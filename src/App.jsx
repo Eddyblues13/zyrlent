@@ -2,21 +2,24 @@
 
 import { useState } from 'react'
 import { ArrowRight, CheckCircle2, Zap, Shield, Globe } from 'lucide-react'
+import bgImage from './assets/WhatsApp Image 2026-01-27 at 13.31.24.jpeg'
 
 export default function Home() {
   const [navOpen, setNavOpen] = useState(false)
 
   return (
-    <div className="min-h-screen w-full zyrlent-bg text-[#FFFFFF] overflow-hidden relative">
-      {/* World map background layer */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <img
-          src="/world-map.svg"
-          alt=""
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(160vw,110rem)] h-[min(85vw,55rem)] max-w-none object-contain opacity-75"
-          style={{ filter: 'drop-shadow(0 0 60px rgba(0,255,255,0.25)) drop-shadow(0 0 120px rgba(0,255,255,0.12))' }}
-        />
-      </div>
+    <div className="min-h-screen w-full text-[#FFFFFF] overflow-hidden relative">
+      {/* Background image (JPEG from assets) */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${bgImage})` }}
+        aria-hidden
+      />
+      {/* Dark overlay for readability (lets JPEG show through) */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#0A0B3D]/70 via-[#080a2e]/55 to-[#05082E]/75"
+        aria-hidden
+      />
 
       {/* Navigation */}
       <header className="relative z-10 border-b border-[rgba(0,255,255,0.2)] bg-[#0A0B3D]/90 backdrop-blur-md sticky top-0">
