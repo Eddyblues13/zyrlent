@@ -1,2 +1,29 @@
 @import 'tailwindcss';
 
+/* ZYRLENT: only three colors from brand image */
+:root {
+  /* 1. Dark blue – backgrounds */
+  --zyrlent-dark: #0A0B3D;
+  --zyrlent-dark-mid: #080a2e;
+  --zyrlent-dark-bottom: #05082E;
+  --zyrlent-card: rgba(15, 20, 60, 0.8);
+  /* 2. Cyan / blue – accents, logo, CTAs, map */
+  --zyrlent-cyan: #00FFFF;
+  --zyrlent-logo-from: #33CCFF;
+  --zyrlent-logo-to: #0099FF;
+  --zyrlent-cta-from: #3399FF;
+  --zyrlent-cta-to: #0066CC;
+  /* 3. White – text */
+  --zyrlent-white: #FFFFFF;
+}
+
+/* Background: dark blue gradient + cyan dot grid */
+.zyrlent-bg {
+  background-color: var(--zyrlent-dark-bottom);
+  background-image:
+    linear-gradient(180deg, var(--zyrlent-dark) 0%, var(--zyrlent-dark-mid) 40%, var(--zyrlent-dark-bottom) 100%),
+    radial-gradient(circle, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 100% 100%, 22px 22px;
+  background-position: 0 0, 0 0;
+}
+
