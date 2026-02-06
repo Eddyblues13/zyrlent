@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { ArrowRight, CheckCircle2, Zap, Shield, Globe, Gift, UserPlus, CreditCard, Smartphone, MessageSquare, Star } from 'lucide-react'
-import bgImage from './assets/WhatsApp Image 2026-01-27 at 13.31.24.jpeg'
+import bgImage from './assets/background.jpg'
+import phoneImage from './assets/phone.jpg'
 
 export default function Home() {
   const [navOpen, setNavOpen] = useState(false)
@@ -11,7 +12,7 @@ export default function Home() {
     <div className="min-h-screen w-full text-[#FFFFFF] overflow-hidden relative">
       {/* Background image (JPEG from assets) */}
       <div
-        className="fixed inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat blur-sm"
+        className="fixed inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat blur-[2px]"
         style={{ backgroundImage: `url(${bgImage})` }}
         aria-hidden
       />
@@ -53,10 +54,10 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <button className="hidden rounded-lg border border-[rgba(0,255,255,0.3)] px-4 py-2 text-sm font-medium text-[#FFFFFF]/80 transition hover:text-[#FFFFFF] hover:border-[#00FFFF] md:inline-flex">
+            <button className="hidden rounded-full border border-[rgba(0,255,255,0.2)] bg-[rgba(15,20,60,0.4)] px-6 py-2 text-sm font-medium text-[#FFFFFF] transition hover:border-[#00FFFF]/50 hover:bg-[rgba(0,255,255,0.1)] md:inline-flex">
               Sign In
             </button>
-            <button className="hidden rounded-lg bg-[rgba(255,255,255,0.1)] border border-[rgba(0,255,255,0.3)] px-4 py-2 text-sm font-semibold text-[#FFFFFF] backdrop-blur-sm transition hover:bg-[rgba(255,255,255,0.2)] md:inline-flex">
+            <button className="hidden rounded-full bg-gradient-to-r from-[#33CCFF] to-[#0099FF] px-6 py-2 text-sm font-bold text-[#FFFFFF] shadow-[0_0_15px_rgba(0,255,255,0.4)] transition transform hover:scale-105 hover:shadow-[0_0_25px_rgba(0,255,255,0.6)] md:inline-flex">
               Get verified
             </button>
             <button
@@ -85,28 +86,36 @@ export default function Home() {
 
         {navOpen && (
           <div className="border-t border-[rgba(0,255,255,0.2)] bg-[rgba(15,20,60,0.9)] px-4 py-4 text-sm text-[#FFFFFF]/80 backdrop-blur-md md:hidden">
-            <nav className="flex flex-col gap-3">
-              <a href="#" className="transition hover:text-[#FFFFFF]" onClick={() => setNavOpen(false)}>
+            <nav className="flex flex-col">
+              <a href="#" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
                 Home
               </a>
-              <a href="#partners" className="transition hover:text-[#FFFFFF]" onClick={() => setNavOpen(false)}>
+              <a href="#partners" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
                 Partners (API)
               </a>
-              <a href="#features" className="transition hover:text-[#FFFFFF]" onClick={() => setNavOpen(false)}>
+              <a href="#features" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
                 Features
               </a>
-              <a href="#how-it-works" className="transition hover:text-[#FFFFFF]" onClick={() => setNavOpen(false)}>
+              <a href="#how-it-works" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
                 How it works
               </a>
-              <a href="#reviews" className="transition hover:text-[#FFFFFF]" onClick={() => setNavOpen(false)}>
+              <a href="#reviews" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
                 Reviews
               </a>
-              <a href="#signin" className="transition hover:text-[#FFFFFF]" onClick={() => setNavOpen(false)}>
-                Sign In
-              </a>
-              <a href="#get-verified" className="transition hover:text-[#FFFFFF]" onClick={() => setNavOpen(false)}>
-                Get verified
-              </a>
+              <div className="mt-4 flex flex-col gap-3">
+                <button
+                  className="rounded-full border border-[rgba(0,255,255,0.2)] bg-[rgba(15,20,60,0.4)] px-6 py-2 text-sm font-medium text-[#FFFFFF] transition hover:border-[#00FFFF]/50 hover:bg-[rgba(0,255,255,0.1)]"
+                  onClick={() => setNavOpen(false)}
+                >
+                  Sign In
+                </button>
+                <button
+                  className="rounded-full bg-gradient-to-r from-[#33CCFF] to-[#0099FF] px-6 py-2 text-sm font-bold text-[#FFFFFF] shadow-[0_0_15px_rgba(0,255,255,0.4)] transition transform hover:scale-105 hover:shadow-[0_0_25px_rgba(0,255,255,0.6)]"
+                  onClick={() => setNavOpen(false)}
+                >
+                  Get verified
+                </button>
+              </div>
             </nav>
           </div>
         )}
@@ -120,7 +129,7 @@ export default function Home() {
           <section className="flex flex-col items-center text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(0,255,255,0.4)] bg-[rgba(0,255,255,0.08)] px-5 py-2 text-sm font-medium text-[#00FFFF]">
               <Zap className="h-4 w-4 fill-current" />
-              Enterprise grade virtual number service
+              Enterprise-grade virtual number service
             </div>
 
             <h1 className="mt-8 text-5xl font-bold tracking-tight text-[#FFFFFF] sm:text-6xl lg:text-7xl drop-shadow-[0_0_24px_rgba(0,255,255,0.4)]">
@@ -159,43 +168,25 @@ export default function Home() {
           </section>
 
           {/* Middle Visual - Phone */}
-          <section className="relative mx-auto mt-4 max-w-sm w-full">
-            {/* Phone Container */}
-            <div className="relative z-10 mx-auto border-gray-800 bg-gray-900 border-[8px] rounded-[2.5rem] h-[500px] width-[280px] shadow-xl flex flex-col overflow-hidden">
-              {/* Screen Header */}
-              <div className="h-8 bg-gray-800 w-full absolute top-0 left-0 rounded-t-[2rem] z-20 flex items-center justify-center">
-                <div className="h-3 w-20 bg-black rounded-full"></div>
-              </div>
-
-              {/* Screen Content */}
-              <div className="flex-1 bg-white text-gray-900 flex flex-col items-center justify-center p-6 pt-12 relative overflow-hidden">
-
-                {/* Mock Message Bubble */}
-                <div className="bg-gray-100 rounded-2xl p-4 w-full shadow-sm border border-gray-200 mb-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                  <div className="text-xs text-gray-500 mb-1">Zyrlent • Now</div>
-                  <div className="font-mono text-xl font-bold tracking-widest text-[#0A0B3D]">Your code is 672431</div>
-                  <div className="text-xs text-gray-400 mt-2 text-right">9:41 AM</div>
-                </div>
-
-                {/* Background decoration inside phone */}
-                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-100 rounded-full blur-2xl opacity-50"></div>
-                <div className="absolute -top-10 -left-10 w-32 h-32 bg-cyan-100 rounded-full blur-2xl opacity-50"></div>
-              </div>
+          <section className="relative mx-auto mt-4 max-w-[450px] w-full">
+            {/* Phone Container - Replaced with Image */}
+            <div className="relative z-10 mx-auto w-full rounded-[2.5rem] shadow-xl overflow-hidden">
+              <img src={phoneImage} alt="App Interface" className="w-full h-auto object-cover" />
             </div>
 
             {/* Glowing effect behind phone */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#00FFFF]/20 blur-3xl -z-10 rounded-full"></div>
 
             {/* Floating Labels */}
-            <div className="absolute top-20 -right-8 sm:-right-16 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-bounce [animation-delay:0ms] z-20">
+            <div className="absolute top-4 -right-4 sm:-right-8 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-bounce [animation-delay:0ms] z-20">
               <span className="text-[#00FFFF] font-bold text-sm">Fast</span>
             </div>
 
-            <div className="absolute top-1/2 -right-12 sm:-right-20 transform -translate-y-1/2 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-bounce [animation-delay:150ms] z-20">
+            <div className="absolute top-1/2 -right-4 sm:-right-8 transform -translate-y-1/2 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-bounce [animation-delay:150ms] z-20">
               <span className="text-[#00FFFF] font-bold text-sm">Secure</span>
             </div>
 
-            <div className="absolute bottom-20 -left-8 sm:-left-16 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-bounce [animation-delay:300ms] z-20">
+            <div className="absolute bottom-4 -left-4 sm:-left-8 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-bounce [animation-delay:300ms] z-20">
               <span className="text-[#00FFFF] font-bold text-sm">Reliable</span>
             </div>
           </section>
@@ -219,7 +210,7 @@ export default function Home() {
                 {
                   icon: Globe,
                   title: 'Global Coverage',
-                  desc: 'Access numbers from 150+ countries including African, US, UK, and EU regions.'
+                  desc: 'Access numbers from 180+ countries including African, US, UK, and EU regions.'
                 },
                 {
                   icon: CheckCircle2,
@@ -268,7 +259,7 @@ export default function Home() {
                   icon: UserPlus,
                   step: '1',
                   title: 'Create your Account',
-                  desc: 'Sign up in seconds and setup security'
+                  desc: 'Sign up in seconds and setup securely'
                 },
                 {
                   icon: CreditCard,
@@ -280,7 +271,7 @@ export default function Home() {
                   icon: Smartphone,
                   step: '3',
                   title: 'Choose a Number',
-                  desc: 'Pick a virtual number from 150+ countries for the platform you want to verify - whatsapp, facebook, telegram and more'
+                  desc: 'Pick a virtual number from 180+ countries for the platform you want to verify - whatsapp, facebook, telegram and more'
                 },
                 {
                   icon: MessageSquare,
@@ -331,26 +322,31 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 {
-                  quote: "Zyrlent makes verifying accounts so simple I can finally manage all my social media without stress",
+                  quote: "A total game-changer for our cross-platform testing! The API is flawlessly engineered, but what truly sets them apart is a support team that’s as fast as their code, always there when we need them.",
                   name: "Tyler Max",
-                  role: "Social media manager"
+                  role: "Elite",
+                  initials: "TM"
                 },
                 {
-                  quote: "fast, secure, and affordable Zyrlent is the tool my team relies on for client account verification everyday",
+                  quote: "The process is so simple, I pick a number, get the code, and I’m verified. No stress at all.",
                   name: "Martin Oliver",
-                  role: "Digital marketing Consultant"
+                  role: "Starter",
+                  initials: "MO"
                 },
                 {
-                  quote: "The process is so simple, I pick a number, get the code, and I'm verified. No stress at all.",
+                  quote: "Fast, secure, and affordable! Zyrlent is the tool my team relies on for client account verification everyday.",
                   name: "Harper Liam",
-                  role: "E-commerce seller"
+                  role: "Professional",
+                  initials: "HL"
                 }
               ].map((testimonial, i) => (
                 <div key={i} className="rounded-2xl border border-[rgba(0,255,255,0.2)] bg-[rgba(15,20,60,0.6)] backdrop-blur-sm p-8 flex flex-col items-center text-center hover:bg-[rgba(15,20,60,0.8)] transition">
-                  <div className="w-12 h-12 rounded-full bg-gray-600 mb-4"></div>
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#33CCFF] to-[#0099FF] mb-4 flex items-center justify-center font-bold text-[#FFFFFF] text-lg">
+                    {testimonial.initials}
+                  </div>
                   <div className="flex gap-1 mb-4">
                     {[...Array(5)].map((_, j) => (
-                      <Star key={j} className="h-4 w-4 fill-[#00FFFF] text-[#00FFFF]" />
+                      <Star key={j} className="h-4 w-4 fill-[#FFD700] text-[#FFD700]" />
                     ))}
                   </div>
                   <p className="text-[#FFFFFF]/90 mb-6 flex-grow">"{testimonial.quote}"</p>
