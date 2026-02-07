@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ArrowRight, CheckCircle2, Zap, Shield, Globe, Gift, UserPlus, CreditCard, Smartphone, MessageSquare, Star } from 'lucide-react'
 import bgImage from './assets/background.jpg'
 import phoneImage from './assets/phone.jpg'
+import logo from './assets/logo.png'
 
 export default function Home() {
   const [navOpen, setNavOpen] = useState(false)
@@ -25,14 +26,8 @@ export default function Home() {
       {/* Navigation */}
       <header className="relative z-10 border-b border-[rgba(0,255,255,0.2)] bg-[#0A0B3D]/90 backdrop-blur-md sticky top-0">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 md:px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#33CCFF] to-[#0099FF]">
-              <span className="text-sm font-bold text-[#0A0B3D]">ZY</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold bg-gradient-to-r from-[#33CCFF] to-[#0099FF] bg-clip-text text-transparent">ZYRLENT</span>
-              <span className="text-xs text-[#FFFFFF]/80">SMS Verification</span>
-            </div>
+          <div className="flex items-center">
+            <img src={logo} alt="Zyrlent Logo" className="h-20 w-auto object-contain" />
           </div>
 
           <nav className="hidden items-center gap-8 text-sm text-[#FFFFFF]/80 md:flex">
