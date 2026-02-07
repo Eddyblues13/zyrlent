@@ -13,7 +13,7 @@ export default function Home() {
     <div className="min-h-screen w-full text-[#FFFFFF] overflow-hidden relative">
       {/* Background image (JPEG from assets) */}
       <div
-        className="fixed inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat blur-[6px]"
+        className="fixed inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat blur-[12px]"
         style={{ backgroundImage: `url(${bgImage})` }}
         aria-hidden
       />
