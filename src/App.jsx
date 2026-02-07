@@ -27,7 +27,7 @@ export default function Home() {
       <header className="relative z-10 border-b border-[rgba(0,255,255,0.2)] bg-[#0A0B3D]/90 backdrop-blur-md sticky top-0">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 md:px-6">
           <div className="flex items-center">
-            <img src={logo} alt="Zyrlent Logo" className="h-32 w-auto object-contain" />
+            <img src={logo} alt="Zyrlent Logo" className="h-10 w-auto object-contain" />
           </div>
 
           <nav className="hidden items-center gap-8 text-sm text-[#FFFFFF]/80 md:flex">
