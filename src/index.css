@@ -27,3 +27,27 @@
   background-position: 0 0, 0 0;
 }
 
+@keyframes joggle {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-3px) rotate(-1deg); }
+  50% { transform: translateY(0) rotate(0); }
+  75% { transform: translateY(3px) rotate(1deg); }
+}
+
+.animate-joggle {
+  animation: joggle 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+/* Specific delays for joggle */
+.delay-0 { animation-delay: 0s; }
+.delay-150 { animation-delay: 1.5s; }
+.delay-300 { animation-delay: 3s; }

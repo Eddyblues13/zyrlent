@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowRight, CheckCircle2, Zap, Shield, Globe, Gift, UserPlus, CreditCard, Smartphone, MessageSquare, Star } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Zap, Shield, Globe, Gift, UserPlus, CreditCard, Smartphone, MessageSquare, Star, Linkedin, Facebook, Twitter, Instagram, Music, User } from 'lucide-react'
 import bgImage from './assets/background.jpg'
 import phoneImage from './assets/phone.jpg'
 import logo from './assets/logo.png'
@@ -13,7 +13,7 @@ export default function Home() {
     <div className="min-h-screen w-full text-[#FFFFFF] overflow-hidden relative">
       {/* Background image (JPEG from assets) */}
       <div
-        className="fixed inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat blur-[2px]"
+        className="fixed inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat blur-[6px]"
         style={{ backgroundImage: `url(${bgImage})` }}
         aria-hidden
       />
@@ -82,10 +82,10 @@ export default function Home() {
         {navOpen && (
           <div className="border-t border-[rgba(0,255,255,0.2)] bg-[rgba(15,20,60,0.9)] px-4 py-4 text-sm text-[#FFFFFF]/80 backdrop-blur-md md:hidden">
             <nav className="flex flex-col">
-              <a href="#" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
+              <a href="#" className="py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
                 Home
               </a>
-              <a href="#partners" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
+              <a href="#partners" className="py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
                 Partners (API)
               </a>
               <a href="#features" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
@@ -128,21 +128,21 @@ export default function Home() {
             </div>
 
             <h1 className="mt-8 text-5xl font-bold tracking-tight text-[#FFFFFF] sm:text-6xl lg:text-7xl drop-shadow-[0_0_24px_rgba(0,255,255,0.4)]">
-              Instant virtual numbers for<br />
+              for instant virtual card<br />
               <span className="text-[#00FFFF]">Smooth SMS verification</span>
             </h1>
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-lg font-medium text-[#FFFFFF]/90">
               <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-[#00FFFF]" />
+                <Shield className="h-5 w-5 text-[#00FF00]" />
                 Secure
               </div>
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-[#00FFFF]" />
+                <Zap className="h-5 w-5 text-[#FFFF00]" />
                 Fast
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-[#00FFFF]" />
+                <CheckCircle2 className="h-5 w-5 text-[#BD00FF]" />
                 Reliable
               </div>
             </div>
@@ -165,7 +165,7 @@ export default function Home() {
           {/* Middle Visual - Phone */}
           <section className="relative mx-auto mt-4 max-w-[450px] w-full">
             {/* Phone Container - Replaced with Image */}
-            <div className="relative z-10 mx-auto w-full rounded-[2.5rem] shadow-xl overflow-hidden">
+            <div className="relative z-10 mx-auto w-full rounded-[2.5rem] shadow-xl overflow-hidden animate-joggle">
               <img src={phoneImage} alt="App Interface" className="w-full h-auto object-cover" />
             </div>
 
@@ -173,16 +173,48 @@ export default function Home() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#00FFFF]/20 blur-3xl -z-10 rounded-full"></div>
 
             {/* Floating Labels */}
-            <div className="absolute top-4 -right-4 sm:-right-8 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-bounce [animation-delay:0ms] z-20">
+            <div className="absolute top-4 -right-4 sm:-right-8 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-joggle delay-0 z-20">
               <span className="text-[#00FFFF] font-bold text-sm">Fast</span>
             </div>
 
-            <div className="absolute top-1/2 -right-4 sm:-right-8 transform -translate-y-1/2 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-bounce [animation-delay:150ms] z-20">
+            <div className="absolute top-1/2 -right-4 sm:-right-8 transform -translate-y-1/2 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-joggle delay-150 z-20">
               <span className="text-[#00FFFF] font-bold text-sm">Secure</span>
             </div>
 
-            <div className="absolute bottom-4 -left-4 sm:-left-8 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-bounce [animation-delay:300ms] z-20">
+            <div className="absolute bottom-4 -left-4 sm:-left-8 bg-[#0A0B3D] border border-[#00FFFF]/30 px-4 py-2 rounded-xl shadow-lg backdrop-blur-md animate-joggle delay-300 z-20">
               <span className="text-[#00FFFF] font-bold text-sm">Reliable</span>
+            </div>
+          </section>
+
+          {/* Key Benefits Section */}
+          <section className="mt-16 mb-12">
+            <div className="mx-auto max-w-5xl rounded-2xl border border-[rgba(0,255,255,0.15)] bg-[rgba(15,20,60,0.6)] backdrop-blur-md p-6 md:p-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(0,255,255,0.1)] text-[#00FF00]">
+                    <Shield className="h-6 w-6" />
+                  </div>
+                  <span className="font-medium text-[#FFFFFF]">Encrypted & Secure</span>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(0,255,255,0.1)] text-[#FFFF00]">
+                    <Zap className="h-6 w-6" />
+                  </div>
+                  <span className="font-medium text-[#FFFFFF]">Instant fulfillment</span>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(0,255,255,0.1)] text-[#000080]">
+                    <Globe className="h-6 w-6" />
+                  </div>
+                  <span className="font-medium text-[#FFFFFF]">Global coverage</span>
+                </div>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(0,255,255,0.1)] text-[#BD00FF]">
+                    <User className="h-6 w-6" />
+                  </div>
+                  <span className="font-medium text-[#FFFFFF]">99.9% Uptime SLA</span>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -220,7 +252,7 @@ export default function Home() {
                 {
                   icon: Gift,
                   title: 'Referral program',
-                  desc: 'Earn 10% credits when your friends fund ₦2000 or more'
+                  desc: 'Earn 20% credits when your friends fund ₦10,000 or more'
                 },
               ].map((item, i) => (
                 <div key={i} className="flex gap-4 p-6 rounded-xl border border-[rgba(0,255,255,0.15)] bg-[rgba(15,20,60,0.6)] backdrop-blur-sm transition hover:bg-[rgba(15,20,60,0.8)] hover:border-[rgba(0,255,255,0.3)]">
@@ -357,108 +389,90 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-[rgba(0,255,255,0.2)] bg-[#0A0B3D]/90 backdrop-blur-md py-8 md:py-12">
+      <footer className="relative z-10 border-t border-[rgba(0,255,255,0.2)] bg-[#0A0B3D]/90 backdrop-blur-md py-12 md:py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            <div>
-              <h4 className="font-semibold text-[#FFFFFF]">Product</h4>
-              <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    Security
-                  </a>
-                </li>
-              </ul>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+            {/* Left Section: Brand & info */}
+            <div className="lg:col-span-4 flex flex-col gap-8">
+              <div className="flex items-center gap-2">
+                <img src={logo} alt="Zyrlent Logo" className="h-8 w-auto object-contain" />
+                <span className="text-xl font-bold bg-gradient-to-r from-[#33CCFF] to-[#0099FF] bg-clip-text text-transparent">ZYRLENT</span>
+              </div>
+
+              <p className="text-[#FFFFFF]/70 leading-relaxed">
+                The most reliable virtual number infrastructure with instant access to phone numbers across 180+ countries, built for modern digital access.
+              </p>
+
+              <div className="flex gap-4">
+                <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[#FFFFFF] transition hover:bg-[#00FFFF] hover:text-[#0A0B3D] hover:border-[#00FFFF]">
+                  <Linkedin className="h-5 w-5" />
+                </a>
+                <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[#FFFFFF] transition hover:bg-[#00FFFF] hover:text-[#0A0B3D] hover:border-[#00FFFF]">
+                  <Facebook className="h-5 w-5" />
+                </a>
+                <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[#FFFFFF] transition hover:bg-[#00FFFF] hover:text-[#0A0B3D] hover:border-[#00FFFF]">
+                  <Twitter className="h-5 w-5" />
+                </a>
+                <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[#FFFFFF] transition hover:bg-[#00FFFF] hover:text-[#0A0B3D] hover:border-[#00FFFF]">
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[#FFFFFF] transition hover:bg-[#00FFFF] hover:text-[#0A0B3D] hover:border-[#00FFFF]">
+                  <Music className="h-5 w-5" />
+                </a>
+              </div>
+
+              <div className="mt-4">
+                <h4 className="text-lg font-semibold text-[#FFFFFF] mb-3">Terms of Service</h4>
+                <div className="rounded-xl border border-[rgba(0,255,255,0.15)] bg-[rgba(0,255,255,0.05)] p-4 text-sm text-[#FFFFFF]/70 leading-relaxed font-mono">
+                  This webapp’s codebase is protected. Any unapproved duplication, redistribution or use is prohibited.
+                </div>
+              </div>
             </div>
-            <div>
-              <h4 className="font-semibold text-[#FFFFFF]">Developers</h4>
-              <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    API Reference
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    Changelog
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-[#FFFFFF]">Company</h4>
-              <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-[#FFFFFF]">Legal</h4>
-              <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    Privacy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    Terms
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="transition hover:text-[#FFFFFF]">
-                    Status
-                  </a>
-                </li>
-              </ul>
+
+            {/* Right Section: Links */}
+            <div className="lg:col-span-8 grid grid-cols-2 gap-8 md:grid-cols-4">
+              <div>
+                <h4 className="font-semibold text-[#FFFFFF]">Product</h4>
+                <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">Features</a></li>
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">Pricing</a></li>
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">Security</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-[#FFFFFF]">Developers</h4>
+                <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">Documentation</a></li>
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">API Reference</a></li>
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">Changelog</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-[#FFFFFF]">Company</h4>
+                <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">About</a></li>
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">Blog</a></li>
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">Contact</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-[#FFFFFF]">Legal</h4>
+                <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">Privacy</a></li>
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">Terms</a></li>
+                  <li><a href="#" className="transition hover:text-[#00FFFF]">Status</a></li>
+                </ul>
+              </div>
             </div>
           </div>
-          <div className="mt-8 border-t border-[rgba(0,255,255,0.15)] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#FFFFFF]">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold bg-gradient-to-r from-[#33CCFF] to-[#0099FF] bg-clip-text text-transparent">ZYRLENT</span>
-              <span className="text-[#FFFFFF]/50">|</span>
-              <span className="text-[#FFFFFF]/80">© 2024 ZYRLENT. All rights reserved.</span>
+
+          <div className="mt-16 border-t border-[rgba(0,255,255,0.15)] pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-sm text-[#FFFFFF]/60">
+              © 2024 Zyrlent. All rights reserved.
             </div>
-            <div className="flex items-center gap-4">
-              <a href="#" className="transition hover:text-[#00FFFF] text-[#FFFFFF]/80">
-                Support
-              </a>
-              <span className="text-[#FFFFFF]/50">|</span>
-              <a href="#" className="transition hover:text-[#00FFFF] text-[#FFFFFF]/80">
-                API Docs
-              </a>
-              <span className="text-[#FFFFFF]/50">|</span>
-              <a href="#" className="transition hover:text-[#00FFFF] text-[#FFFFFF]/80">
-                Privacy Policy
-              </a>
+
+            <div className="flex items-center gap-2 rounded border border-[#FFFFFF]/20 bg-[#FFFFFF]/5 px-3 py-1 text-xs font-bold tracking-widest text-[#FFFFFF]/80">
+              DMCA <span className="text-[#00FFFF] mx-1">|</span> PROTECTED
             </div>
           </div>
         </div>
