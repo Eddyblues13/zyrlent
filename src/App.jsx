@@ -115,7 +115,7 @@ export default function Home() {
             </div>
 
             <h1 className="mt-8 text-5xl font-bold tracking-tight text-[#FFFFFF] sm:text-6xl lg:text-7xl drop-shadow-[0_0_24px_rgba(0,255,255,0.4)]">
-              for instant virtual card<br />
+              Instant virtual numbers for<br />
               <span className="text-[#00FFFF]">Smooth SMS verification</span>
             </h1>
 
@@ -411,9 +411,10 @@ export default function Home() {
               </div>
 
               <div className="mt-4">
-                <div className="text-sm font-bold tracking-wider">
-                  <span className="text-[#ef5b25]">DMCA</span> <span className="text-[#FFFFFF]">PROTECTED</span>
-                </div>
+                <h4 className="text-lg font-semibold text-[#FFFFFF] mb-3">Terms of Use</h4>
+                <p className="text-sm text-[#FFFFFF]/70 leading-relaxed">
+                  Unauthorized copying or reproduction of this website's code is prohibited.
+                </p>
               </div>
             </div>
 
