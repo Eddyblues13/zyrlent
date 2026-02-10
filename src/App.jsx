@@ -425,8 +425,8 @@ export default function Home() {
 
               <div className="mt-4">
                 <h4 className="text-lg font-semibold text-[#FFFFFF] mb-3">Terms of Service</h4>
-                <div className="rounded-xl border border-[rgba(0,255,255,0.15)] bg-[rgba(0,255,255,0.05)] p-4 text-sm text-[#FFFFFF]/70 leading-relaxed font-mono">
-                  This webapp’s codebase is protected. Any unapproved duplication, redistribution or use is prohibited.
+                <div className="text-sm font-bold tracking-wider">
+                  <span className="text-[#ef5b25]">DMCA</span> <span className="text-[#FFFFFF]">PROTECTED</span>
                 </div>
               </div>
             </div>
