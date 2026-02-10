@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowRight, CheckCircle2, Zap, Shield, Globe, Gift, UserPlus, CreditCard, Smartphone, MessageSquare, Star, Linkedin, Instagram, User, Menu, X } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Zap, Shield, Globe, Gift, UserPlus, CreditCard, Smartphone, MessageSquare, Star, Linkedin, Instagram, User } from 'lucide-react'
 import bgImage from './assets/background.jpg'
 import phoneImage from './assets/phone.jpg'
 import logo from './assets/logo.png'
@@ -57,11 +57,24 @@ export default function Home() {
             </button>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(0,255,255,0.3)] bg-[rgba(15,20,60,0.8)] text-[#00FFFF] transition hover:bg-[#080a2e] md:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(0,255,255,0.3)] bg-[rgba(15,20,60,0.8)] transition hover:bg-[#080a2e] md:hidden"
               aria-label="Toggle navigation"
               onClick={() => setNavOpen(!navOpen)}
             >
-              {navOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              <span className="relative block h-4 w-4">
+                <span
+                  className={`absolute inset-x-0 top-1 h-0.5 bg-[#FFFFFF] transition-transform duration-200 ${navOpen ? 'translate-y-1.5 rotate-45' : ''
+                    }`}
+                />
+                <span
+                  className={`absolute inset-x-0 top-2 h-0.5 bg-[#FFFFFF] transition-opacity duration-200 ${navOpen ? 'opacity-0' : 'opacity-100'
+                    }`}
+                />
+                <span
+                  className={`absolute inset-x-0 top-3 h-0.5 bg-[#FFFFFF] transition-transform duration-200 ${navOpen ? '-translate-y-1.5 -rotate-45' : ''
+                    }`}
+                />
+              </span>
             </button>
           </div>
         </div>
@@ -411,10 +424,10 @@ export default function Home() {
               </div>
 
               <div className="mt-4">
-                <h4 className="text-lg font-semibold text-[#FFFFFF] mb-3">Terms of Use</h4>
-                <p className="text-sm text-[#FFFFFF]/70 leading-relaxed">
-                  Unauthorized copying or reproduction of this website's code is prohibited.
-                </p>
+                <h4 className="text-lg font-semibold text-[#FFFFFF] mb-3">Terms of Service</h4>
+                <div className="text-sm text-[#FFFFFF]/70 leading-relaxed font-mono">
+                  This wepapp's codebase is protected. Any unapproved duplication, redistribution or use is prohibited.
+                </div>
               </div>
             </div>
 
