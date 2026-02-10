@@ -424,7 +424,6 @@ export default function Home() {
               </div>
 
               <div className="mt-4">
-                <h4 className="text-lg font-semibold text-[#FFFFFF] mb-3">Terms of Service</h4>
                 <div className="text-sm font-bold tracking-wider">
                   <span className="text-[#ef5b25]">DMCA</span> <span className="text-[#FFFFFF]">PROTECTED</span>
                 </div>
