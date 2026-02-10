@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowRight, CheckCircle2, Zap, Shield, Globe, Gift, UserPlus, CreditCard, Smartphone, MessageSquare, Star, Linkedin, Facebook, Twitter, Instagram, Music, User } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Zap, Shield, Globe, Gift, UserPlus, CreditCard, Smartphone, MessageSquare, Star, Linkedin, Instagram, User } from 'lucide-react'
 import bgImage from './assets/background.jpg'
 import phoneImage from './assets/phone.jpg'
 import logo from './assets/logo.png'
@@ -91,10 +91,10 @@ export default function Home() {
               <a href="#features" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
                 Features
               </a>
-              <a href="#how-it-works" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
+              <a href="#how-it-works" className="py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
                 How it works
               </a>
-              <a href="#reviews" className="border-b border-[rgba(0,255,255,0.1)] py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
+              <a href="#reviews" className="py-3 text-base font-medium transition hover:text-[#00FFFF] hover:pl-2" onClick={() => setNavOpen(false)}>
                 Reviews
               </a>
               <div className="mt-4 flex flex-col gap-3">
@@ -165,7 +165,7 @@ export default function Home() {
           {/* Middle Visual - Phone */}
           <section className="relative mx-auto mt-4 max-w-[450px] w-full">
             {/* Phone Container - Replaced with Image */}
-            <div className="relative z-10 mx-auto w-full rounded-[2.5rem] shadow-xl overflow-hidden animate-joggle">
+            <div className="relative z-10 mx-auto w-full rounded-[2.5rem] shadow-xl overflow-hidden animate-float">
               <img src={phoneImage} alt="App Interface" className="w-full h-auto object-cover" />
             </div>
 
@@ -188,7 +188,7 @@ export default function Home() {
 
           {/* Key Benefits Section */}
           <section className="mt-16 mb-12">
-            <div className="mx-auto max-w-5xl rounded-2xl border border-[rgba(0,255,255,0.15)] bg-[rgba(15,20,60,0.6)] backdrop-blur-md p-6 md:p-8">
+            <div className="mx-auto max-w-5xl">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
                 <div className="flex flex-col items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(0,255,255,0.1)] text-[#00FF00]">
@@ -396,7 +396,6 @@ export default function Home() {
             <div className="lg:col-span-4 flex flex-col gap-8">
               <div className="flex items-center gap-2">
                 <img src={logo} alt="Zyrlent Logo" className="h-8 w-auto object-contain" />
-                <span className="text-xl font-bold bg-gradient-to-r from-[#33CCFF] to-[#0099FF] bg-clip-text text-transparent">ZYRLENT</span>
               </div>
 
               <p className="text-[#FFFFFF]/70 leading-relaxed">
@@ -408,16 +407,19 @@ export default function Home() {
                   <Linkedin className="h-5 w-5" />
                 </a>
                 <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[#FFFFFF] transition hover:bg-[#00FFFF] hover:text-[#0A0B3D] hover:border-[#00FFFF]">
-                  <Facebook className="h-5 w-5" />
-                </a>
-                <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[#FFFFFF] transition hover:bg-[#00FFFF] hover:text-[#0A0B3D] hover:border-[#00FFFF]">
-                  <Twitter className="h-5 w-5" />
-                </a>
-                <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[#FFFFFF] transition hover:bg-[#00FFFF] hover:text-[#0A0B3D] hover:border-[#00FFFF]">
                   <Instagram className="h-5 w-5" />
                 </a>
                 <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[#FFFFFF] transition hover:bg-[#00FFFF] hover:text-[#0A0B3D] hover:border-[#00FFFF]">
-                  <Music className="h-5 w-5" />
+                  {/* X (formerly Twitter) Icon */}
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </a>
+                <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[#FFFFFF] transition hover:bg-[#00FFFF] hover:text-[#0A0B3D] hover:border-[#00FFFF]">
+                  {/* TikTok Icon */}
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.03 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+                  </svg>
                 </a>
               </div>
 
@@ -429,41 +431,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Section: Links */}
-            <div className="lg:col-span-8 grid grid-cols-2 gap-8 md:grid-cols-4">
-              <div>
-                <h4 className="font-semibold text-[#FFFFFF]">Product</h4>
-                <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">Features</a></li>
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">Pricing</a></li>
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">Security</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-[#FFFFFF]">Developers</h4>
-                <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">Documentation</a></li>
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">API Reference</a></li>
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">Changelog</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-[#FFFFFF]">Company</h4>
-                <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">About</a></li>
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">Blog</a></li>
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">Contact</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-[#FFFFFF]">Legal</h4>
-                <ul className="mt-4 space-y-2 text-sm text-[#FFFFFF]/80">
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">Privacy</a></li>
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">Terms</a></li>
-                  <li><a href="#" className="transition hover:text-[#00FFFF]">Status</a></li>
-                </ul>
-              </div>
-            </div>
+
           </div>
 
           <div className="mt-16 border-t border-[rgba(0,255,255,0.15)] pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
