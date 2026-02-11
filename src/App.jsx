@@ -426,7 +426,10 @@ export default function Home() {
               <div className="mt-4">
                 <h4 className="text-lg font-semibold text-[#FFFFFF] mb-3">Terms of Service</h4>
                 <div className="text-sm text-[#FFFFFF]/70 leading-relaxed font-mono">
-                  This wepapp's codebase is protected. Any unapproved duplication, redistribution or use is prohibited.
+                  This webapp's codebase is<br />
+                  protected. Any unapproved<br />
+                  duplication, redistribution<br />
+                  or use is prohibited.
                 </div>
               </div>
             </div>
@@ -434,7 +437,10 @@ export default function Home() {
 
           </div>
 
-          <div className="mt-16 border-t border-[rgba(0,255,255,0.15)] pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Full-width line under social icons section */}
+          <div className="mt-12 h-[2px] w-full bg-[rgba(255,255,255,0.4)]"></div>
+
+          <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-sm text-[#FFFFFF]/60">
               © 2024 Zyrlent. All rights reserved.
             </div>
