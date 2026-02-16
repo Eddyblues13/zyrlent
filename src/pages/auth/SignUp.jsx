@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { User, Mail, Phone, Lock, Eye, EyeOff } from 'lucide-react'
+import { User, Mail, Phone, Lock } from 'lucide-react'
+import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6'
 import logo from '../../assets/logo.png'
 import { Link } from 'react-router-dom'
 // import Navbar from '../../components/Navbar'
@@ -11,6 +12,7 @@ import Background from '../../components/Background'
 export default function SignUp() {
   const [rememberMe, setRememberMe] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [form, setForm] = useState({
     username: '',
     email: '',
@@ -35,10 +37,7 @@ export default function SignUp() {
       <div className="relative z-10 flex-1 flex items-center justify-center w-full max-w-md mx-auto px-4 py-10">
         <div className="flex flex-col items-center w-full">
 
-          {/* Logo */}
-          <div className="flex justify-center mb-4">
-            <img src={logo} alt="Zyrlent Logo" className="h-14 w-auto object-contain" />
-          </div>
+
           {/* Title */}
           <h1 className="text-3xl font-bold text-white mb-2 tracking-wide" style={{ fontFamily: "'Poppins', sans-serif" }}>
             Join Zyrlent
@@ -104,36 +103,51 @@ export default function SignUp() {
             </div>
 
             {/* Password + Confirm Password (side by side) */}
-            <div className="relative flex rounded-xl bg-white/90 overflow-hidden focus-within:ring-2 focus-within:ring-purple-400 transition">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                <Lock className="h-5 w-5" />
+            <div className="flex gap-2">
+              {/* Password */}
+              <div className="relative flex-1">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white/90 text-gray-700 placeholder-gray-400 text-sm font-medium outline-none focus:ring-2 focus:ring-purple-400 transition"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none"
+                  tabIndex={-1}
+                  onClick={() => setShowPassword((v) => !v)}
+                >
+                  {showPassword ? <FaRegEyeSlash className="h-5 w-5" /> : <FaRegEye className="h-5 w-5" />}
+                </button>
               </div>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                placeholder="Password"
-                value={form.password}
-                onChange={handleChange}
-                className="w-1/2 pl-12 pr-8 py-3.5 bg-transparent text-gray-700 placeholder-gray-400 text-sm font-medium outline-none border-r border-gray-200"
-              />
-              {/* Eye icon for password */}
-              <button
-                type="button"
-                className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none"
-                tabIndex={-1}
-                onClick={() => setShowPassword((v) => !v)}
-                style={{ left: '50%', transform: 'translate(-50%, -50%)' }}
-              >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="confirmPassword"
-                placeholder="Confirm Password"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                className="w-1/2 pl-4 pr-8 py-3.5 bg-transparent text-gray-700 placeholder-gray-400 text-sm font-medium outline-none"
-              />
+              {/* Confirm Password */}
+              <div className="relative flex-1">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <input
+                  type={showConfirm ? 'text' : 'password'}
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white/90 text-gray-700 placeholder-gray-400 text-sm font-medium outline-none focus:ring-2 focus:ring-purple-400 transition"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none"
+                  tabIndex={-1}
+                  onClick={() => setShowConfirm((v) => !v)}
+                >
+                  {showConfirm ? <FaRegEyeSlash className="h-5 w-5" /> : <FaRegEye className="h-5 w-5" />}
+                </button>
+              </div>
             </div>
 
             {/* Password hint */}

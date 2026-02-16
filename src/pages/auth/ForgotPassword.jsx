@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
-import logo from '../../assets/logo.png'
+// import logo from '../../assets/logo.png'
 import { Link } from 'react-router-dom'
 // import Navbar from '../../components/Navbar'
 // import Footer from '../../components/Footer'
@@ -25,10 +25,7 @@ export default function ForgotPassword() {
       <div className="relative z-10 flex-1 flex items-center justify-center w-full max-w-md mx-auto px-4 py-10">
         <div className="flex flex-col items-center w-full">
 
-          {/* Logo */}
-          <div className="flex justify-center mb-4">
-            <img src={logo} alt="Zyrlent Logo" className="h-14 w-auto object-contain" />
-          </div>
+
           {/* Title */}
           <h1 className="text-3xl font-bold text-white mb-2 tracking-wide" style={{ fontFamily: "'Poppins', sans-serif" }}>
             Reset Password
