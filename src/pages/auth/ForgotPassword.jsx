@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
-// import logo from '../../assets/logo.png'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import toast from 'react-hot-toast'
 // import Navbar from '../../components/Navbar'
 // import Footer from '../../components/Footer'
 import Background from '../../components/Background'
@@ -12,9 +13,13 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e) => {
+  const { forgotPassword, isLoading } = useAuth()
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setSubmitted(true)
+    if (!email) return toast.error('Please enter an email address.')
+    const success = await forgotPassword(email)
+    if (success) setSubmitted(true)
   }
 
   return (
@@ -90,9 +95,10 @@ export default function ForgotPassword() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#33CCFF] to-[#0099FF] text-white font-bold text-base tracking-wide shadow-[0_0_15px_rgba(0,255,255,0.4)] hover:scale-105 hover:shadow-[0_0_25px_rgba(0,255,255,0.6)] transition-all mt-2 uppercase"
+                  disabled={isLoading}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#33CCFF] to-[#0099FF] text-white font-bold text-base tracking-wide shadow-[0_0_15px_rgba(0,255,255,0.4)] hover:scale-105 hover:shadow-[0_0_25px_rgba(0,255,255,0.6)] transition-all mt-2 uppercase disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  SEND RESET LINK
+                  {isLoading ? 'SENDING...' : 'SEND RESET LINK'}
                 </button>
               </form>
             </>
@@ -131,7 +137,7 @@ export default function ForgotPassword() {
         </div>
       </div>
 
-  {/* No Footer on auth pages */}
+      {/* No Footer on auth pages */}
     </div>
   )
 }

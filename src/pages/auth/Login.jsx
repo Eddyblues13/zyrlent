@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 // import logo from '../../assets/logo.png'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import toast from 'react-hot-toast'
 // import Navbar from '../../components/Navbar'
 // import Footer from '../../components/Footer'
 import Background from '../../components/Background'
@@ -16,12 +18,23 @@ export default function Login() {
     password: '',
   })
 
+  const { login, isLoading } = useAuth()
+  const navigate = useNavigate()
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!form.email || !form.password) {
+      toast.error('Please enter both email and password.')
+      return
+    }
+    const success = await login(form.email, form.password)
+    if (success) {
+      navigate('/dashboard')
+    }
   }
 
   return (
@@ -118,9 +131,10 @@ export default function Login() {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#33CCFF] to-[#0099FF] text-white font-bold text-base tracking-wide shadow-[0_0_15px_rgba(0,255,255,0.4)] hover:scale-105 hover:shadow-[0_0_25px_rgba(0,255,255,0.6)] transition-all mt-2 uppercase"
+              disabled={isLoading}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#33CCFF] to-[#0099FF] text-white font-bold text-base tracking-wide shadow-[0_0_15px_rgba(0,255,255,0.4)] hover:scale-105 hover:shadow-[0_0_25px_rgba(0,255,255,0.6)] transition-all mt-2 uppercase disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              SIGN IN
+              {isLoading ? 'SIGNING IN...' : 'SIGN IN'}
             </button>
           </form>
 
@@ -134,7 +148,7 @@ export default function Login() {
         </div>
       </div>
 
-  {/* No Footer on auth pages */}
+      {/* No Footer on auth pages */}
     </div>
   )
 }

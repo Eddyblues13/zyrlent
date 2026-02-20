@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { User, Mail, Phone, Lock } from 'lucide-react'
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6'
 import logo from '../../assets/logo.png'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import toast from 'react-hot-toast'
 // import Navbar from '../../components/Navbar'
 // import Footer from '../../components/Footer'
 import Background from '../../components/Background'
@@ -21,12 +23,27 @@ export default function SignUp() {
     confirmPassword: '',
   })
 
+  const { register, isLoading } = useAuth()
+  const navigate = useNavigate()
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (form.password !== form.confirmPassword) {
+      return toast.error('Passwords do not match.', {
+        position: 'top-center'
+      })
+    }
+
+    const name = form.username;
+    const success = await register(name, form.email, form.phone, form.password, form.confirmPassword)
+    if (success) {
+      navigate('/dashboard')
+    }
   }
 
   return (
@@ -175,9 +192,10 @@ export default function SignUp() {
             {/* Register Button */}
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#33CCFF] to-[#0099FF] text-white font-bold text-base tracking-wide shadow-[0_0_15px_rgba(0,255,255,0.4)] hover:scale-105 hover:shadow-[0_0_25px_rgba(0,255,255,0.6)] transition-all mt-2 uppercase"
+              disabled={isLoading}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#33CCFF] to-[#0099FF] text-white font-bold text-base tracking-wide shadow-[0_0_15px_rgba(0,255,255,0.4)] hover:scale-105 hover:shadow-[0_0_25px_rgba(0,255,255,0.6)] transition-all mt-2 uppercase disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              REGISTER
+              {isLoading ? 'REGISTERING...' : 'REGISTER'}
             </button>
           </form>
 
@@ -191,7 +209,7 @@ export default function SignUp() {
         </div>
       </div>
 
-  {/* No Footer on auth pages */}
+      {/* No Footer on auth pages */}
     </div>
   )
 }
