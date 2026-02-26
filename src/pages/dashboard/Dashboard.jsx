@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Menu, Bell, User as UserIcon, Plus, ChevronDown, CheckCircle2, History, ShoppingBag, Search, FileText, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Menu, Bell, User as UserIcon, Plus, ChevronDown, CheckCircle2, History, ShoppingBag, Search, FileText, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../../lib/axios'
@@ -16,6 +16,7 @@ export default function Dashboard() {
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [wallet, setWallet] = useState(0)
+    const [showBalance, setShowBalance] = useState(true)
     const [stats, setStats] = useState({
         transactions: 0,
         verifications: 0,
@@ -50,6 +51,39 @@ export default function Dashboard() {
         return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount || 0)
     }
 
+    // Extracted Stats Grid to render in different places based on screen size
+    const StatsGrid = ({ className = "" }) => (
+        <section className={`grid grid-cols-2 gap-4 ${className}`}>
+            {/* Transactions */}
+            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
+                <FileText className="w-5 h-5 text-white/60 mb-2" />
+                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Transactions</p>
+                <h4 className="text-xl font-bold text-white">{stats.transactions}</h4>
+            </div>
+
+            {/* Verifications */}
+            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
+                <CheckCircle2 className="w-5 h-5 text-white/60 mb-2" />
+                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Verifications</p>
+                <h4 className="text-xl font-bold text-white">{stats.verifications}</h4>
+            </div>
+
+            {/* Total Spent */}
+            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
+                <div className="w-5 h-5 flex items-center justify-center rounded text-[12px] font-bold text-white/60 bg-white/10 mb-2">₦</div>
+                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Total Spent</p>
+                <h4 className="text-lg font-bold text-white truncate">{formatNaira(stats.total_spent)}</h4>
+            </div>
+
+            {/* Pending SMS */}
+            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
+                <div className="w-5 h-5 flex items-center justify-center rounded text-[16px] mb-2 bg-[#00FFFF]/10 text-[#00FFFF]">↻</div>
+                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Pending SMS</p>
+                <h4 className="text-xl font-bold text-white">{stats.pending_sms}</h4>
+            </div>
+        </section>
+    )
+
     return (
         <div className="min-h-screen w-full relative overflow-hidden bg-[#0A0A0B] pb-24 font-sans text-white">
             <Background />
@@ -61,8 +95,8 @@ export default function Dashboard() {
             />
 
             <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 lg:pl-[300px] pt-6 pb-20 flex flex-col h-full min-h-screen">
-                {/* Header section matches sketch: Menu icon, "Zyrlent", profile/bell icons, "Hi, [Name]" inside the body below */}
-                <header className="flex justify-between items-center mb-6">
+                {/* Header section */}
+                <header className="flex justify-between items-center mb-6 lg:mb-8">
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setIsSidebarOpen(true)}
@@ -89,15 +123,42 @@ export default function Dashboard() {
                 {/* Main Desktop Grid */}
                 <div className="flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start w-full">
 
-                    {/* Left Column (Main Action Area) */}
-                    <div className="lg:col-span-7 xl:col-span-8 flex flex-col order-2 lg:order-1">
-                        {/* Greeting */}
-                        <div className="mb-6 hidden lg:block">
-                            <h2 className="text-3xl font-bold flex items-center gap-2">
+                    {/* Left Column (Greeting, Form, Mobile Stats) */}
+                    <div className="lg:col-span-7 xl:col-span-8 flex flex-col order-1">
+
+                        {/* Greeting (Mobile & Desktop) */}
+                        <div className="mb-4 lg:mb-6">
+                            <h2 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
                                 <span role="img" aria-label="wave">👋</span> Hi, {user.name.split(' ')[0]}
                             </h2>
-                            <p className="text-white/60 mt-1">Ready to verify some numbers today?</p>
+                            <p className="text-white/60 mt-1 hidden lg:block">Ready to verify some numbers today?</p>
                         </div>
+
+                        {/* Wallet Balance Card (Mobile Only - Moved here to match sketch) */}
+                        <section className="relative w-full rounded-2xl bg-gradient-to-br from-[rgba(15,20,60,0.9)] to-[rgba(10,11,61,0.95)] border border-[rgba(0,255,255,0.2)] p-6 mb-8 overflow-hidden lg:hidden">
+                            {/* Card subtle glow background */}
+                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#00FFFF]/20 blur-3xl rounded-full"></div>
+
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <p className="text-sm font-medium text-white/70">Wallet Balance</p>
+                                    <button
+                                        onClick={() => setShowBalance(!showBalance)}
+                                        className="text-white/50 hover:text-white transition"
+                                    >
+                                        {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
+                                </div>
+                                <h1 className="text-4xl font-bold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#00FFFF]">
+                                    {showBalance ? formatNaira(wallet) : '****'}
+                                </h1>
+
+                                <button className="w-full py-3.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white font-bold text-[15px] hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+                                    <Plus className="w-5 h-5 text-[#33CCFF]" />
+                                    Fund Wallet
+                                </button>
+                            </div>
+                        </section>
 
                         {/* Get Verified Form Area */}
                         <section className="mb-8">
@@ -119,8 +180,8 @@ export default function Dashboard() {
                                             <span className="font-semibold text-white/90">WhatsApp messaging</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-white/50">
-                                            <Search className="w-5 h-5" />
-                                            <ChevronDown className="w-5 h-5 ml-1" />
+                                            <Search className="w-4 h-4" />
+                                            <ChevronDown className="w-5 h-5" />
                                         </div>
                                     </div>
                                 </div>
@@ -138,45 +199,50 @@ export default function Dashboard() {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 text-white/50">
-                                            <Search className="w-5 h-5" />
-                                            <ChevronDown className="w-5 h-5 ml-1" />
+                                            <Search className="w-4 h-4" />
+                                            <ChevronDown className="w-5 h-5" />
                                         </div>
                                     </div>
                                 </div>
 
+                                {/* Buttons - Full width on mobile, inline on desktop */}
                                 <div className="flex flex-col sm:flex-row gap-3 mt-4 lg:mt-6">
-                                    <button className="flex-1 py-4 rounded-xl border border-[rgba(0,255,255,0.4)] bg-[rgba(0,255,255,0.05)] text-[#00FFFF] font-bold text-base hover:bg-[rgba(0,255,255,0.1)] transition-all flex items-center justify-center gap-2 group">
+                                    <button className="w-full sm:flex-1 py-4 rounded-xl border border-[rgba(0,255,255,0.4)] bg-[rgba(0,255,255,0.05)] text-[#00FFFF] font-bold text-base hover:bg-[rgba(0,255,255,0.1)] transition-all flex items-center justify-center gap-2 group">
                                         Get number
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </button>
 
-                                    <button className="sm:w-32 py-4 rounded-xl border border-white/20 bg-transparent text-white/80 font-bold text-base hover:bg-white/5 transition-all text-center">
+                                    <button className="w-full sm:w-32 py-4 rounded-xl border border-white/20 bg-transparent text-white/80 font-bold text-base hover:bg-white/5 transition-all text-center">
                                         Back
                                     </button>
                                 </div>
                             </div>
                         </section>
+
+                        {/* Stats Grid - Rendered below Form on Mobile only to match sketch */}
+                        <StatsGrid className="lg:hidden" />
                     </div>
 
-                    {/* Right Column (Wallet & Stats) */}
-                    <div className="lg:col-span-5 xl:col-span-4 flex flex-col order-1 lg:order-2">
+                    {/* Right Column (Wallet & Stats - Desktop Only) */}
+                    <div className="hidden lg:flex lg:col-span-5 xl:col-span-4 flex-col order-2">
 
-                        {/* Greeting (Mobile Only) */}
-                        <div className="mb-4 lg:hidden">
-                            <h2 className="text-2xl font-semibold flex items-center gap-2">
-                                <span role="img" aria-label="wave">👋</span> Hi, {user.name.split(' ')[0]}
-                            </h2>
-                        </div>
-
-                        {/* Wallet Balance Card */}
+                        {/* Wallet Balance Card (Desktop Only) */}
                         <section className="relative w-full rounded-2xl bg-gradient-to-br from-[rgba(15,20,60,0.9)] to-[rgba(10,11,61,0.95)] border border-[rgba(0,255,255,0.2)] p-6 mb-8 lg:mb-6 overflow-hidden">
                             {/* Card subtle glow background */}
                             <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#00FFFF]/20 blur-3xl rounded-full"></div>
 
                             <div className="relative z-10">
-                                <p className="text-sm font-medium text-white/70 mb-1">Wallet Balance</p>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <p className="text-sm font-medium text-white/70">Wallet Balance</p>
+                                    <button
+                                        onClick={() => setShowBalance(!showBalance)}
+                                        className="text-white/50 hover:text-white transition"
+                                    >
+                                        {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
+                                </div>
                                 <h1 className="text-4xl font-bold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#00FFFF]">
-                                    {formatNaira(wallet)}
+                                    {showBalance ? formatNaira(wallet) : '****'}
                                 </h1>
 
                                 <button className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#33CCFF] to-[#0099FF] text-white font-bold text-[15px] shadow-[0_0_15px_rgba(0,255,255,0.3)] hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(0,255,255,0.5)] transition-all flex items-center justify-center gap-2">
@@ -186,36 +252,8 @@ export default function Dashboard() {
                             </div>
                         </section>
 
-                        {/* Stats Grid */}
-                        <section className="grid grid-cols-2 gap-4 mb-8 lg:mb-0">
-                            {/* Transactions */}
-                            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
-                                <FileText className="w-5 h-5 text-white/60 mb-2" />
-                                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Transactions</p>
-                                <h4 className="text-xl font-bold text-white">{stats.transactions}</h4>
-                            </div>
-
-                            {/* Verifications */}
-                            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
-                                <CheckCircle2 className="w-5 h-5 text-white/60 mb-2" />
-                                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Verifications</p>
-                                <h4 className="text-xl font-bold text-white">{stats.verifications}</h4>
-                            </div>
-
-                            {/* Total Spent */}
-                            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
-                                <div className="w-5 h-5 flex items-center justify-center rounded text-[12px] font-bold text-white/60 bg-white/10 mb-2">₦</div>
-                                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Total Spent</p>
-                                <h4 className="text-lg font-bold text-white truncate">{formatNaira(stats.total_spent)}</h4>
-                            </div>
-
-                            {/* Pending SMS */}
-                            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
-                                <div className="w-5 h-5 flex items-center justify-center rounded text-[16px] mb-2 bg-[#00FFFF]/10 text-[#00FFFF]">↻</div>
-                                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Pending SMS</p>
-                                <h4 className="text-xl font-bold text-white">{stats.pending_sms}</h4>
-                            </div>
-                        </section>
+                        {/* Stats Grid - Rendered in Right Column on Desktop only */}
+                        <StatsGrid />
                     </div>
                 </div>
             </div>

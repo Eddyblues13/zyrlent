@@ -33,13 +33,25 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(true);
         try {
             const response = await api.post('/api/login', { email, password });
+
+            // Check if email verification is required
+            if (response.data.requires_verification) {
+                toast.error(response.data.message);
+                return { success: false, requiresVerification: true, email: response.data.email };
+            }
+
             localStorage.setItem('auth_token', response.data.access_token);
             setUser(response.data.user);
             toast.success('Logged in successfully!');
-            return true;
+            return { success: true };
         } catch (error) {
+            // Handle 403 for unverified email
+            if (error.response?.status === 403 && error.response?.data?.requires_verification) {
+                toast.error(error.response.data.message);
+                return { success: false, requiresVerification: true, email: error.response.data.email };
+            }
             toast.error(error.response?.data?.message || 'Login failed.');
-            return false;
+            return { success: false };
         } finally {
             setIsLoading(false);
         }
@@ -55,15 +67,40 @@ export const AuthProvider = ({ children }) => {
                 password,
                 password_confirmation,
             });
-            localStorage.setItem('auth_token', response.data.access_token);
-            setUser(response.data.user);
-            toast.success('Registration successful!');
-            return true;
+            toast.success(response.data.message || 'Registration successful! Please verify your email.');
+            return { success: true, email: response.data.email };
         } catch (error) {
             toast.error(error.response?.data?.message || 'Registration failed.');
+            return { success: false };
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const verifyEmail = async (email, code) => {
+        setIsLoading(true);
+        try {
+            const response = await api.post('/api/verify-email', { email, code });
+            localStorage.setItem('auth_token', response.data.access_token);
+            setUser(response.data.user);
+            toast.success('Email verified successfully!');
+            return true;
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Verification failed.');
             return false;
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const resendCode = async (email) => {
+        try {
+            const response = await api.post('/api/resend-verification', { email });
+            toast.success(response.data.message || 'New code sent!');
+            return true;
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to resend code.');
+            return false;
         }
     };
 
@@ -115,7 +152,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, register, logout, fetchUser, forgotPassword, resetPassword }}>
+        <AuthContext.Provider value={{ user, isLoading, login, register, logout, fetchUser, forgotPassword, resetPassword, verifyEmail, resendCode }}>
             {children}
         </AuthContext.Provider>
     );

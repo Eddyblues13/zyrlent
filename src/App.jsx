@@ -6,6 +6,7 @@ import SignUp from './pages/auth/SignUp'
 import Login from './pages/auth/Login'
 import ForgotPassword from './pages/auth/ForgotPassword' // existing
 import ResetPassword from './pages/auth/ResetPassword'
+import VerifyEmail from './pages/auth/VerifyEmail'
 import Dashboard from './pages/dashboard/Dashboard'
 
 export default function App() {
@@ -20,7 +21,9 @@ export default function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/password-reset/:token" element={<ResetPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   )
 }
+

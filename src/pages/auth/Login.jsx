@@ -31,9 +31,11 @@ export default function Login() {
       toast.error('Please enter both email and password.')
       return
     }
-    const success = await login(form.email, form.password)
-    if (success) {
+    const result = await login(form.email, form.password)
+    if (result.success) {
       navigate('/dashboard')
+    } else if (result.requiresVerification) {
+      navigate('/verify-email', { state: { email: result.email } })
     }
   }
 

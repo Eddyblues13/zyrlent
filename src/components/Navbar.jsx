@@ -35,7 +35,7 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link to="/signup" className="hidden rounded-full border border-[rgba(0,255,255,0.2)] bg-[rgba(15,20,60,0.4)] px-6 py-2 text-sm font-medium text-[#FFFFFF] transition hover:border-[#00FFFF]/50 hover:bg-[rgba(0,255,255,0.1)] md:inline-flex">
+          <Link to="/login" className="hidden rounded-full border border-[rgba(0,255,255,0.2)] bg-[rgba(15,20,60,0.4)] px-6 py-2 text-sm font-medium text-[#FFFFFF] transition hover:border-[#00FFFF]/50 hover:bg-[rgba(0,255,255,0.1)] md:inline-flex">
             Sign In
           </Link>
           <Link to="/signup" className="hidden rounded-full bg-gradient-to-r from-[#33CCFF] to-[#0099FF] px-6 py-2 text-sm font-bold text-[#FFFFFF] shadow-[0_0_15px_rgba(0,255,255,0.4)] transition transform hover:scale-105 hover:shadow-[0_0_25px_rgba(0,255,255,0.6)] md:inline-flex">
@@ -85,7 +85,7 @@ export default function Navbar() {
             </a>
             <div className="mt-4 flex flex-col gap-3">
               <Link
-                to="/signup"
+                to="/login"
                 className="rounded-full border border-[rgba(0,255,255,0.2)] bg-[rgba(15,20,60,0.4)] px-6 py-2 text-sm font-medium text-[#FFFFFF] transition hover:border-[#00FFFF]/50 hover:bg-[rgba(0,255,255,0.1)] text-center"
                 onClick={() => setNavOpen(false)}
               >

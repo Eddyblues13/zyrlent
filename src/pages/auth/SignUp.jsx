@@ -40,9 +40,9 @@ export default function SignUp() {
     }
 
     const name = form.username;
-    const success = await register(name, form.email, form.phone, form.password, form.confirmPassword)
-    if (success) {
-      navigate('/dashboard')
+    const result = await register(name, form.email, form.phone, form.password, form.confirmPassword)
+    if (result.success) {
+      navigate('/verify-email', { state: { email: result.email } })
     }
   }
 
@@ -119,52 +119,50 @@ export default function SignUp() {
               />
             </div>
 
-            {/* Password + Confirm Password (side by side) */}
-            <div className="flex gap-2">
-              {/* Password */}
-              <div className="relative flex-1">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <Lock className="h-5 w-5" />
-                </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  placeholder="Password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white/90 text-gray-700 placeholder-gray-400 text-sm font-medium outline-none focus:ring-2 focus:ring-purple-400 transition"
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none"
-                  tabIndex={-1}
-                  onClick={() => setShowPassword((v) => !v)}
-                >
-                  {showPassword ? <FaRegEyeSlash className="h-5 w-5" /> : <FaRegEye className="h-5 w-5" />}
-                </button>
+            {/* Password */}
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <Lock className="h-5 w-5" />
               </div>
-              {/* Confirm Password */}
-              <div className="relative flex-1">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <Lock className="h-5 w-5" />
-                </div>
-                <input
-                  type={showConfirm ? 'text' : 'password'}
-                  name="confirmPassword"
-                  placeholder="Confirm Password"
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white/90 text-gray-700 placeholder-gray-400 text-sm font-medium outline-none focus:ring-2 focus:ring-purple-400 transition"
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none"
-                  tabIndex={-1}
-                  onClick={() => setShowConfirm((v) => !v)}
-                >
-                  {showConfirm ? <FaRegEyeSlash className="h-5 w-5" /> : <FaRegEye className="h-5 w-5" />}
-                </button>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={handleChange}
+                className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white/90 text-gray-700 placeholder-gray-400 text-sm font-medium outline-none focus:ring-2 focus:ring-purple-400 transition"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none"
+                tabIndex={-1}
+                onClick={() => setShowPassword((v) => !v)}
+              >
+                {showPassword ? <FaRegEyeSlash className="h-5 w-5" /> : <FaRegEye className="h-5 w-5" />}
+              </button>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <Lock className="h-5 w-5" />
               </div>
+              <input
+                type={showConfirm ? 'text' : 'password'}
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white/90 text-gray-700 placeholder-gray-400 text-sm font-medium outline-none focus:ring-2 focus:ring-purple-400 transition"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none"
+                tabIndex={-1}
+                onClick={() => setShowConfirm((v) => !v)}
+              >
+                {showConfirm ? <FaRegEyeSlash className="h-5 w-5" /> : <FaRegEye className="h-5 w-5" />}
+              </button>
             </div>
 
             {/* Password hint */}
