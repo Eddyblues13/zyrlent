@@ -5,62 +5,62 @@
  */
 const LOGO_MAP = {
     // Messaging
-    whatsapp: 'https://icon.horse/icon/whatsapp.com',
-    telegram: 'https://icon.horse/icon/telegram.org',
-    signal: 'https://icon.horse/icon/signal.org',
-    viber: 'https://icon.horse/icon/viber.com',
-    wechat: 'https://icon.horse/icon/wechat.com',
-    line: 'https://icon.horse/icon/line.me',
+    whatsapp: 'https://unavatar.io/whatsapp.com',
+    telegram: 'https://unavatar.io/telegram.org',
+    signal: 'https://unavatar.io/signal.org',
+    viber: 'https://unavatar.io/viber.com',
+    wechat: 'https://unavatar.io/wechat.com',
+    line: 'https://unavatar.io/line.me',
 
     // Social
-    facebook: 'https://icon.horse/icon/facebook.com',
-    instagram: 'https://icon.horse/icon/instagram.com',
-    twitter: 'https://icon.horse/icon/twitter.com',
-    x: 'https://icon.horse/icon/x.com',
-    tiktok: 'https://icon.horse/icon/tiktok.com',
-    snapchat: 'https://icon.horse/icon/snapchat.com',
-    linkedin: 'https://icon.horse/icon/linkedin.com',
-    reddit: 'https://icon.horse/icon/reddit.com',
-    pinterest: 'https://icon.horse/icon/pinterest.com',
-    threads: 'https://icon.horse/icon/threads.net',
+    facebook: 'https://unavatar.io/facebook.com',
+    instagram: 'https://unavatar.io/instagram.com',
+    twitter: 'https://unavatar.io/twitter.com',
+    x: 'https://unavatar.io/x.com',
+    tiktok: 'https://unavatar.io/tiktok.com',
+    snapchat: 'https://unavatar.io/snapchat.com',
+    linkedin: 'https://unavatar.io/linkedin.com',
+    reddit: 'https://unavatar.io/reddit.com',
+    pinterest: 'https://unavatar.io/pinterest.com',
+    threads: 'https://unavatar.io/threads.net',
 
     // Email
-    gmail: 'https://icon.horse/icon/gmail.com',
-    yahoo: 'https://icon.horse/icon/yahoo.com',
-    outlook: 'https://icon.horse/icon/outlook.com',
-    protonmail: 'https://icon.horse/icon/proton.me',
+    gmail: 'https://unavatar.io/gmail.com',
+    yahoo: 'https://unavatar.io/yahoo.com',
+    outlook: 'https://unavatar.io/outlook.com',
+    protonmail: 'https://unavatar.io/proton.me',
 
     // Shopping
-    amazon: 'https://icon.horse/icon/amazon.com',
-    ebay: 'https://icon.horse/icon/ebay.com',
-    aliexpress: 'https://icon.horse/icon/aliexpress.com',
-    shopify: 'https://icon.horse/icon/shopify.com',
+    amazon: 'https://unavatar.io/amazon.com',
+    ebay: 'https://unavatar.io/ebay.com',
+    aliexpress: 'https://unavatar.io/aliexpress.com',
+    shopify: 'https://unavatar.io/shopify.com',
 
     // Transport
-    uber: 'https://icon.horse/icon/uber.com',
-    lyft: 'https://icon.horse/icon/lyft.com',
-    bolt: 'https://icon.horse/icon/bolt.eu',
-    grab: 'https://icon.horse/icon/grab.com',
+    uber: 'https://unavatar.io/uber.com',
+    lyft: 'https://unavatar.io/lyft.com',
+    bolt: 'https://unavatar.io/bolt.eu',
+    grab: 'https://unavatar.io/grab.com',
 
     // Gaming / Entertainment
-    discord: 'https://icon.horse/icon/discord.com',
-    steam: 'https://icon.horse/icon/steampowered.com',
-    twitch: 'https://icon.horse/icon/twitch.tv',
-    netflix: 'https://icon.horse/icon/netflix.com',
-    spotify: 'https://icon.horse/icon/spotify.com',
+    discord: 'https://unavatar.io/discord.com',
+    steam: 'https://unavatar.io/steampowered.com',
+    twitch: 'https://unavatar.io/twitch.tv',
+    netflix: 'https://unavatar.io/netflix.com',
+    spotify: 'https://unavatar.io/spotify.com',
 
     // Finance / Crypto
-    paypal: 'https://icon.horse/icon/paypal.com',
-    binance: 'https://icon.horse/icon/binance.com',
-    coinbase: 'https://icon.horse/icon/coinbase.com',
-    cashapp: 'https://icon.horse/icon/cash.app',
+    paypal: 'https://unavatar.io/paypal.com',
+    binance: 'https://unavatar.io/binance.com',
+    coinbase: 'https://unavatar.io/coinbase.com',
+    cashapp: 'https://unavatar.io/cash.app',
 
     // Tech / Misc
-    google: 'https://icon.horse/icon/google.com',
-    apple: 'https://icon.horse/icon/apple.com',
-    microsoft: 'https://icon.horse/icon/microsoft.com',
-    zoom: 'https://icon.horse/icon/zoom.us',
-    dropbox: 'https://icon.horse/icon/dropbox.com',
+    google: 'https://unavatar.io/google.com',
+    apple: 'https://unavatar.io/apple.com',
+    microsoft: 'https://unavatar.io/microsoft.com',
+    zoom: 'https://unavatar.io/zoom.us',
+    dropbox: 'https://unavatar.io/dropbox.com',
 }
 
 /**

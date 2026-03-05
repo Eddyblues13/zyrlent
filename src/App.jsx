@@ -8,6 +8,7 @@ import ForgotPassword from './pages/auth/ForgotPassword'
 import ResetPassword from './pages/auth/ResetPassword'
 import VerifyEmail from './pages/auth/VerifyEmail'
 import Dashboard from './pages/dashboard/Dashboard'
+import VerifyKorapay from './pages/dashboard/VerifyKorapay'
 
 import { AdminAuthProvider } from './context/AdminAuthContext'
 import AdminLogin from './pages/admin/AdminLogin'
@@ -30,6 +31,9 @@ export default function App() {
 
       {/* Legacy /dashboard redirect handled by shell */}
       <Route path="/dashboard" element={<Dashboard />} />
+
+      {/* Wallet Verification Callback */}
+      <Route path="/dashboard/wallet/verify-korapay" element={<VerifyKorapay />} />
 
       {/* User Dashboard Routes — each section has its own URL */}
       <Route path="/user/dashboard" element={<Dashboard initialSection="overview" />} />
