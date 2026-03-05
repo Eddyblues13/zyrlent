@@ -5,62 +5,62 @@
  */
 const LOGO_MAP = {
     // Messaging
-    whatsapp: 'https://logo.clearbit.com/whatsapp.com',
-    telegram: 'https://logo.clearbit.com/telegram.org',
-    signal: 'https://logo.clearbit.com/signal.org',
-    viber: 'https://logo.clearbit.com/viber.com',
-    wechat: 'https://logo.clearbit.com/wechat.com',
-    line: 'https://logo.clearbit.com/line.me',
+    whatsapp: 'https://icon.horse/icon/whatsapp.com',
+    telegram: 'https://icon.horse/icon/telegram.org',
+    signal: 'https://icon.horse/icon/signal.org',
+    viber: 'https://icon.horse/icon/viber.com',
+    wechat: 'https://icon.horse/icon/wechat.com',
+    line: 'https://icon.horse/icon/line.me',
 
     // Social
-    facebook: 'https://logo.clearbit.com/facebook.com',
-    instagram: 'https://logo.clearbit.com/instagram.com',
-    twitter: 'https://logo.clearbit.com/twitter.com',
-    x: 'https://logo.clearbit.com/x.com',
-    tiktok: 'https://logo.clearbit.com/tiktok.com',
-    snapchat: 'https://logo.clearbit.com/snapchat.com',
-    linkedin: 'https://logo.clearbit.com/linkedin.com',
-    reddit: 'https://logo.clearbit.com/reddit.com',
-    pinterest: 'https://logo.clearbit.com/pinterest.com',
-    threads: 'https://logo.clearbit.com/threads.net',
+    facebook: 'https://icon.horse/icon/facebook.com',
+    instagram: 'https://icon.horse/icon/instagram.com',
+    twitter: 'https://icon.horse/icon/twitter.com',
+    x: 'https://icon.horse/icon/x.com',
+    tiktok: 'https://icon.horse/icon/tiktok.com',
+    snapchat: 'https://icon.horse/icon/snapchat.com',
+    linkedin: 'https://icon.horse/icon/linkedin.com',
+    reddit: 'https://icon.horse/icon/reddit.com',
+    pinterest: 'https://icon.horse/icon/pinterest.com',
+    threads: 'https://icon.horse/icon/threads.net',
 
     // Email
-    gmail: 'https://logo.clearbit.com/gmail.com',
-    yahoo: 'https://logo.clearbit.com/yahoo.com',
-    outlook: 'https://logo.clearbit.com/outlook.com',
-    protonmail: 'https://logo.clearbit.com/proton.me',
+    gmail: 'https://icon.horse/icon/gmail.com',
+    yahoo: 'https://icon.horse/icon/yahoo.com',
+    outlook: 'https://icon.horse/icon/outlook.com',
+    protonmail: 'https://icon.horse/icon/proton.me',
 
     // Shopping
-    amazon: 'https://logo.clearbit.com/amazon.com',
-    ebay: 'https://logo.clearbit.com/ebay.com',
-    aliexpress: 'https://logo.clearbit.com/aliexpress.com',
-    shopify: 'https://logo.clearbit.com/shopify.com',
+    amazon: 'https://icon.horse/icon/amazon.com',
+    ebay: 'https://icon.horse/icon/ebay.com',
+    aliexpress: 'https://icon.horse/icon/aliexpress.com',
+    shopify: 'https://icon.horse/icon/shopify.com',
 
     // Transport
-    uber: 'https://logo.clearbit.com/uber.com',
-    lyft: 'https://logo.clearbit.com/lyft.com',
-    bolt: 'https://logo.clearbit.com/bolt.eu',
-    grab: 'https://logo.clearbit.com/grab.com',
+    uber: 'https://icon.horse/icon/uber.com',
+    lyft: 'https://icon.horse/icon/lyft.com',
+    bolt: 'https://icon.horse/icon/bolt.eu',
+    grab: 'https://icon.horse/icon/grab.com',
 
     // Gaming / Entertainment
-    discord: 'https://logo.clearbit.com/discord.com',
-    steam: 'https://logo.clearbit.com/steampowered.com',
-    twitch: 'https://logo.clearbit.com/twitch.tv',
-    netflix: 'https://logo.clearbit.com/netflix.com',
-    spotify: 'https://logo.clearbit.com/spotify.com',
+    discord: 'https://icon.horse/icon/discord.com',
+    steam: 'https://icon.horse/icon/steampowered.com',
+    twitch: 'https://icon.horse/icon/twitch.tv',
+    netflix: 'https://icon.horse/icon/netflix.com',
+    spotify: 'https://icon.horse/icon/spotify.com',
 
     // Finance / Crypto
-    paypal: 'https://logo.clearbit.com/paypal.com',
-    binance: 'https://logo.clearbit.com/binance.com',
-    coinbase: 'https://logo.clearbit.com/coinbase.com',
-    cashapp: 'https://logo.clearbit.com/cash.app',
+    paypal: 'https://icon.horse/icon/paypal.com',
+    binance: 'https://icon.horse/icon/binance.com',
+    coinbase: 'https://icon.horse/icon/coinbase.com',
+    cashapp: 'https://icon.horse/icon/cash.app',
 
     // Tech / Misc
-    google: 'https://logo.clearbit.com/google.com',
-    apple: 'https://logo.clearbit.com/apple.com',
-    microsoft: 'https://logo.clearbit.com/microsoft.com',
-    zoom: 'https://logo.clearbit.com/zoom.us',
-    dropbox: 'https://logo.clearbit.com/dropbox.com',
+    google: 'https://icon.horse/icon/google.com',
+    apple: 'https://icon.horse/icon/apple.com',
+    microsoft: 'https://icon.horse/icon/microsoft.com',
+    zoom: 'https://icon.horse/icon/zoom.us',
+    dropbox: 'https://icon.horse/icon/dropbox.com',
 }
 
 /**
