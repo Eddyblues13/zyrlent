@@ -1,300 +1,285 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Menu, Bell, User as UserIcon, Plus, ChevronDown, CheckCircle2, History, ShoppingBag, Search, FileText, ArrowRight, Eye, EyeOff } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import {
+    Menu, Bell, User as UserIcon, LayoutDashboard, Wallet,
+    ShoppingCart, History, ArrowLeftRight, Settings, LifeBuoy,
+    Plus, ChevronRight, LogOut, ChevronDown
+} from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import api from '../../lib/axios'
 import Background from '../../components/Background'
 import Sidebar from './Sidebar'
 
+import OverviewSection from './sections/OverviewSection'
+import PurchaseHistorySection from './sections/PurchaseHistorySection'
+import TransactionsSection from './sections/TransactionsSection'
+import FundWalletSection from './sections/FundWalletSection'
+import RentNumberSection from './sections/RentNumberSection'
+import ServicesSection from './sections/ServicesSection'
+import SupportSection from './sections/SupportSection'
+import SettingsSection from './sections/SettingsSection'
+
 import logo from '../../assets/logo.png'
 
-export default function Dashboard() {
-    const { user, isLoading } = useAuth()
+// All nav items — order matters for sidebar list
+export const NAV_ITEMS = [
+    { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, path: '/user/dashboard' },
+    { id: 'fund-wallet', label: 'Fund Wallet', icon: Wallet, path: '/user/fund-wallet' },
+    { id: 'rent-number', label: 'Rent Number', icon: ShoppingCart, path: '/user/rent-number' },
+    { id: 'purchase-history', label: 'Purchase History', icon: History, path: '/user/purchase-history' },
+    { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight, path: '/user/transactions' },
+    { id: 'services', label: 'Services', icon: Settings, path: '/user/services' },
+    { id: 'support', label: 'Support', icon: LifeBuoy, path: '/user/support' },
+    { id: 'settings', label: 'Settings', icon: UserIcon, path: '/user/settings' },
+]
+
+// Bottom nav — 5 slots on mobile (centre is fab)
+const BOTTOM_NAV = [
+    { id: 'overview', label: 'Home', icon: LayoutDashboard },
+    { id: 'purchase-history', label: 'Orders', icon: History },
+    { id: 'rent-number', label: 'Get OTP', icon: Plus, fab: true },
+    { id: 'transactions', label: 'Wallet', icon: ArrowLeftRight },
+    { id: 'settings', label: 'Account', icon: UserIcon },
+]
+
+// Map URL path → section id
+const PATH_TO_SECTION = {
+    '/user/dashboard': 'overview',
+    '/dashboard': 'overview',
+    '/user/fund-wallet': 'fund-wallet',
+    '/user/rent-number': 'rent-number',
+    '/user/purchase-history': 'purchase-history',
+    '/user/transactions': 'transactions',
+    '/user/services': 'services',
+    '/user/support': 'support',
+    '/user/settings': 'settings',
+}
+
+export default function Dashboard({ initialSection }) {
+    const { user, isLoading, logout } = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+    const [showAvatarMenu, setShowAvatarMenu] = useState(false)
     const [wallet, setWallet] = useState(0)
-    const [showBalance, setShowBalance] = useState(true)
-    const [stats, setStats] = useState({
-        transactions: 0,
-        verifications: 0,
-        total_spent: 0,
-        pending_sms: 0
-    })
+    const [stats, setStats] = useState({ transactions: 0, verifications: 0, total_spent: 0, pending_sms: 0 })
+    const avatarRef = useRef(null)
+
+    // Derive active section from URL path, falling back to initialSection prop
+    const activeSection = PATH_TO_SECTION[location.pathname] || initialSection || 'overview'
 
     useEffect(() => {
-        if (!isLoading && !user) {
-            navigate('/login')
-        } else if (user) {
-            loadDashboardData()
+        if (!isLoading && !user) navigate('/login')
+        else if (user) loadDashboardData()
+    }, [user, isLoading])
+
+    // Close avatar dropdown on outside click
+    useEffect(() => {
+        const handler = (e) => {
+            if (avatarRef.current && !avatarRef.current.contains(e.target)) {
+                setShowAvatarMenu(false)
+            }
         }
-    }, [user, isLoading, navigate])
+        document.addEventListener('mousedown', handler)
+        return () => document.removeEventListener('mousedown', handler)
+    }, [])
 
     const loadDashboardData = async () => {
         try {
             const res = await api.get('/api/dashboard')
-            setWallet(res.data.wallet_balance)
-            setStats(res.data.stats)
+            setWallet(res.data.wallet_balance || 0)
+            setStats(res.data.stats || { transactions: 0, verifications: 0, total_spent: 0, pending_sms: 0 })
         } catch (e) {
-            console.error("Failed to load dashboard data", e)
+            console.error('Dashboard data error', e)
         }
     }
 
     if (isLoading || !user) {
-        return <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center text-white">Loading...</div>
+        return (
+            <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0B3D' }}>
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-10 h-10 border-2 border-[#00FFFF]/30 border-t-[#00FFFF] rounded-full animate-spin" />
+                    <p className="text-white/50 text-sm">Loading your dashboard…</p>
+                </div>
+            </div>
+        )
     }
 
-    // Formatting utility
-    const formatNaira = (amount) => {
-        return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount || 0)
+    const formatNaira = (amount) =>
+        new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount || 0)
+
+    const goTo = (sectionId) => {
+        const item = NAV_ITEMS.find(n => n.id === sectionId)
+        if (item) navigate(item.path)
+        else navigate('/user/dashboard')
+        setIsSidebarOpen(false)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    // Extracted Stats Grid to render in different places based on screen size
-    const StatsGrid = ({ className = "" }) => (
-        <section className={`grid grid-cols-2 gap-4 ${className}`}>
-            {/* Transactions */}
-            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
-                <FileText className="w-5 h-5 text-white/60 mb-2" />
-                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Transactions</p>
-                <h4 className="text-xl font-bold text-white">{stats.transactions}</h4>
-            </div>
+    const handleLogout = async () => {
+        setShowAvatarMenu(false)
+        await logout()
+        navigate('/')
+    }
 
-            {/* Verifications */}
-            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
-                <CheckCircle2 className="w-5 h-5 text-white/60 mb-2" />
-                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Verifications</p>
-                <h4 className="text-xl font-bold text-white">{stats.verifications}</h4>
-            </div>
+    const sectionLabel = NAV_ITEMS.find(n => n.id === activeSection)?.label || 'Dashboard'
 
-            {/* Total Spent */}
-            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
-                <div className="w-5 h-5 flex items-center justify-center rounded text-[12px] font-bold text-white/60 bg-white/10 mb-2">₦</div>
-                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Total Spent</p>
-                <h4 className="text-lg font-bold text-white truncate">{formatNaira(stats.total_spent)}</h4>
-            </div>
-
-            {/* Pending SMS */}
-            <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(15,20,60,0.4)] p-4 hover:border-[rgba(0,255,255,0.3)] transition">
-                <div className="w-5 h-5 flex items-center justify-center rounded text-[16px] mb-2 bg-[#00FFFF]/10 text-[#00FFFF]">↻</div>
-                <p className="text-xs font-medium text-white/60 mb-1 uppercase tracking-wider">Pending SMS</p>
-                <h4 className="text-xl font-bold text-white">{stats.pending_sms}</h4>
-            </div>
-        </section>
-    )
+    const renderSection = () => {
+        switch (activeSection) {
+            case 'overview': return <OverviewSection user={user} wallet={wallet} stats={stats} formatNaira={formatNaira} onNavigate={goTo} />
+            case 'purchase-history': return <PurchaseHistorySection formatNaira={formatNaira} />
+            case 'transactions': return <TransactionsSection formatNaira={formatNaira} />
+            case 'fund-wallet': return <FundWalletSection wallet={wallet} formatNaira={formatNaira} />
+            case 'rent-number': return <RentNumberSection wallet={wallet} formatNaira={formatNaira} onNavigate={goTo} />
+            case 'services': return <ServicesSection onNavigate={goTo} />
+            case 'support': return <SupportSection />
+            case 'settings': return <SettingsSection user={user} />
+            default: return <OverviewSection user={user} wallet={wallet} stats={stats} formatNaira={formatNaira} onNavigate={goTo} />
+        }
+    }
 
     return (
-        <div className="min-h-screen w-full relative overflow-hidden bg-[#0A0A0B] pb-24 font-sans text-white">
+        <div className="min-h-screen w-full relative overflow-x-hidden font-sans text-white">
             <Background />
 
             <Sidebar
                 isOpen={isSidebarOpen}
                 onClose={() => setIsSidebarOpen(false)}
                 walletBalance={wallet}
+                activeSection={activeSection}
+                onNavigate={goTo}
+                navItems={NAV_ITEMS}
+                user={user}
+                formatNaira={formatNaira}
             />
 
-            <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 lg:pl-[300px] pt-6 pb-20 flex flex-col h-full min-h-screen">
-                {/* Header section */}
-                <header className="flex justify-between items-center mb-6 lg:mb-8">
+            <div className="relative z-10 lg:pl-[280px] flex flex-col min-h-screen">
+
+                {/* ── Sticky Top Header ── */}
+                <header className="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-[rgba(255,255,255,0.07)] bg-[rgba(8,10,46,0.85)] backdrop-blur-xl">
+                    {/* Left */}
                     <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => setIsSidebarOpen(true)}
-                            className="p-2 -ml-2 rounded-lg hover:bg-white/10 transition lg:hidden"
-                        >
-                            <Menu className="w-6 h-6 text-white" />
+                        <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-1 rounded-xl hover:bg-white/10 transition lg:hidden">
+                            <Menu className="w-5 h-5 text-white" />
                         </button>
-                        <img src={logo} alt="Zyrlent Logo" className="h-8 object-contain lg:hidden" />
+                        <img src={logo} alt="Zyrlent" className="h-7 object-contain lg:hidden" />
+                        {/* Desktop breadcrumb */}
+                        <nav className="hidden lg:flex items-center gap-1.5 text-sm text-white/45">
+                            <span>Dashboard</span>
+                            {activeSection !== 'overview' && (
+                                <>
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                    <span className="text-white font-semibold">{sectionLabel}</span>
+                                </>
+                            )}
+                        </nav>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 transition rounded-full text-sm font-medium border border-white/20">
-                            <span className="text-[#00FFFF] font-bold">₦</span> {wallet}
+                    {/* Right */}
+                    <div className="flex items-center gap-2">
+                        {/* Wallet pill */}
+                        <button
+                            onClick={() => goTo('fund-wallet')}
+                            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border border-white/12 bg-white/6 hover:bg-white/12 transition"
+                        >
+                            <span className="text-[#00FFFF] font-bold">₦</span>
+                            <span>{wallet.toLocaleString()}</span>
                         </button>
-                        <button className="p-2 rounded-full hover:bg-white/10 transition">
+
+                        {/* Notifications */}
+                        <button className="relative p-2 rounded-xl hover:bg-white/10 transition">
                             <Bell className="w-5 h-5" />
+                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#00FFFF] rounded-full border border-[#0A0B3D]" />
                         </button>
-                        <button className="p-2 rounded-full hover:bg-white/10 transition bg-gradient-to-br from-[#33CCFF] to-[#0099FF] shadow-[0_0_10px_rgba(0,255,255,0.3)]">
-                            <UserIcon className="w-5 h-5" />
-                        </button>
+
+                        {/* Avatar + Dropdown */}
+                        <div className="relative" ref={avatarRef}>
+                            <button
+                                onClick={() => setShowAvatarMenu(s => !s)}
+                                className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-xl hover:bg-white/8 transition"
+                            >
+                                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#33CCFF] to-[#0099FF] flex items-center justify-center text-sm font-bold text-white shadow-[0_0_10px_rgba(0,255,255,0.3)]">
+                                    {user?.name?.[0]?.toUpperCase() || 'U'}
+                                </div>
+                                <span className="hidden sm:block text-sm font-semibold text-white/80 max-w-[100px] truncate">{user?.name?.split(' ')[0]}</span>
+                                <ChevronDown className={`w-3.5 h-3.5 text-white/40 transition-transform ${showAvatarMenu ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {/* Dropdown */}
+                            {showAvatarMenu && (
+                                <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(8,10,46,0.97)] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden z-50">
+                                    {/* User info */}
+                                    <div className="px-4 py-3.5 border-b border-white/8">
+                                        <p className="text-sm font-bold text-white truncate">{user?.name}</p>
+                                        <p className="text-xs text-white/40 truncate">{user?.email}</p>
+                                    </div>
+                                    {/* Menu items */}
+                                    <div className="py-1.5">
+                                        {[
+                                            { icon: UserIcon, label: 'Profile & Settings', action: () => goTo('settings') },
+                                            { icon: Wallet, label: 'Fund Wallet', action: () => goTo('fund-wallet') },
+                                            { icon: LifeBuoy, label: 'Support', action: () => goTo('support') },
+                                        ].map((item, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => { item.action(); setShowAvatarMenu(false) }}
+                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/6 transition text-left"
+                                            >
+                                                <item.icon className="w-4 h-4 flex-shrink-0 text-white/30" />
+                                                {item.label}
+                                            </button>
+                                        ))}
+                                        <div className="h-px bg-white/6 my-1.5 mx-4" />
+                                        <button
+                                            onClick={handleLogout}
+                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400/80 hover:text-red-400 hover:bg-red-400/6 transition text-left"
+                                        >
+                                            <LogOut className="w-4 h-4 flex-shrink-0" />
+                                            Sign Out
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </header>
 
-                {/* Main Desktop Grid */}
-                <div className="flex flex-col lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start w-full">
-
-                    {/* Left Column (Greeting, Form, Mobile Stats) */}
-                    <div className="lg:col-span-7 xl:col-span-8 flex flex-col order-1">
-
-                        {/* Greeting (Mobile & Desktop) */}
-                        <div className="mb-4 lg:mb-6">
-                            <h2 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
-                                <span role="img" aria-label="wave">👋</span> Hi, {user.name.split(' ')[0]}
-                            </h2>
-                            <p className="text-white/60 mt-1 hidden lg:block">Ready to verify some numbers today?</p>
-                        </div>
-
-                        {/* Wallet Balance Card (Mobile Only - Moved here to match sketch) */}
-                        <section className="relative w-full rounded-2xl bg-gradient-to-br from-[rgba(15,20,60,0.9)] to-[rgba(10,11,61,0.95)] border border-[rgba(0,255,255,0.2)] p-6 mb-8 overflow-hidden lg:hidden">
-                            {/* Card subtle glow background */}
-                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#00FFFF]/20 blur-3xl rounded-full"></div>
-
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <p className="text-sm font-medium text-white/70">Wallet Balance</p>
-                                    <button
-                                        onClick={() => setShowBalance(!showBalance)}
-                                        className="text-white/50 hover:text-white transition"
-                                    >
-                                        {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
-                                </div>
-                                <h1 className="text-4xl font-bold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#00FFFF]">
-                                    {showBalance ? formatNaira(wallet) : '****'}
-                                </h1>
-
-                                <button className="w-full py-3.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white font-bold text-[15px] hover:bg-white/10 transition-all flex items-center justify-center gap-2">
-                                    <Plus className="w-5 h-5 text-[#33CCFF]" />
-                                    Fund Wallet
-                                </button>
-                            </div>
-                        </section>
-
-                        {/* Get Verified Form Area */}
-                        <section className="mb-8">
-                            <h3 className="text-xl font-bold mb-2 text-[#FFFFFF]">Get verified Now</h3>
-                            <p className="text-sm text-white/60 mb-6 leading-relaxed lg:max-w-md">
-                                Select the platform you want to verify and your preferred country. Credits are deducted only after a successful code delivery.
-                            </p>
-
-                            <div className="flex flex-col gap-4">
-                                {/* Service Input */}
-                                <div>
-                                    <label className="text-sm font-medium text-white/80 ml-1 mb-2 block">Select Service</label>
-                                    <div className="relative cursor-pointer transition-all hover:border-[rgba(0,255,255,0.4)] border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] rounded-xl p-4 flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            {/* Placeholder icon representing Whatsapp */}
-                                            <div className="w-8 h-8 rounded-full bg-[#25D366]/20 flex items-center justify-center">
-                                                <div className="w-4 h-4 bg-[#25D366] rounded flex items-center justify-center text-[10px] font-bold">W</div>
-                                            </div>
-                                            <span className="font-semibold text-white/90">WhatsApp messaging</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-white/50">
-                                            <Search className="w-4 h-4" />
-                                            <ChevronDown className="w-5 h-5" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Country Input */}
-                                <div>
-                                    <label className="text-sm font-medium text-white/80 ml-1 mb-2 block">Select Country</label>
-                                    <div className="relative cursor-pointer transition-all hover:border-[rgba(0,255,255,0.4)] border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] rounded-xl p-4 flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            {/* Placeholder icon representing US Flag */}
-                                            <span className="text-2xl rounded shadow-sm">🇺🇸</span>
-                                            <div className="flex flex-col">
-                                                <span className="font-semibold text-white/90">United States</span>
-                                                <span className="text-xs text-[#00FFFF]">+1 98% Success</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-white/50">
-                                            <Search className="w-4 h-4" />
-                                            <ChevronDown className="w-5 h-5" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Buttons - Full width on mobile, inline on desktop */}
-                                <div className="flex flex-col sm:flex-row gap-3 mt-4 lg:mt-6">
-                                    <button className="w-full sm:flex-1 py-4 rounded-xl border border-[rgba(0,255,255,0.4)] bg-[rgba(0,255,255,0.05)] text-[#00FFFF] font-bold text-base hover:bg-[rgba(0,255,255,0.1)] transition-all flex items-center justify-center gap-2 group">
-                                        Get number
-                                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                    </button>
-
-                                    <button className="w-full sm:w-32 py-4 rounded-xl border border-white/20 bg-transparent text-white/80 font-bold text-base hover:bg-white/5 transition-all text-center">
-                                        Back
-                                    </button>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* Stats Grid - Rendered below Form on Mobile only to match sketch */}
-                        <StatsGrid className="lg:hidden" />
-                    </div>
-
-                    {/* Right Column (Wallet & Stats - Desktop Only) */}
-                    <div className="hidden lg:flex lg:col-span-5 xl:col-span-4 flex-col order-2">
-
-                        {/* Wallet Balance Card (Desktop Only) */}
-                        <section className="relative w-full rounded-2xl bg-gradient-to-br from-[rgba(15,20,60,0.9)] to-[rgba(10,11,61,0.95)] border border-[rgba(0,255,255,0.2)] p-6 mb-8 lg:mb-6 overflow-hidden">
-                            {/* Card subtle glow background */}
-                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#00FFFF]/20 blur-3xl rounded-full"></div>
-
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <p className="text-sm font-medium text-white/70">Wallet Balance</p>
-                                    <button
-                                        onClick={() => setShowBalance(!showBalance)}
-                                        className="text-white/50 hover:text-white transition"
-                                    >
-                                        {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
-                                </div>
-                                <h1 className="text-4xl font-bold mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#00FFFF]">
-                                    {showBalance ? formatNaira(wallet) : '****'}
-                                </h1>
-
-                                <button className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#33CCFF] to-[#0099FF] text-white font-bold text-[15px] shadow-[0_0_15px_rgba(0,255,255,0.3)] hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(0,255,255,0.5)] transition-all flex items-center justify-center gap-2">
-                                    <Plus className="w-5 h-5" />
-                                    Fund Wallet
-                                </button>
-                            </div>
-                        </section>
-
-                        {/* Stats Grid - Rendered in Right Column on Desktop only */}
-                        <StatsGrid />
-                    </div>
-                </div>
+                {/* ── Page Content ── */}
+                <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 pb-28 md:pb-10">
+                    {renderSection()}
+                </main>
             </div>
 
-            {/* Fixed Bottom Navigation matching sketch */}
-            <nav className="fixed bottom-0 left-0 w-full bg-[#0A0B3D] border-t border-[rgba(255,255,255,0.1)] pb-safe z-50 md:hidden">
-                <div className="max-w-lg mx-auto flex justify-between items-center px-6 py-4">
-
-                    <button className="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition text-[#00FFFF]">
-                        <div className="relative w-6 h-6 flex items-center justify-center">
-                            {/* Sketch box icon */}
-                            <ShoppingBag className="w-6 h-6" />
-                        </div>
-                        <span className="text-[10px] font-medium tracking-wide">Total Orders</span>
-                    </button>
-
-                    <button className="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition">
-                        <div className="relative w-6 h-6 flex items-center justify-center">
-                            <Plus className="w-6 h-6 absolute -top-1 -right-1" />
-                            <ShoppingBag className="w-5 h-5 outline outline-2 outline-offset-1 rounded-sm" />
-                        </div>
-                        <span className="text-[10px] font-medium tracking-wide">Purchase number</span>
-                    </button>
-
-                    <button className="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition">
-                        <div className="relative w-6 h-6 flex items-center justify-center">
-                            <div className="w-5 h-5 border-[1.5px] border-current rounded-sm flex items-center justify-center">
-                                <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
-                            </div>
-                        </div>
-                        <span className="text-[10px] font-medium tracking-wide">Fund wallet</span>
-                    </button>
-
-                    <button className="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition">
-                        <div className="relative w-6 h-6 flex items-center justify-center">
-                            <History className="w-5 h-5" />
-                            <div className="absolute top-1 right-1 w-1 h-1 bg-current rounded-full"></div>
-                        </div>
-                        <span className="text-[10px] font-medium tracking-wide">Purchase History</span>
-                    </button>
-
+            {/* ── Mobile Bottom Nav ── */}
+            <nav className="fixed bottom-0 left-0 w-full z-50 md:hidden border-t border-[rgba(255,255,255,0.08)] bg-[rgba(8,10,46,0.94)] backdrop-blur-xl"
+                style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+                <div className="flex justify-around items-end px-1 pt-2 pb-2">
+                    {BOTTOM_NAV.map(item => {
+                        const isActive = activeSection === item.id
+                        return (
+                            <button
+                                key={item.id}
+                                onClick={() => goTo(item.id)}
+                                className={`flex flex-col items-center gap-1 min-w-[60px] transition ${item.fab ? '-mt-4' : ''}`}
+                            >
+                                {item.fab ? (
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#33CCFF] to-[#0066CC] flex items-center justify-center shadow-[0_0_24px_rgba(0,255,255,0.5)] border-4 border-[#080a2e]">
+                                        <item.icon className="w-6 h-6 text-white" />
+                                    </div>
+                                ) : (
+                                    <div className={`p-2 rounded-xl transition ${isActive ? 'bg-[rgba(0,255,255,0.12)]' : ''}`}>
+                                        <item.icon className={`w-5 h-5 transition ${isActive ? 'text-[#00FFFF]' : 'text-white/35'}`} />
+                                    </div>
+                                )}
+                                <span className={`text-[10px] font-semibold ${item.fab ? 'text-[#00FFFF] mt-0.5' : isActive ? 'text-[#00FFFF]' : 'text-white/30'}`}>
+                                    {item.label}
+                                </span>
+                            </button>
+                        )
+                    })}
                 </div>
             </nav>
         </div>

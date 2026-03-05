@@ -1,9 +1,9 @@
-import { X, LayoutDashboard, Wallet, ShoppingCart, History, ArrowLeftRight, Settings, LifeBuoy, LogOut, Bell, User as UserIcon } from 'lucide-react'
+import { X, LogOut } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import logo from '../../assets/logo.png'
 
-export default function Sidebar({ isOpen, onClose, walletBalance }) {
+export default function Sidebar({ isOpen, onClose, walletBalance, activeSection, onNavigate, navItems, user, formatNaira }) {
     const { logout } = useAuth()
     const navigate = useNavigate()
 
@@ -12,84 +12,82 @@ export default function Sidebar({ isOpen, onClose, walletBalance }) {
         navigate('/')
     }
 
-    const formatNaira = (amount) => {
-        return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount || 0)
-    }
-
-    // Animation classes
-    const sidebarClass = `fixed top-0 left-0 h-full w-[280px] bg-[#0A0B3D] border-r border-white/10 z-[100] transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`
+    const sidebarClass = `fixed top-0 left-0 h-full w-[280px] z-[100] transform transition-transform duration-300 ease-in-out flex flex-col border-r border-[rgba(255,255,255,0.07)] bg-[rgba(8,10,46,0.97)] backdrop-blur-2xl ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`
     const overlayClass = `fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] transition-opacity duration-300 lg:hidden ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`
-
-    const navLinks = [
-        { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', active: true },
-        { name: 'Fund Wallet', icon: Wallet, path: '#' },
-        { name: 'Rent Number', icon: ShoppingCart, path: '#' },
-        { name: 'Purchase History', icon: History, path: '#' },
-        { name: 'Transactions', icon: ArrowLeftRight, path: '#' },
-        { name: 'Services', icon: Settings, path: '#' },
-        { name: 'Support', icon: LifeBuoy, path: '#' },
-    ]
 
     return (
         <>
             <div className={overlayClass} onClick={onClose} />
 
             <aside className={sidebarClass}>
-                <div className="flex flex-col h-full overflow-y-auto">
-                    {/* Top Brand Header (from sketch) */}
-                    <div className="px-5 pt-6 pb-4 flex items-center justify-between border-b border-white/10">
-                        <div className="flex items-center gap-3">
-                            <button onClick={onClose} className="p-1 -ml-1 rounded hover:bg-white/10 text-white transition lg:hidden">
-                                <X className="w-6 h-6" />
-                            </button>
-                            <img src={logo} alt="Zyrlent Logo" className="h-8 object-contain" />
+                {/* Logo Header */}
+                <div className="px-5 pt-5 pb-4 flex items-center justify-between border-b border-[rgba(255,255,255,0.07)] flex-shrink-0">
+                    <img src={logo} alt="Zyrlent" className="h-8 object-contain" />
+                    <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-white/10 text-white/50 transition lg:hidden">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                {/* User Profile Strip */}
+                <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex-shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#33CCFF] to-[#0099FF] flex items-center justify-center text-white font-bold text-base shadow-[0_0_10px_rgba(0,255,255,0.25)] flex-shrink-0">
+                            {user?.name?.[0]?.toUpperCase() || 'U'}
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-sm font-bold text-white truncate">{user?.name}</p>
+                            <p className="text-xs text-white/40 truncate">{user?.email}</p>
                         </div>
                     </div>
 
-                    {/* Balance Pill & Icons (from sketch top right, moved to sidebar for mobile consistency if desired - or just kept as is) */}
-                    <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-full text-sm font-medium border border-white/10 text-white">
-                            <span className="text-[#00FFFF] font-bold">₦</span>
-                            <span>{formatNaira(walletBalance).replace('₦', '').trim()}</span>
+                    {/* Wallet balance in sidebar */}
+                    <div className="mt-3 flex items-center justify-between px-3 py-2.5 rounded-xl bg-[rgba(0,255,255,0.06)] border border-[rgba(0,255,255,0.12)]">
+                        <div>
+                            <p className="text-[10px] text-white/40 uppercase tracking-wider">Wallet</p>
+                            <p className="text-sm font-bold text-[#00FFFF]">{formatNaira(walletBalance)}</p>
                         </div>
-
-                        <div className="flex gap-2">
-                            <button className="p-1.5 rounded-full text-white hover:bg-white/10 transition">
-                                <Bell className="w-4 h-4" />
-                            </button>
-                            <button className="p-1.5 rounded-full text-white hover:bg-white/10 transition bg-gradient-to-br from-[#33CCFF] to-[#0099FF] shadow-[0_0_10px_rgba(0,255,255,0.3)]">
-                                <UserIcon className="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Navigation Links */}
-                    <nav className="flex-1 px-3 py-6 flex flex-col gap-1">
-                        {navLinks.map((link) => (
-                            <a
-                                key={link.name}
-                                href={link.path}
-                                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition font-medium ${link.active
-                                    ? 'bg-gradient-to-r from-[rgba(0,255,255,0.15)] to-transparent text-[#00FFFF] border-l-2 border-[#00FFFF]'
-                                    : 'text-white/70 hover:bg-white/5 hover:text-white'
-                                    }`}
-                            >
-                                <link.icon className={`w-5 h-5 ${link.active ? 'text-[#00FFFF]' : ''}`} />
-                                {link.name}
-                            </a>
-                        ))}
-                    </nav>
-
-                    {/* Bottom Logout */}
-                    <div className="p-5 border-t border-white/10">
                         <button
-                            onClick={handleLogout}
-                            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition font-medium text-red-400 hover:bg-red-400/10"
+                            onClick={() => onNavigate('fund-wallet')}
+                            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#33CCFF] to-[#0066CC] text-white text-xs font-bold shadow-[0_0_8px_rgba(0,255,255,0.2)] hover:shadow-[0_0_14px_rgba(0,255,255,0.35)] transition"
                         >
-                            <LogOut className="w-5 h-5" />
-                            Logout
+                            + Fund
                         </button>
                     </div>
+                </div>
+
+                {/* Navigation */}
+                <nav className="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-0.5">
+                    <p className="text-[10px] font-bold text-white/25 uppercase tracking-widest px-3 mb-2">Navigation</p>
+                    {navItems.map(item => {
+                        const isActive = activeSection === item.id
+                        return (
+                            <button
+                                key={item.id}
+                                onClick={() => onNavigate(item.id)}
+                                className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all font-medium text-left ${isActive
+                                    ? 'bg-gradient-to-r from-[rgba(0,255,255,0.14)] to-transparent text-[#00FFFF] border-l-2 border-[#00FFFF] pl-3'
+                                    : 'text-white/55 hover:bg-white/5 hover:text-white'
+                                    }`}
+                            >
+                                <item.icon className={`w-4.5 h-4.5 flex-shrink-0 ${isActive ? 'text-[#00FFFF]' : 'opacity-70'}`} style={{ width: '18px', height: '18px' }} />
+                                <span className="text-sm">{item.label}</span>
+                                {isActive && (
+                                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#00FFFF]" />
+                                )}
+                            </button>
+                        )
+                    })}
+                </nav>
+
+                {/* Bottom Logout */}
+                <div className="p-4 border-t border-[rgba(255,255,255,0.07)] flex-shrink-0">
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition font-medium text-red-400/80 hover:text-red-400 hover:bg-red-400/8"
+                    >
+                        <LogOut style={{ width: '18px', height: '18px' }} className="flex-shrink-0" />
+                        <span className="text-sm">Logout</span>
+                    </button>
                 </div>
             </aside>
         </>

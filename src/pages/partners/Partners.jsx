@@ -131,7 +131,7 @@ console.log('Verification code:', code);`}</code>
                 },
                 {
                   name: 'Professional',
-                  price: '$49/mo',
+                  price: '₦73,500/mo',
                   desc: 'For growing businesses',
                   features: ['10,000 requests/day', '180+ countries', 'Priority support', 'Advanced analytics', 'Webhooks', 'IP whitelisting'],
                   highlighted: true,
