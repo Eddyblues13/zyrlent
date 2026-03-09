@@ -61,6 +61,7 @@ export default function App() {
       <Route path="/admin/support" element={<AdminAuthProvider><AdminDashboard initialSection="support" /></AdminAuthProvider>} />
       <Route path="/admin/notifications" element={<AdminAuthProvider><AdminDashboard initialSection="notifications" /></AdminAuthProvider>} />
       <Route path="/admin/settings" element={<AdminAuthProvider><AdminDashboard initialSection="settings" /></AdminAuthProvider>} />
+      <Route path="/admin/profile" element={<AdminAuthProvider><AdminDashboard initialSection="profile" /></AdminAuthProvider>} />
     </Routes>
   )
 }
