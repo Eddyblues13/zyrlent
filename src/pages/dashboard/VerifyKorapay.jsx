@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react'
-import api from '../../services/api' // Assuming this is the standard configured axios instance
+import api from '../../lib/axios'
 
 export default function VerifyKorapay() {
     const [searchParams] = useSearchParams()

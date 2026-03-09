@@ -57,16 +57,13 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const register = async (name, email, phone, password, password_confirmation) => {
+    const register = async (name, email, phone, password, password_confirmation, referral_code = null) => {
         setIsLoading(true);
         try {
-            const response = await api.post('/api/register', {
-                name,
-                email,
-                phone,
-                password,
-                password_confirmation,
-            });
+            const payload = { name, email, phone, password, password_confirmation };
+            if (referral_code) payload.referral_code = referral_code;
+
+            const response = await api.post('/api/register', payload);
             toast.success(response.data.message || 'Registration successful! Please verify your email.');
             return { success: true, email: response.data.email };
         } catch (error) {

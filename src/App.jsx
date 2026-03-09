@@ -13,6 +13,7 @@ import VerifyKorapay from './pages/dashboard/VerifyKorapay'
 import { AdminAuthProvider } from './context/AdminAuthContext'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import ViewUserPage from './pages/admin/ViewUserPage'
 
 export default function App() {
   return (
@@ -42,6 +43,8 @@ export default function App() {
       <Route path="/user/purchase-history" element={<Dashboard initialSection="purchase-history" />} />
       <Route path="/user/transactions" element={<Dashboard initialSection="transactions" />} />
       <Route path="/user/services" element={<Dashboard initialSection="services" />} />
+      <Route path="/user/referral" element={<Dashboard initialSection="referral" />} />
+      <Route path="/user/notifications" element={<Dashboard initialSection="notifications" />} />
       <Route path="/user/support" element={<Dashboard initialSection="support" />} />
       <Route path="/user/settings" element={<Dashboard initialSection="settings" />} />
 
@@ -51,8 +54,12 @@ export default function App() {
       <Route path="/admin/services" element={<AdminAuthProvider><AdminDashboard initialSection="services" /></AdminAuthProvider>} />
       <Route path="/admin/countries" element={<AdminAuthProvider><AdminDashboard initialSection="countries" /></AdminAuthProvider>} />
       <Route path="/admin/users" element={<AdminAuthProvider><AdminDashboard initialSection="users" /></AdminAuthProvider>} />
+      <Route path="/admin/users/:id" element={<AdminAuthProvider><ViewUserPage /></AdminAuthProvider>} />
       <Route path="/admin/orders" element={<AdminAuthProvider><AdminDashboard initialSection="orders" /></AdminAuthProvider>} />
       <Route path="/admin/fund-requests" element={<AdminAuthProvider><AdminDashboard initialSection="fund-requests" /></AdminAuthProvider>} />
+      <Route path="/admin/referrals" element={<AdminAuthProvider><AdminDashboard initialSection="referrals" /></AdminAuthProvider>} />
+      <Route path="/admin/support" element={<AdminAuthProvider><AdminDashboard initialSection="support" /></AdminAuthProvider>} />
+      <Route path="/admin/notifications" element={<AdminAuthProvider><AdminDashboard initialSection="notifications" /></AdminAuthProvider>} />
       <Route path="/admin/settings" element={<AdminAuthProvider><AdminDashboard initialSection="settings" /></AdminAuthProvider>} />
     </Routes>
   )

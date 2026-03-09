@@ -4,13 +4,14 @@ import { useState, useEffect, useRef } from 'react'
 import {
     Menu, Bell, User as UserIcon, LayoutDashboard, Wallet,
     ShoppingCart, History, ArrowLeftRight, Settings, LifeBuoy,
-    Plus, ChevronRight, LogOut, ChevronDown
+    Plus, ChevronRight, LogOut, ChevronDown, Gift
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import api from '../../lib/axios'
 import Background from '../../components/Background'
 import Sidebar from './Sidebar'
+import NotificationPopup from '../../components/NotificationPopup'
 
 import OverviewSection from './sections/OverviewSection'
 import PurchaseHistorySection from './sections/PurchaseHistorySection'
@@ -20,6 +21,8 @@ import RentNumberSection from './sections/RentNumberSection'
 import ServicesSection from './sections/ServicesSection'
 import SupportSection from './sections/SupportSection'
 import SettingsSection from './sections/SettingsSection'
+import ReferralSection from './sections/ReferralSection'
+import NotificationsSection from './sections/NotificationsSection'
 
 import logo from '../../assets/logo.png'
 
@@ -31,6 +34,8 @@ export const NAV_ITEMS = [
     { id: 'purchase-history', label: 'Purchase History', icon: History, path: '/user/purchase-history' },
     { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight, path: '/user/transactions' },
     { id: 'services', label: 'Services', icon: Settings, path: '/user/services' },
+    { id: 'referral', label: 'Refer & Earn', icon: Gift, path: '/user/referral' },
+    { id: 'notifications', label: 'Notifications', icon: Bell, path: '/user/notifications' },
     { id: 'support', label: 'Support', icon: LifeBuoy, path: '/user/support' },
     { id: 'settings', label: 'Settings', icon: UserIcon, path: '/user/settings' },
 ]
@@ -53,6 +58,8 @@ const PATH_TO_SECTION = {
     '/user/purchase-history': 'purchase-history',
     '/user/transactions': 'transactions',
     '/user/services': 'services',
+    '/user/referral': 'referral',
+    '/user/notifications': 'notifications',
     '/user/support': 'support',
     '/user/settings': 'settings',
 }
@@ -66,6 +73,7 @@ export default function Dashboard({ initialSection }) {
     const [showAvatarMenu, setShowAvatarMenu] = useState(false)
     const [wallet, setWallet] = useState(0)
     const [stats, setStats] = useState({ transactions: 0, verifications: 0, total_spent: 0, pending_sms: 0 })
+    const [unreadNotifs, setUnreadNotifs] = useState(0)
     const avatarRef = useRef(null)
 
     // Derive active section from URL path, falling back to initialSection prop
@@ -135,6 +143,8 @@ export default function Dashboard({ initialSection }) {
             case 'fund-wallet': return <FundWalletSection wallet={wallet} formatNaira={formatNaira} />
             case 'rent-number': return <RentNumberSection wallet={wallet} formatNaira={formatNaira} onNavigate={goTo} />
             case 'services': return <ServicesSection onNavigate={goTo} />
+            case 'referral': return <ReferralSection />
+            case 'notifications': return <NotificationsSection />
             case 'support': return <SupportSection />
             case 'settings': return <SettingsSection user={user} />
             default: return <OverviewSection user={user} wallet={wallet} stats={stats} formatNaira={formatNaira} onNavigate={goTo} />
@@ -144,6 +154,9 @@ export default function Dashboard({ initialSection }) {
     return (
         <div className="min-h-screen w-full relative overflow-x-hidden font-sans text-white">
             <Background />
+
+            {/* Notification popup — shown on all pages */}
+            {user && <NotificationPopup onUnreadChange={setUnreadNotifs} />}
 
             <Sidebar
                 isOpen={isSidebarOpen}
@@ -190,9 +203,13 @@ export default function Dashboard({ initialSection }) {
                         </button>
 
                         {/* Notifications */}
-                        <button className="relative p-2 rounded-xl hover:bg-white/10 transition">
+                        <button onClick={() => goTo('notifications')} className="relative p-2 rounded-xl hover:bg-white/10 transition">
                             <Bell className="w-5 h-5" />
-                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#00FFFF] rounded-full border border-[#0A0B3D]" />
+                            {unreadNotifs > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 flex items-center justify-center bg-[#00FFFF] rounded-full border-2 border-[#0A0B3D] text-[9px] font-bold text-[#0A0B3D] px-1">
+                                    {unreadNotifs > 9 ? '9+' : unreadNotifs}
+                                </span>
+                            )}
                         </button>
 
                         {/* Avatar + Dropdown */}

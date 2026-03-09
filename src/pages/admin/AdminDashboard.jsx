@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import {
     Menu, Bell, ShieldCheck, LayoutDashboard, Server, Users,
-    ShoppingCart, Wallet, Settings, LogOut, ChevronDown, Globe
+    ShoppingCart, Wallet, Settings, LogOut, ChevronDown, Globe,
+    Gift, MessageSquare, Megaphone
 } from 'lucide-react'
 import { useAdminAuth } from '../../context/AdminAuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -16,15 +17,21 @@ import ManageOrdersSection from './sections/ManageOrdersSection'
 import FundRequestsSection from './sections/FundRequestsSection'
 import ManageCountriesSection from './sections/ManageCountriesSection'
 import ApiSettingsSection from './sections/ApiSettingsSection'
+import ManageReferralsSection from './sections/ManageReferralsSection'
+import SupportTicketsSection from './sections/SupportTicketsSection'
+import NotificationsSection from './sections/NotificationsSection'
 
 export const ADMIN_NAV = [
-    { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
-    { id: 'services', label: 'Services', icon: Server, path: '/admin/services' },
-    { id: 'countries', label: 'Countries', icon: Globe, path: '/admin/countries' },
-    { id: 'users', label: 'Users', icon: Users, path: '/admin/users' },
-    { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/admin/orders' },
-    { id: 'fund-requests', label: 'Fund Requests', icon: Wallet, path: '/admin/fund-requests' },
-    { id: 'settings', label: 'API Settings', icon: Settings, path: '/admin/settings' },
+    { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard', group: 'Management' },
+    { id: 'services', label: 'Services', icon: Server, path: '/admin/services', group: 'Management' },
+    { id: 'countries', label: 'Countries', icon: Globe, path: '/admin/countries', group: 'Management' },
+    { id: 'users', label: 'Users', icon: Users, path: '/admin/users', group: 'Management' },
+    { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/admin/orders', group: 'Management' },
+    { id: 'fund-requests', label: 'Fund Requests', icon: Wallet, path: '/admin/fund-requests', group: 'Management' },
+    { id: 'referrals', label: 'Referrals', icon: Gift, path: '/admin/referrals', group: 'Management' },
+    { id: 'support', label: 'Support Tickets', icon: MessageSquare, path: '/admin/support', group: 'Communication' },
+    { id: 'notifications', label: 'Notifications', icon: Megaphone, path: '/admin/notifications', group: 'Communication' },
+    { id: 'settings', label: 'API Settings', icon: Settings, path: '/admin/settings', group: 'System' },
 ]
 
 const PATH_TO_SECTION = {
@@ -34,6 +41,9 @@ const PATH_TO_SECTION = {
     '/admin/users': 'users',
     '/admin/orders': 'orders',
     '/admin/fund-requests': 'fund-requests',
+    '/admin/referrals': 'referrals',
+    '/admin/support': 'support',
+    '/admin/notifications': 'notifications',
     '/admin/settings': 'settings',
 }
 
@@ -44,6 +54,9 @@ const SECTION_TITLES = {
     users: 'Manage Users',
     orders: 'All Orders',
     'fund-requests': 'Fund Requests',
+    referrals: 'Referrals',
+    support: 'Support Tickets',
+    notifications: 'Notifications',
     settings: 'API Settings',
 }
 
@@ -109,6 +122,9 @@ export default function AdminDashboard({ initialSection }) {
             case 'users': return <ManageUsersSection />
             case 'orders': return <ManageOrdersSection />
             case 'fund-requests': return <FundRequestsSection />
+            case 'referrals': return <ManageReferralsSection />
+            case 'support': return <SupportTicketsSection />
+            case 'notifications': return <NotificationsSection />
             case 'settings': return <ApiSettingsSection />
             default: return <AdminOverviewSection />
         }

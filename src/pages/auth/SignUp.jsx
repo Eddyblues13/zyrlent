@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { User, Mail, Phone, Lock } from 'lucide-react'
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6'
 import logo from '../../assets/logo.png'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
 // import Navbar from '../../components/Navbar'
@@ -25,6 +25,8 @@ export default function SignUp() {
 
   const { register, isLoading } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const referralCode = searchParams.get('ref') || ''
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -40,7 +42,7 @@ export default function SignUp() {
     }
 
     const name = form.username;
-    const result = await register(name, form.email, form.phone, form.password, form.confirmPassword)
+    const result = await register(name, form.email, form.phone, form.password, form.confirmPassword, referralCode || null)
     if (result.success) {
       navigate('/verify-email', { state: { email: result.email } })
     }
@@ -71,6 +73,14 @@ export default function SignUp() {
           <p className="text-white/60 text-sm mb-8">
             Please complete all fields to proceed.
           </p>
+
+          {referralCode && (
+            <div className="w-full px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/20 mb-4">
+              <p className="text-sm text-green-400 text-center">
+                🎉 You were invited! Referral code: <strong>{referralCode}</strong>
+              </p>
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">

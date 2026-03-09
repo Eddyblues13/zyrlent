@@ -15,6 +15,14 @@ export default function AdminSidebar({ isOpen, onClose, activeSection, onNavigat
     const sidebarClass = `fixed top-0 left-0 h-full w-[280px] z-[100] transform transition-transform duration-300 ease-in-out flex flex-col border-r border-[rgba(255,149,0,0.1)] bg-[rgba(8,10,46,0.97)] backdrop-blur-2xl ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`
     const overlayClass = `fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] transition-opacity duration-300 lg:hidden ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`
 
+    // Group nav items by their group property
+    const grouped = {}
+    navItems.forEach(item => {
+        const group = item.group || 'General'
+        if (!grouped[group]) grouped[group] = []
+        grouped[group].push(item)
+    })
+
     return (
         <>
             <div className={overlayClass} onClick={onClose} />
@@ -62,26 +70,30 @@ export default function AdminSidebar({ isOpen, onClose, activeSection, onNavigat
 
                 {/* Navigation */}
                 <nav className="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-0.5">
-                    <p className="text-[10px] font-bold text-white/25 uppercase tracking-widest px-3 mb-2">Management</p>
-                    {navItems.map(item => {
-                        const Icon = item.icon
-                        const isActive = activeSection === item.id
-                        return (
-                            <button
-                                key={item.id}
-                                onClick={() => { onNavigate(item.id); onClose() }}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-200 group w-full ${isActive
-                                    ? 'bg-gradient-to-r from-[rgba(255,149,0,0.15)] to-[rgba(255,107,0,0.08)] text-[#FF9500] shadow-[inset_0_0_12px_rgba(255,149,0,0.06)]'
-                                    : 'text-white/50 hover:bg-white/[0.04] hover:text-white/80'}`}
-                            >
-                                <Icon className={`w-[18px] h-[18px] flex-shrink-0 ${isActive ? 'text-[#FF9500]' : 'text-white/30 group-hover:text-white/60'}`} />
-                                <span className="text-sm font-medium truncate">{item.label}</span>
-                                {item.id === 'fund-requests' && pendingFundsCount > 0 && (
-                                    <span className="ml-auto text-[10px] font-bold bg-[#FF9500] text-white rounded-full w-5 h-5 flex items-center justify-center">{pendingFundsCount}</span>
-                                )}
-                            </button>
-                        )
-                    })}
+                    {Object.entries(grouped).map(([group, items]) => (
+                        <div key={group} className="mb-3">
+                            <p className="text-[10px] font-bold text-white/25 uppercase tracking-widest px-3 mb-2">{group}</p>
+                            {items.map(item => {
+                                const Icon = item.icon
+                                const isActive = activeSection === item.id
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => { onNavigate(item.id); onClose() }}
+                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-200 group w-full ${isActive
+                                            ? 'bg-gradient-to-r from-[rgba(255,149,0,0.15)] to-[rgba(255,107,0,0.08)] text-[#FF9500] shadow-[inset_0_0_12px_rgba(255,149,0,0.06)]'
+                                            : 'text-white/50 hover:bg-white/[0.04] hover:text-white/80'}`}
+                                    >
+                                        <Icon className={`w-[18px] h-[18px] flex-shrink-0 ${isActive ? 'text-[#FF9500]' : 'text-white/30 group-hover:text-white/60'}`} />
+                                        <span className="text-sm font-medium truncate">{item.label}</span>
+                                        {item.id === 'fund-requests' && pendingFundsCount > 0 && (
+                                            <span className="ml-auto text-[10px] font-bold bg-[#FF9500] text-white rounded-full w-5 h-5 flex items-center justify-center">{pendingFundsCount}</span>
+                                        )}
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    ))}
                 </nav>
 
                 {/* Logout */}
