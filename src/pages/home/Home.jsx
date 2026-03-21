@@ -53,7 +53,7 @@ export default function Home() {
                 Get verified
                 <ArrowRight className="h-5 w-5" />
               </Link>
-              <Link to="/signup" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(255,255,255,0.3)] px-8 py-3.5 font-bold text-[#FFFFFF] transition hover:bg-[rgba(255,255,255,0.1)]">
+              <Link to="/login" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(255,255,255,0.3)] px-8 py-3.5 font-bold text-[#FFFFFF] transition hover:bg-[rgba(255,255,255,0.1)]">
                 Sign in
               </Link>
             </div>
@@ -226,7 +226,7 @@ export default function Home() {
               <Link to="/signup" className="w-full sm:w-auto rounded-lg bg-[#FFFFFF] px-8 py-3 font-semibold text-[#0A0B3D] hover:bg-gray-100 transition text-center">
                 Get verified
               </Link>
-              <Link to="/signup" className="w-full sm:w-auto rounded-lg border border-[#FFFFFF]/30 px-8 py-3 font-semibold text-[#FFFFFF] hover:bg-[#FFFFFF]/10 transition text-center">
+              <Link to="/login" className="w-full sm:w-auto rounded-lg border border-[#FFFFFF]/30 px-8 py-3 font-semibold text-[#FFFFFF] hover:bg-[#FFFFFF]/10 transition text-center">
                 Sign in
               </Link>
             </div>

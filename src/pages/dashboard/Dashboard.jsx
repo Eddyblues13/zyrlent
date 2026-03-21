@@ -73,7 +73,8 @@ export default function Dashboard({ initialSection }) {
     const [showAvatarMenu, setShowAvatarMenu] = useState(false)
     const [wallet, setWallet] = useState(0)
     const [stats, setStats] = useState({ transactions: 0, verifications: 0, total_spent: 0, pending_sms: 0 })
-    const [unreadNotifs, setUnreadNotifs] = useState(0)
+    const [notifCount, setNotifCount] = useState(0)
+    const [rentPreSelect, setRentPreSelect] = useState(null)
     const avatarRef = useRef(null)
 
     // Derive active section from URL path, falling back to initialSection prop
@@ -119,7 +120,12 @@ export default function Dashboard({ initialSection }) {
     const formatNaira = (amount) =>
         new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount || 0)
 
-    const goTo = (sectionId) => {
+    const goTo = (sectionId, extra) => {
+        if (sectionId === 'rent-number' && extra) {
+            setRentPreSelect(extra)
+        } else {
+            setRentPreSelect(null)
+        }
         const item = NAV_ITEMS.find(n => n.id === sectionId)
         if (item) navigate(item.path)
         else navigate('/user/dashboard')
@@ -137,11 +143,11 @@ export default function Dashboard({ initialSection }) {
 
     const renderSection = () => {
         switch (activeSection) {
-            case 'overview': return <OverviewSection user={user} wallet={wallet} stats={stats} formatNaira={formatNaira} onNavigate={goTo} />
+            case 'overview': return <OverviewSection user={user} wallet={wallet} stats={stats} formatNaira={formatNaira} onNavigate={goTo} onWalletUpdate={(b) => setWallet(b)} />
             case 'purchase-history': return <PurchaseHistorySection formatNaira={formatNaira} />
             case 'transactions': return <TransactionsSection formatNaira={formatNaira} />
             case 'fund-wallet': return <FundWalletSection wallet={wallet} formatNaira={formatNaira} />
-            case 'rent-number': return <RentNumberSection wallet={wallet} formatNaira={formatNaira} onNavigate={goTo} />
+            case 'rent-number': return <RentNumberSection wallet={wallet} formatNaira={formatNaira} onNavigate={goTo} preSelect={rentPreSelect} onWalletUpdate={(b) => setWallet(b)} />
             case 'services': return <ServicesSection onNavigate={goTo} />
             case 'referral': return <ReferralSection />
             case 'notifications': return <NotificationsSection />
@@ -156,7 +162,7 @@ export default function Dashboard({ initialSection }) {
             <Background />
 
             {/* Notification popup — shown on all pages */}
-            {user && <NotificationPopup onUnreadChange={setUnreadNotifs} />}
+            {user && <NotificationPopup onCountChange={setNotifCount} />}
 
             <Sidebar
                 isOpen={isSidebarOpen}
@@ -205,9 +211,9 @@ export default function Dashboard({ initialSection }) {
                         {/* Notifications */}
                         <button onClick={() => goTo('notifications')} className="relative p-2 rounded-xl hover:bg-white/10 transition">
                             <Bell className="w-5 h-5" />
-                            {unreadNotifs > 0 && (
+                            {notifCount > 0 && (
                                 <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 flex items-center justify-center bg-[#00FFFF] rounded-full border-2 border-[#0A0B3D] text-[9px] font-bold text-[#0A0B3D] px-1">
-                                    {unreadNotifs > 9 ? '9+' : unreadNotifs}
+                                    {notifCount > 9 ? '9+' : notifCount}
                                 </span>
                             )}
                         </button>

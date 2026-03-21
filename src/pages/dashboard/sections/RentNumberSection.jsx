@@ -86,7 +86,6 @@ function ServiceStep({ onSelect, selected }) {
     const [services, setServices] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
-    const [showAll, setShowAll] = useState(false)
 
     useEffect(() => {
         api.get('/api/services')
@@ -96,7 +95,16 @@ function ServiceStep({ onSelect, selected }) {
     }, [])
 
     const filtered = services.filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
-    const popular = services.filter(s => s.is_popular)
+
+    // Sort popular with explicit order: WhatsApp, Telegram, TikTok, Instagram, Facebook first
+    const POPULAR_ORDER = ['whatsapp', 'telegram', 'tiktok', 'instagram', 'facebook']
+    const popular = services.filter(s => s.is_popular).sort((a, b) => {
+        const aIdx = POPULAR_ORDER.findIndex(name => a.name.toLowerCase().includes(name))
+        const bIdx = POPULAR_ORDER.findIndex(name => b.name.toLowerCase().includes(name))
+        const aRank = aIdx === -1 ? POPULAR_ORDER.length : aIdx
+        const bRank = bIdx === -1 ? POPULAR_ORDER.length : bIdx
+        return aRank - bRank
+    })
     const others = services.filter(s => !s.is_popular)
 
     return (
@@ -127,7 +135,7 @@ function ServiceStep({ onSelect, selected }) {
             {loading ? (
                 <div className="flex flex-col gap-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-13 rounded-xl bg-white/5 animate-pulse" />)}</div>
             ) : search ? (
-                <div className="flex flex-col gap-2 max-h-[320px] overflow-y-auto pr-1">
+                <div className="flex flex-col gap-2">
                     {filtered.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
                     {filtered.length === 0 && <p className="text-center text-white/30 text-sm py-6">No services found</p>}
                 </div>
@@ -144,15 +152,15 @@ function ServiceStep({ onSelect, selected }) {
                             </div>
                         </div>
                     )}
-                    {!showAll && others.length > 0 && (
-                        <button onClick={() => setShowAll(true)}
-                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/4 border border-white/8 text-sm text-[#33CCFF] font-semibold hover:bg-white/8 transition">
-                            <ChevronDown className="w-4 h-4" /> Show {others.length} more services
-                        </button>
-                    )}
-                    {showAll && (
-                        <div className="flex flex-col gap-2 max-h-[250px] overflow-y-auto pr-1">
-                            {others.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
+                    {others.length > 0 && (
+                        <div>
+                            <div className="flex items-center gap-2 mb-2 mt-2">
+                                <Sparkles className="w-3.5 h-3.5 text-white/30" />
+                                <span className="text-xs font-bold text-white/50 uppercase tracking-widest">All Services</span>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                {others.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
+                            </div>
                         </div>
                     )}
                 </>
@@ -173,8 +181,9 @@ function useCountdownTimer(minutes = 15) {
 
 // ─── Country Card with optional countdown ──────────────────────
 function CountryCard({ country, service, isSelected, onSelect, countdown }) {
-    const price = parseFloat(country.price || service?.cost || 0)
+    const cost = parseFloat(service?.cost || 0)
     const available = country.available_numbers ?? 200
+    const successRate = parseFloat(country.success_rate || 95)
     return (
         <button onClick={() => onSelect(country)}
             className={`flex flex-col items-start gap-1 p-3 rounded-xl border text-left transition-all relative hover:scale-[1.02] ${isSelected
@@ -188,7 +197,11 @@ function CountryCard({ country, service, isSelected, onSelect, countdown }) {
             )}
             <span className="text-2xl">{country.flag}</span>
             <p className="text-xs font-bold text-white leading-tight">{country.name}</p>
-            <p className="text-[11px] font-bold text-[#33CCFF]">₦{price.toLocaleString()}</p>
+            <div className="flex items-center gap-1.5">
+                <p className="text-[11px] font-bold text-[#33CCFF]">₦{cost.toLocaleString()}</p>
+                <span className="text-[9px] text-emerald-400/80">·</span>
+                <p className="text-[9px] text-emerald-400/80">{successRate}%</p>
+            </div>
             {country.is_low_stock ? (
                 <>
                     <p className="text-[10px] text-orange-400 font-semibold flex items-center gap-0.5 animate-pulse">
@@ -275,9 +288,7 @@ function CountryStep({ service, onSelect, selected }) {
 
 // ─── Step 3: Rental Type ───────────────────────────────────────
 function RentalTypeStep({ service, country, formatNaira }) {
-    const cost = parseFloat(country?.price || service?.cost || 0)
-    const serviceCost = parseFloat(service?.cost || 0)
-    const hasSavings = serviceCost > 0 && cost < serviceCost
+    const cost = parseFloat(service?.cost || 0)
 
     return (
         <div className="flex flex-col gap-4 step-animate">
@@ -296,16 +307,10 @@ function RentalTypeStep({ service, country, formatNaira }) {
                         <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                             <p className="text-sm font-bold text-white">One-Time SMS Verification</p>
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#33CCFF]/15 text-[#33CCFF] border border-[#33CCFF]/25">⭐ Most Popular</span>
-                            {hasSavings && (
-                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">💰 Best Value</span>
-                            )}
                         </div>
                         <p className="text-xs text-white/45">Receive a single OTP and the number is released automatically.</p>
                         <div className="flex items-center gap-2 mt-2">
                             <p className="text-sm font-bold text-emerald-400">{formatNaira(cost)}</p>
-                            {hasSavings && (
-                                <p className="text-xs text-white/30 line-through">{formatNaira(serviceCost)}</p>
-                            )}
                         </div>
                         <p className="text-[10px] text-white/30 mt-1 flex items-center gap-1">
                             <Users className="w-2.5 h-2.5" />Most users choose this option
@@ -324,7 +329,7 @@ function RentalTypeStep({ service, country, formatNaira }) {
 
 // ─── Step 4: Confirm ──────────────────────────────────────────
 function ConfirmStep({ service, country, wallet, formatNaira }) {
-    const cost = parseFloat(country?.price || service?.cost || 0)
+    const cost = parseFloat(service?.cost || 0)
     const hasSufficientBalance = (wallet || 0) >= cost
 
     const rows = [
@@ -491,10 +496,10 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
 }
 
 // ─── The Rent Number Modal ─────────────────────────────────────
-function RentNumberModal({ wallet, formatNaira, onClose, onSuccess }) {
-    const [step, setStep] = useState(0)
-    const [service, setService] = useState(null)
-    const [country, setCountry] = useState(null)
+function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initialService, initialCountry }) {
+    const [step, setStep] = useState(initialService ? (initialCountry ? 2 : 1) : 0)
+    const [service, setService] = useState(initialService || null)
+    const [country, setCountry] = useState(initialCountry || null)
     const [loading, setLoading] = useState(false)
     const [order, setOrder] = useState(null)
     const [cancelling, setCancelling] = useState(false)
@@ -563,7 +568,7 @@ function RentNumberModal({ wallet, formatNaira, onClose, onSuccess }) {
         finally { setCancelling(false) }
     }
 
-    const cost = parseFloat(country?.price || service?.cost || 0)
+    const cost = parseFloat(service?.cost || 0)
     const hasFunds = (wallet || 0) >= cost
     const canClose = step < 4 || !order || ['cancelled', 'expired'].includes(order?.status) || !!order?.otp_code
 
@@ -574,7 +579,7 @@ function RentNumberModal({ wallet, formatNaira, onClose, onSuccess }) {
             className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 sm:p-6"
             onMouseDown={(e) => { if (e.target === e.currentTarget && canClose) onClose() }}
         >
-            <div className="relative w-full sm:w-[540px] sm:max-w-[92vw] flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] rounded-t-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-[92svh] sm:h-auto sm:max-h-[88vh] overflow-hidden">
+            <div className="relative w-full sm:w-[540px] sm:max-w-[92vw] flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] rounded-t-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-[92svh] sm:h-auto sm:max-h-[88vh]">
 
                 {/* Mobile drag handle */}
                 <div className="flex justify-center pt-3 pb-1 sm:hidden flex-shrink-0">
@@ -611,7 +616,7 @@ function RentNumberModal({ wallet, formatNaira, onClose, onSuccess }) {
                 )}
 
                 {/* Content — scrollable */}
-                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 min-h-0 overscroll-contain">
+                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
                     {step === 0 && <ServiceStep onSelect={handleServiceSelect} selected={service} />}
                     {step === 1 && <CountryStep service={service} onSelect={handleCountrySelect} selected={country} />}
                     {step === 2 && <RentalTypeStep service={service} country={country} formatNaira={formatNaira} />}
@@ -666,11 +671,26 @@ function RentNumberModal({ wallet, formatNaira, onClose, onSuccess }) {
 }
 
 // ─── Main Page Component ───────────────────────────────────────
-export default function RentNumberSection({ wallet, formatNaira, onNavigate }) {
+export default function RentNumberSection({ wallet, formatNaira, onNavigate, preSelect, onWalletUpdate }) {
     const [currentWallet, setCurrentWallet] = useState(wallet)
     const [showModal, setShowModal] = useState(false)
+    const [initialService, setInitialService] = useState(null)
+    const [initialCountry, setInitialCountry] = useState(null)
+    const hasAutoOpened = useRef(false)
 
     useEffect(() => { setCurrentWallet(wallet) }, [wallet])
+
+    // Auto-open modal with pre-selections from Overview or Services pages
+    useEffect(() => {
+        if (preSelect && !hasAutoOpened.current) {
+            hasAutoOpened.current = true
+            if (preSelect.service) setInitialService(preSelect.service)
+            if (preSelect.country) setInitialCountry(preSelect.country)
+            if (preSelect.autoOpen) {
+                setShowModal(true)
+            }
+        }
+    }, [preSelect])
 
     return (
         <div className="flex flex-col gap-6 max-w-2xl">
@@ -713,7 +733,14 @@ export default function RentNumberSection({ wallet, formatNaira, onNavigate }) {
                     wallet={currentWallet}
                     formatNaira={formatNaira}
                     onClose={() => setShowModal(false)}
-                    onSuccess={(b) => { if (b !== undefined) setCurrentWallet(b) }}
+                    onSuccess={(b) => {
+                        if (b !== undefined) {
+                            setCurrentWallet(b)
+                            if (onWalletUpdate) onWalletUpdate(b)
+                        }
+                    }}
+                    initialService={initialService}
+                    initialCountry={initialCountry}
                 />
             )}
         </div>

@@ -3,7 +3,7 @@ import { Wallet, Copy, Check, CreditCard, Building2, Smartphone, AlertCircle, Ex
 import api from '../../../lib/axios'
 import toast from 'react-hot-toast'
 
-const QUICK_AMOUNTS = [500, 1000, 2000, 5000, 10000, 20000]
+const QUICK_AMOUNTS = [10000, 15000, 20000, 30000, 50000, 100000]
 
 /* ─── KORAPAY TAB ─── */
 function KoraPayTab({ wallet, formatNaira }) {
@@ -127,7 +127,7 @@ function KoraPayTab({ wallet, formatNaira }) {
     )
 }
 
-/* ─── OPAY MANUAL TAB ─── */
+/* ─── BANK TRANSFER MANUAL TAB ─── */
 function OPayTab() {
     const [amount, setAmount] = useState('')
     const [ref, setRef] = useState('')
@@ -135,11 +135,10 @@ function OPayTab() {
     const [submitting, setSubmitting] = useState(false)
     const [submitted, setSubmitted] = useState(false)
 
-    const OPAY_ACCOUNT = {
-        bank: 'OPay (OPay Digital Services Ltd)',
-        accountName: 'Zyrlent Technologies Limited',
-        accountNumber: '8123456789',
-        sortCode: '100004',
+    const BANK_ACCOUNT = {
+        bank: 'Providus Bank',
+        accountName: 'SHOBiZ TECHNOLOGIES LTD',
+        accountNumber: '4209298044',
     }
 
     const copyText = (text, key) => {
@@ -167,14 +166,14 @@ function OPayTab() {
 
     return (
         <div className="flex flex-col gap-5">
-            {/* OPay Banner */}
+            {/* Bank Transfer Banner */}
             <div className="flex items-center gap-4 p-4 rounded-xl border border-[rgba(0,200,100,0.2)] bg-gradient-to-r from-[rgba(0,200,100,0.06)] to-transparent">
                 <div className="w-12 h-12 rounded-xl bg-[#00C364] flex items-center justify-center font-bold text-white text-sm flex-shrink-0 shadow-[0_0_12px_rgba(0,195,100,0.4)]">
-                    OP
+                    <Building2 className="w-5 h-5" />
                 </div>
                 <div>
-                    <p className="text-sm font-bold text-white">Manual OPay Transfer</p>
-                    <p className="text-xs text-white/40 mt-0.5">Transfer directly from your OPay app or any bank to this account</p>
+                    <p className="text-sm font-bold text-white">Manual Bank Transfer</p>
+                    <p className="text-xs text-white/40 mt-0.5">Transfer from any bank to our Providus Bank account</p>
                 </div>
                 <div className="ml-auto flex items-center gap-1 text-amber-400 text-xs font-semibold bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20 whitespace-nowrap">
                     <AlertCircle className="w-3 h-3" /> Manual
@@ -218,9 +217,9 @@ function OPayTab() {
                 </div>
                 <div className="p-5 flex flex-col gap-3">
                     {[
-                        { label: 'Bank', value: OPAY_ACCOUNT.bank, key: 'bank' },
-                        { label: 'Account Name', value: OPAY_ACCOUNT.accountName, key: 'name' },
-                        { label: 'Account Number', value: OPAY_ACCOUNT.accountNumber, key: 'number', copyable: true, large: true },
+                        { label: 'Bank', value: BANK_ACCOUNT.bank, key: 'bank' },
+                        { label: 'Account Name', value: BANK_ACCOUNT.accountName, key: 'name' },
+                        { label: 'Account Number', value: BANK_ACCOUNT.accountNumber, key: 'number', copyable: true, large: true },
                     ].map(item => (
                         <div key={item.key} className="flex items-center justify-between gap-4">
                             <div className="min-w-0">
@@ -330,8 +329,8 @@ export default function FundWalletSection({ wallet, formatNaira }) {
                         : 'text-white/45 hover:bg-white/5'
                         }`}
                 >
-                    <span className="w-6 h-6 rounded bg-[#00C364] flex items-center justify-center text-[10px] font-black text-white">OP</span>
-                    OPay Manual
+                    <span className="w-6 h-6 rounded bg-[#00C364] flex items-center justify-center"><Building2 className="w-3.5 h-3.5 text-white" /></span>
+                    Bank Transfer
                     <span className="text-[9px] bg-amber-400/15 text-amber-400 px-1.5 py-0.5 rounded font-semibold">5-30m</span>
                 </button>
             </div>

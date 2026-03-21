@@ -87,7 +87,7 @@ export default function ServicesSection({ onNavigate }) {
                     {filtered.map(service => (
                         <button
                             key={service.id}
-                            onClick={() => onNavigate('rent-number')}
+                            onClick={() => onNavigate('rent-number', { service, autoOpen: true })}
                             className="group relative p-4 rounded-xl border border-[rgba(255,255,255,0.07)] bg-[rgba(15,20,60,0.5)] hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(25,30,80,0.6)] transition-all text-left"
                         >
                             {/* Color accent */}

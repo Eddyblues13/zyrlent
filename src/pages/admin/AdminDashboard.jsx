@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import {
     Menu, Bell, ShieldCheck, LayoutDashboard, Server, Users,
     ShoppingCart, Wallet, Settings, LogOut, ChevronDown, Globe,
-    Gift, MessageSquare, Megaphone, UserCog
+    Gift, MessageSquare, Megaphone, UserCog, Phone
 } from 'lucide-react'
 import { useAdminAuth } from '../../context/AdminAuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -21,6 +21,7 @@ import ManageReferralsSection from './sections/ManageReferralsSection'
 import SupportTicketsSection from './sections/SupportTicketsSection'
 import NotificationsSection from './sections/NotificationsSection'
 import AdminProfileSection from './sections/AdminProfileSection'
+import NumberInventorySection from './sections/NumberInventorySection'
 
 export const ADMIN_NAV = [
     { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard', group: 'Management' },
@@ -28,6 +29,7 @@ export const ADMIN_NAV = [
     { id: 'countries', label: 'Countries', icon: Globe, path: '/admin/countries', group: 'Management' },
     { id: 'users', label: 'Users', icon: Users, path: '/admin/users', group: 'Management' },
     { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/admin/orders', group: 'Management' },
+    { id: 'number-inventory', label: 'Number Inventory', icon: Phone, path: '/admin/number-inventory', group: 'Management' },
     { id: 'fund-requests', label: 'Fund Requests', icon: Wallet, path: '/admin/fund-requests', group: 'Management' },
     { id: 'referrals', label: 'Referrals', icon: Gift, path: '/admin/referrals', group: 'Management' },
     { id: 'support', label: 'Support Tickets', icon: MessageSquare, path: '/admin/support', group: 'Communication' },
@@ -42,6 +44,7 @@ const PATH_TO_SECTION = {
     '/admin/countries': 'countries',
     '/admin/users': 'users',
     '/admin/orders': 'orders',
+    '/admin/number-inventory': 'number-inventory',
     '/admin/fund-requests': 'fund-requests',
     '/admin/referrals': 'referrals',
     '/admin/support': 'support',
@@ -56,6 +59,7 @@ const SECTION_TITLES = {
     countries: 'Manage Countries',
     users: 'Manage Users',
     orders: 'All Orders',
+    'number-inventory': 'Number Inventory',
     'fund-requests': 'Fund Requests',
     referrals: 'Referrals',
     support: 'Support Tickets',
@@ -125,6 +129,7 @@ export default function AdminDashboard({ initialSection }) {
             case 'countries': return <ManageCountriesSection />
             case 'users': return <ManageUsersSection />
             case 'orders': return <ManageOrdersSection />
+            case 'number-inventory': return <NumberInventorySection />
             case 'fund-requests': return <FundRequestsSection />
             case 'referrals': return <ManageReferralsSection />
             case 'support': return <SupportTicketsSection />

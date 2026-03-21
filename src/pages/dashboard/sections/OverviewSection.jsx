@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
-import { Plus, Eye, EyeOff, FileText, CheckCircle2, ArrowRight, Search, ChevronDown, ArrowUpRight, Zap, Shield, Globe, X, Loader2 } from 'lucide-react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { Plus, Eye, EyeOff, FileText, CheckCircle2, ArrowRight, Search, ChevronDown, ArrowUpRight, Zap, Shield, Globe, X, Loader2, Copy, Check, Smartphone, AlertCircle, Timer, Users, RotateCcw } from 'lucide-react'
 import api from '../../../lib/axios'
 import { ServiceIconWithFallback } from '../../../components/ServiceIcon'
+import toast from 'react-hot-toast'
 
 // ─── Searchable Dropdown ──────────────────────────────────────
 function SearchableDropdown({ label, icon: Icon, items, selected, onSelect, onClear, searchPlaceholder, renderItem, renderSelected, loading }) {
@@ -50,20 +51,7 @@ function SearchableDropdown({ label, icon: Icon, items, selected, onSelect, onCl
                 </button>
 
                 {open && (
-                    <div className="absolute z-50 top-full mt-2 left-0 right-0 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(8,10,46,0.97)] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden">
-                        <div className="p-3 border-b border-white/8">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
-                                <input
-                                    type="text"
-                                    placeholder={searchPlaceholder}
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                    autoFocus
-                                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/[0.05] border border-white/8 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[rgba(0,255,255,0.3)] transition"
-                                />
-                            </div>
-                        </div>
+                    <div className="absolute z-50 bottom-full mb-2 left-0 right-0 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(8,10,46,0.97)] backdrop-blur-xl shadow-[0_-20px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col">
                         <div className="max-h-[240px] overflow-y-auto">
                             {loading ? (
                                 <div className="flex items-center justify-center py-8">
@@ -84,6 +72,19 @@ function SearchableDropdown({ label, icon: Icon, items, selected, onSelect, onCl
                                 </button>
                             ))}
                         </div>
+                        <div className="p-3 border-t border-white/8">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
+                                <input
+                                    type="text"
+                                    placeholder={searchPlaceholder}
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                    autoFocus
+                                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/[0.05] border border-white/8 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[rgba(0,255,255,0.3)] transition"
+                                />
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
@@ -92,7 +93,7 @@ function SearchableDropdown({ label, icon: Icon, items, selected, onSelect, onCl
 }
 
 // ─── Overview Section ─────────────────────────────────────────
-export default function OverviewSection({ user, wallet, stats, formatNaira, onNavigate }) {
+export default function OverviewSection({ user, wallet, stats, formatNaira, onNavigate, onWalletUpdate }) {
     const [showBalance, setShowBalance] = useState(true)
     const [services, setServices] = useState([])
     const [countries, setCountries] = useState([])
@@ -100,6 +101,17 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
     const [selectedCountry, setSelectedCountry] = useState(null)
     const [loadingServices, setLoadingServices] = useState(true)
     const [loadingCountries, setLoadingCountries] = useState(true)
+
+    // ── Rental flow state ──
+    const [rentStep, setRentStep] = useState('select') // select | confirm | active | done
+    const [ordering, setOrdering] = useState(false)
+    const [order, setOrder] = useState(null)
+    const [cancelling, setCancelling] = useState(false)
+    const [timeLeft, setTimeLeft] = useState(20 * 60)
+    const [copiedNumber, setCopiedNumber] = useState(false)
+    const [copiedCode, setCopiedCode] = useState(false)
+    const pollRef = useRef(null)
+    const timerRef = useRef(null)
 
     useEffect(() => {
         api.get('/api/services')
@@ -113,9 +125,121 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
             .finally(() => setLoadingCountries(false))
     }, [])
 
+    // Cleanup on unmount
+    useEffect(() => () => {
+        clearInterval(pollRef.current)
+        clearInterval(timerRef.current)
+    }, [])
+
+    const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
+
+    const cost = parseFloat(selectedService?.cost || 0)
+    const hasFunds = (wallet || 0) >= cost
+
     const handleClear = () => {
         setSelectedService(null)
         setSelectedCountry(null)
+        setRentStep('select')
+        setOrder(null)
+        setOrdering(false)
+        clearInterval(pollRef.current)
+        clearInterval(timerRef.current)
+    }
+
+    const handleProceed = () => {
+        if (!selectedService || !selectedCountry) {
+            toast.error('Please select both a service and a country.')
+            return
+        }
+        setRentStep('confirm')
+    }
+
+    const startPolling = useCallback((id) => {
+        pollRef.current = setInterval(async () => {
+            try {
+                const res = await api.get(`/api/orders/${id}`)
+                if (res.data.otp_code || ['expired', 'cancelled'].includes(res.data.status)) {
+                    clearInterval(pollRef.current)
+                    clearInterval(timerRef.current)
+                    setOrder(res.data)
+                    setRentStep('done')
+                    if (res.data.otp_code) toast.success('🎉 SMS received!')
+                }
+            } catch { }
+        }, 5000)
+    }, [])
+
+    const startTimer = useCallback(() => {
+        setTimeLeft(20 * 60)
+        timerRef.current = setInterval(() => setTimeLeft(p => {
+            if (p <= 0) { clearInterval(timerRef.current); return 0 }
+            return p - 1
+        }), 1000)
+    }, [])
+
+    const handleConfirmOrder = async () => {
+        setOrdering(true)
+        try {
+            const res = await api.post('/api/orders', {
+                service_id: selectedService.id,
+                country_id: selectedCountry.id,
+            })
+            const newOrder = res.data.order
+            setOrder(newOrder)
+            setRentStep('active')
+            toast.success(res.data.message)
+            if (onWalletUpdate && res.data.wallet_balance !== undefined) {
+                onWalletUpdate(res.data.wallet_balance)
+            }
+            startTimer()
+            startPolling(newOrder.id)
+        } catch (e) {
+            const data = e.response?.data
+            if (e.response?.status === 422 && data?.balance !== undefined) {
+                toast.error(`Need ${formatNaira(data.required)}, wallet has ${formatNaira(data.balance)}.`)
+            } else {
+                toast.error(data?.message || 'Failed to provision number')
+            }
+        } finally {
+            setOrdering(false)
+        }
+    }
+
+    const handleCancel = async () => {
+        if (!order) return
+        setCancelling(true)
+        try {
+            const res = await api.post(`/api/orders/${order.id}/cancel`)
+            toast.success(res.data.message)
+            clearInterval(pollRef.current)
+            clearInterval(timerRef.current)
+            setOrder(p => ({ ...p, status: 'cancelled' }))
+            setRentStep('done')
+            if (onWalletUpdate && res.data.wallet_balance !== undefined) {
+                onWalletUpdate(res.data.wallet_balance)
+            }
+        } catch (e) {
+            toast.error(e.response?.data?.message || 'Cancel failed')
+        } finally {
+            setCancelling(false)
+        }
+    }
+
+    const handleGetAnother = () => {
+        setSelectedService(null)
+        setSelectedCountry(null)
+        setOrder(null)
+        setRentStep('select')
+        setTimeLeft(20 * 60)
+        clearInterval(pollRef.current)
+        clearInterval(timerRef.current)
+    }
+
+    const copyText = (text, setter) => {
+        navigator.clipboard.writeText(text)
+        setter(true)
+        toast.success('Copied!')
+        setTimeout(() => setter(false), 2000)
     }
 
     return (
@@ -167,15 +291,14 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                 {/* Stats Cards */}
                 <div className="lg:col-span-2 grid grid-cols-2 gap-4">
                     {[
-                        { icon: FileText, label: 'Transactions', value: stats.transactions, color: '#00FFFF', bg: 'rgba(0,255,255,0.08)', onClick: () => onNavigate('transactions') },
-                        { icon: CheckCircle2, label: 'Verifications', value: stats.verifications, color: '#33CCFF', bg: 'rgba(51,204,255,0.08)', onClick: null },
-                        { icon: null, label: 'Total Spent', value: formatNaira(stats.total_spent), color: '#0099FF', bg: 'rgba(0,153,255,0.08)', naira: true, onClick: null },
-                        { icon: null, label: 'Pending SMS', value: stats.pending_sms, color: '#00FFFF', bg: 'rgba(0,255,255,0.06)', spin: true, onClick: null },
+                        { icon: FileText, label: 'Transactions', value: stats.transactions, color: '#00FFFF', bg: 'rgba(0,255,255,0.08)' },
+                        { icon: CheckCircle2, label: 'Verifications', value: stats.verifications, color: '#33CCFF', bg: 'rgba(51,204,255,0.08)' },
+                        { icon: null, label: 'Total Spent', value: formatNaira(stats.total_spent), color: '#0099FF', bg: 'rgba(0,153,255,0.08)', naira: true },
+                        { icon: null, label: 'Pending SMS', value: stats.pending_sms, color: '#00FFFF', bg: 'rgba(0,255,255,0.06)', spin: true },
                     ].map((stat, i) => (
                         <div
                             key={i}
-                            onClick={stat.onClick}
-                            className={`rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(15,20,60,0.5)] p-4 hover:border-[rgba(0,255,255,0.25)] transition-all ${stat.onClick ? 'cursor-pointer' : ''}`}
+                            className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(15,20,60,0.5)] p-4 transition-all"
                         >
                             <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style={{ background: stat.bg }}>
                                 {stat.spin
@@ -192,118 +315,326 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                 </div>
             </div>
 
-            {/* Quick Verify Form */}
-            <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(15,20,60,0.5)] p-6">
-                <div className="flex items-center gap-3 mb-1">
-                    <div className="w-8 h-8 rounded-lg bg-[rgba(0,255,255,0.1)] flex items-center justify-center">
-                        <Zap className="w-4 h-4 text-[#00FFFF]" />
+            {/* ────────────────────────────────────────────────────
+                 Quick Verify — Complete Inline Rental Flow
+                 ──────────────────────────────────────────────────── */}
+            <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(15,20,60,0.5)]">
+                {/* Card Header */}
+                <div className="px-6 pt-6 pb-4">
+                    <div className="flex items-center gap-3 mb-1">
+                        <div className="w-8 h-8 rounded-lg bg-[rgba(0,255,255,0.1)] flex items-center justify-center">
+                            <Zap className="w-4 h-4 text-[#00FFFF]" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white">Get Verified Now</h3>
                     </div>
-                    <h3 className="text-lg font-bold text-white">Get Verified Now</h3>
-                </div>
-                <p className="text-sm text-white/50 mb-6 ml-11 leading-relaxed">
-                    Select a platform and country. Credits are deducted only after a successful code delivery.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Service Dropdown */}
-                    <SearchableDropdown
-                        label="Select Service"
-                        icon={Search}
-                        items={services}
-                        selected={selectedService}
-                        onSelect={setSelectedService}
-                        onClear={() => setSelectedService(null)}
-                        searchPlaceholder="Search services (WhatsApp, Gmail…)"
-                        loading={loadingServices}
-                        renderSelected={(s) => (
-                            <div className="flex items-center gap-3 min-w-0">
-                                <ServiceIconWithFallback icon={s.icon} name={s.name} color={s.color} size="md" />
-                                <div className="min-w-0">
-                                    <span className="font-semibold text-white/90 text-sm block truncate">{s.name}</span>
-                                    <span className="text-xs text-[#00FFFF] font-medium">₦{parseFloat(s.cost).toLocaleString()}</span>
-                                </div>
-                            </div>
-                        )}
-                        renderItem={(s) => (
-                            <div className="flex items-center gap-3 min-w-0">
-                                <ServiceIconWithFallback icon={s.icon} name={s.name} color={s.color} size="md" />
-                                <div className="min-w-0">
-                                    <p className="text-sm text-white font-medium truncate">{s.name}</p>
-                                    <p className="text-xs text-white/40">{s.category} · ₦{parseFloat(s.cost).toLocaleString()}</p>
-                                </div>
-                            </div>
-                        )}
-                    />
-
-                    {/* Country Dropdown */}
-                    <SearchableDropdown
-                        label="Select Country"
-                        icon={Globe}
-                        items={countries}
-                        selected={selectedCountry}
-                        onSelect={setSelectedCountry}
-                        onClear={() => setSelectedCountry(null)}
-                        searchPlaceholder="Search country…"
-                        loading={loadingCountries}
-                        renderSelected={(c) => (
-                            <div className="flex items-center gap-3 min-w-0">
-                                <span className="text-2xl flex-shrink-0">{c.flag}</span>
-                                <div className="min-w-0">
-                                    <p className="font-semibold text-white/90 text-sm truncate">{c.name}</p>
-                                    <p className="text-xs text-[#00FFFF] font-medium">{c.dial_code} · {c.success_rate}% Success</p>
-                                </div>
-                            </div>
-                        )}
-                        renderItem={(c) => (
-                            <div className="flex items-center gap-3 min-w-0">
-                                <span className="text-xl flex-shrink-0">{c.flag}</span>
-                                <div className="min-w-0">
-                                    <p className="text-sm text-white font-medium truncate">{c.name}</p>
-                                    <p className="text-xs text-white/40">{c.dial_code} · {c.success_rate}% Success</p>
-                                </div>
-                            </div>
-                        )}
-                    />
+                    <p className="text-sm text-white/50 ml-11 leading-relaxed">
+                        {rentStep === 'select' && 'Select a platform and country to rent a number instantly.'}
+                        {rentStep === 'confirm' && 'Review your selection and confirm to get your number.'}
+                        {rentStep === 'active' && 'Your number is live — waiting for SMS verification code.'}
+                        {rentStep === 'done' && (order?.otp_code ? 'Verification code received! Copy it below.' : order?.status === 'cancelled' ? 'Order cancelled — your wallet has been refunded.' : 'Order expired — no SMS was received.')}
+                    </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 mt-5">
-                    <button
-                        onClick={() => onNavigate('rent-number')}
-                        className="flex-1 py-3.5 rounded-xl border border-[rgba(0,255,255,0.4)] bg-[rgba(0,255,255,0.06)] text-[#00FFFF] font-bold text-sm hover:bg-[rgba(0,255,255,0.12)] transition-all flex items-center justify-center gap-2 group"
-                    >
-                        Get Number
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                    <button
-                        onClick={handleClear}
-                        className="sm:w-28 py-3.5 rounded-xl border border-white/10 bg-transparent text-white/60 font-semibold text-sm hover:bg-white/5 transition-all text-center"
-                    >
-                        Clear
-                    </button>
+                {/* Step indicator */}
+                <div className="px-6 pb-4">
+                    <div className="flex items-center gap-1">
+                        {[
+                            { key: 'select', label: 'Select' },
+                            { key: 'confirm', label: 'Confirm' },
+                            { key: 'active', label: 'Waiting' },
+                            { key: 'done', label: 'Done' },
+                        ].map((s, i, arr) => {
+                            const stepOrder = ['select', 'confirm', 'active', 'done']
+                            const currentIdx = stepOrder.indexOf(rentStep)
+                            const thisIdx = i
+                            const isDone = thisIdx < currentIdx
+                            const isActive = thisIdx === currentIdx
+                            return (
+                                <div key={s.key} className="flex items-center flex-1 min-w-0">
+                                    <div className="flex flex-col items-center flex-1 min-w-0">
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition-all duration-300 ${isDone ? 'bg-emerald-500 border-emerald-500 text-white'
+                                            : isActive ? 'bg-[#33CCFF] border-[#33CCFF] text-black'
+                                                : 'bg-transparent border-white/15 text-white/25'
+                                            }`}>
+                                            {isDone ? <Check className="w-3 h-3 stroke-[3]" /> : i + 1}
+                                        </div>
+                                        <span className={`text-[10px] font-semibold mt-1 ${isDone ? 'text-emerald-400' : isActive ? 'text-[#33CCFF]' : 'text-white/20'}`}>{s.label}</span>
+                                    </div>
+                                    {i < arr.length - 1 && (
+                                        <div className={`h-0.5 flex-1 mx-1 rounded-full transition-all duration-500 ${isDone ? 'bg-emerald-500' : 'bg-white/8'}`} />
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
-            </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-3 gap-3">
-                {[
-                    { icon: Shield, label: 'Purchase History', sub: 'See all orders', color: '#00FFFF', nav: 'purchase-history' },
-                    { icon: ArrowRight, label: 'Transactions', sub: 'Money flow', color: '#33CCFF', nav: 'transactions' },
-                    { icon: Globe, label: 'Services', sub: 'All platforms', color: '#0099FF', nav: 'services' },
-                ].map((item, i) => (
-                    <button
-                        key={i}
-                        onClick={() => onNavigate(item.nav)}
-                        className="flex flex-col items-center gap-2 p-4 rounded-xl border border-[rgba(255,255,255,0.07)] bg-[rgba(15,20,60,0.4)] hover:border-[rgba(0,255,255,0.2)] hover:bg-[rgba(15,20,60,0.7)] transition-all text-center"
-                    >
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${item.color}15` }}>
-                            <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                <div className="h-px bg-white/[0.06]" />
+
+                {/* ── STEP: Select ── */}
+                {rentStep === 'select' && (
+                    <div className="px-6 py-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-visible relative">
+                            <div className="relative z-20">
+                                <SearchableDropdown
+                                    label="Select Service"
+                                    icon={Search}
+                                    items={services}
+                                    selected={selectedService}
+                                    onSelect={setSelectedService}
+                                    onClear={() => setSelectedService(null)}
+                                    searchPlaceholder="Search services (WhatsApp, Gmail…)"
+                                    loading={loadingServices}
+                                    renderSelected={(s) => (
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <ServiceIconWithFallback icon={s.icon} name={s.name} color={s.color} size="md" />
+                                            <div className="min-w-0">
+                                                <span className="font-semibold text-white/90 text-sm block truncate">{s.name}</span>
+                                                <span className="text-xs text-[#00FFFF] font-medium">₦{parseFloat(s.cost).toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                    renderItem={(s) => (
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <ServiceIconWithFallback icon={s.icon} name={s.name} color={s.color} size="md" />
+                                            <div className="min-w-0">
+                                                <p className="text-sm text-white font-medium truncate">{s.name}</p>
+                                                <p className="text-xs text-white/40">{s.category} · ₦{parseFloat(s.cost).toLocaleString()}</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                />
+                            </div>
+                            <div className="relative z-10">
+                                <SearchableDropdown
+                                    label="Select Country"
+                                    icon={Globe}
+                                    items={countries}
+                                    selected={selectedCountry}
+                                    onSelect={setSelectedCountry}
+                                    onClear={() => setSelectedCountry(null)}
+                                    searchPlaceholder="Search country…"
+                                    loading={loadingCountries}
+                                    renderSelected={(c) => (
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <span className="text-2xl flex-shrink-0">{c.flag}</span>
+                                            <div className="min-w-0">
+                                                <p className="font-semibold text-white/90 text-sm truncate">{c.name}</p>
+                                                <p className="text-xs text-[#00FFFF] font-medium">{c.dial_code} · {c.success_rate}% Success</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                    renderItem={(c) => (
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <span className="text-xl flex-shrink-0">{c.flag}</span>
+                                            <div className="min-w-0">
+                                                <p className="text-sm text-white font-medium truncate">{c.name}</p>
+                                                <p className="text-xs text-white/40">{c.dial_code} · {c.success_rate}% Success</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-xs font-bold text-white/80">{item.label}</p>
-                            <p className="text-[10px] text-white/40">{item.sub}</p>
+
+                        <div className="flex flex-col sm:flex-row gap-3 mt-5">
+                            <button
+                                onClick={handleProceed}
+                                disabled={!selectedService || !selectedCountry}
+                                className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#33CCFF] text-white font-bold text-sm shadow-[0_0_20px_rgba(0,102,255,0.3)] hover:shadow-[0_0_30px_rgba(0,102,255,0.5)] hover:scale-[1.01] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none group"
+                            >
+                                <Smartphone className="w-4 h-4" />
+                                Get Number
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </button>
+                            <button
+                                onClick={handleClear}
+                                className="sm:w-28 py-3.5 rounded-xl border border-white/10 bg-transparent text-white/60 font-semibold text-sm hover:bg-white/5 transition-all text-center"
+                            >
+                                Clear
+                            </button>
                         </div>
-                    </button>
-                ))}
+                    </div>
+                )}
+
+                {/* ── STEP: Confirm ── */}
+                {rentStep === 'confirm' && (
+                    <div className="px-6 py-5">
+                        {/* Summary */}
+                        <div className="rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden mb-4">
+                            <div className="px-4 py-2.5 border-b border-white/8">
+                                <p className="text-xs font-bold text-white/50 uppercase tracking-widest">Order Summary</p>
+                            </div>
+                            <div className="divide-y divide-white/[0.06]">
+                                <div className="flex items-center justify-between px-4 py-3">
+                                    <span className="text-sm text-white/50">Platform</span>
+                                    <span className="flex items-center gap-2 text-sm font-semibold text-white">
+                                        <ServiceIconWithFallback icon={selectedService?.icon} name={selectedService?.name} color={selectedService?.color} size="sm" />
+                                        {selectedService?.name}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between px-4 py-3">
+                                    <span className="text-sm text-white/50">Country</span>
+                                    <span className="flex items-center gap-2 text-sm font-semibold text-white">
+                                        <span className="text-lg">{selectedCountry?.flag}</span>
+                                        {selectedCountry?.name}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between px-4 py-3">
+                                    <span className="text-sm text-white/50">Price</span>
+                                    <span className="text-sm font-bold text-emerald-400">{formatNaira(cost)}</span>
+                                </div>
+                                <div className="flex items-center justify-between px-4 py-3">
+                                    <span className="text-sm text-white/50">Wallet</span>
+                                    <span className={`text-sm font-bold ${hasFunds ? 'text-white' : 'text-red-400'}`}>{formatNaira(wallet)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {!hasFunds && (
+                            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/25 mb-4">
+                                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm text-red-400 font-semibold">Insufficient balance</p>
+                                    <p className="text-xs text-red-400/70 mt-0.5">You need {formatNaira(cost)}, but you only have {formatNaira(wallet)}.</p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/8 border border-emerald-500/15 mb-5">
+                            <Shield className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                            <p className="text-[11px] text-emerald-400 font-medium">Your credits are deducted only after successful SMS delivery.</p>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <button
+                                onClick={handleConfirmOrder}
+                                disabled={ordering || !hasFunds}
+                                className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#33CCFF] text-white font-bold text-sm shadow-[0_0_20px_rgba(0,102,255,0.35)] hover:shadow-[0_0_30px_rgba(0,102,255,0.55)] transition-all hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+                            >
+                                {ordering ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin" /> Provisioning…</>
+                                ) : (
+                                    <><Smartphone className="w-4 h-4" /> Confirm & Get Number</>
+                                )}
+                            </button>
+                            <button
+                                onClick={() => setRentStep('select')}
+                                disabled={ordering}
+                                className="sm:w-28 py-3.5 rounded-xl border border-white/10 bg-transparent text-white/50 font-semibold text-sm hover:bg-white/5 transition-all text-center disabled:opacity-40"
+                            >
+                                ← Back
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* ── STEP: Active (Waiting for SMS) ── */}
+                {rentStep === 'active' && order && (
+                    <div className="px-6 py-5 flex flex-col items-center gap-5">
+                        {/* Animated hero */}
+                        <div className="relative w-16 h-16">
+                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#0055CC]/30 to-[#33CCFF]/10 border-2 border-[#33CCFF]/40 flex items-center justify-center shadow-[0_0_30px_rgba(51,204,255,0.2)]">
+                                <Check className="w-7 h-7 text-[#33CCFF] stroke-[3]" />
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-[#070D2E]">
+                                <Zap className="w-3 h-3 text-white" />
+                            </div>
+                        </div>
+
+                        <div className="text-center">
+                            <h3 className="text-xl font-bold text-white mb-1">Number Ready! 🚀</h3>
+                            <p className="text-sm text-white/40">Use this number for your {selectedService?.name} verification.</p>
+                        </div>
+
+                        {/* Phone number */}
+                        <div className="w-full p-5 rounded-2xl border border-[rgba(51,204,255,0.25)] bg-[rgba(51,204,255,0.04)] text-center">
+                            <p className="text-2xl sm:text-3xl font-bold text-white font-mono tracking-wider mb-3">{order.phone_number}</p>
+                            <button onClick={() => copyText(order.phone_number, setCopiedNumber)}
+                                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_12px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
+                                {copiedNumber ? <><Check className="w-4 h-4" /> Copied!</> : <><Copy className="w-4 h-4" /> Copy Number</>}
+                            </button>
+                        </div>
+
+                        {/* Waiting indicator */}
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="flex items-center gap-2.5 bg-[rgba(0,102,255,0.1)] px-4 py-2 rounded-full border border-[rgba(0,102,255,0.2)]">
+                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
+                                <span className="text-sm text-white/80 font-medium">Waiting for SMS…</span>
+                            </div>
+                            <p className="text-sm text-white/40">Expires in: <span className="font-bold text-white">{formatTime(timeLeft)}</span></p>
+                            <p className="text-xs text-white/30">Code will appear here automatically once received.</p>
+                        </div>
+
+                        <button onClick={handleCancel} disabled={cancelling}
+                            className="text-sm text-white/30 hover:text-red-400 transition underline underline-offset-4 disabled:opacity-50">
+                            {cancelling ? 'Cancelling…' : "Didn't receive SMS? Cancel & get refund"}
+                        </button>
+                    </div>
+                )}
+
+                {/* ── STEP: Done (OTP received / cancelled / expired) ── */}
+                {rentStep === 'done' && order && (
+                    <div className="px-6 py-5 flex flex-col items-center gap-5">
+                        {order.otp_code ? (
+                            <>
+                                {/* Success hero */}
+                                <div className="relative w-16 h-16">
+                                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500/30 to-[#33CCFF]/10 border-2 border-emerald-400/40 flex items-center justify-center shadow-[0_0_30px_rgba(52,211,153,0.2)]">
+                                        <CheckCircle2 className="w-7 h-7 text-emerald-400 stroke-[2.5]" />
+                                    </div>
+                                </div>
+
+                                <div className="text-center">
+                                    <h3 className="text-xl font-bold text-white mb-1">Verification Complete! ✅</h3>
+                                    <p className="text-sm text-white/40">Your {selectedService?.name} code has been received.</p>
+                                </div>
+
+                                {/* Phone number */}
+                                <div className="w-full p-4 rounded-xl border border-white/10 bg-white/[0.03] text-center">
+                                    <p className="text-xs text-white/40 mb-1">Phone Number</p>
+                                    <p className="text-lg font-bold text-white font-mono tracking-wider">{order.phone_number}</p>
+                                </div>
+
+                                {/* OTP Code */}
+                                <div className="w-full p-5 rounded-2xl border border-[#FFB800]/30 bg-[rgba(255,184,0,0.04)] text-center relative">
+                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[rgba(255,184,0,0.15)] border border-[#FFB800]/30">
+                                        <span className="text-[10px] font-bold text-[#FFB800]">📩 SMS RECEIVED</span>
+                                    </div>
+                                    <p className="text-3xl sm:text-4xl font-bold text-[#33CCFF] font-mono tracking-[0.2em] mt-2 mb-4 drop-shadow-[0_0_15px_rgba(51,204,255,0.4)]">{order.otp_code}</p>
+                                    <button onClick={() => copyText(order.otp_code, setCopiedCode)}
+                                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_12px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
+                                        {copiedCode ? <><Check className="w-4 h-4" /> Copied!</> : <><Copy className="w-4 h-4" /> Copy Code</>}
+                                    </button>
+                                </div>
+
+                                {/* Get another */}
+                                <button onClick={handleGetAnother}
+                                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-[rgba(0,255,255,0.3)] bg-[rgba(0,255,255,0.06)] text-[#00FFFF] font-bold text-sm hover:bg-[rgba(0,255,255,0.12)] transition-all group">
+                                    <RotateCcw className="w-4 h-4" />
+                                    Get Another Number
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                {/* Failed / cancelled / expired */}
+                                <div className="w-full p-4 rounded-xl bg-red-500/8 border border-red-500/20 text-center">
+                                    <p className="text-sm text-red-400 font-semibold">
+                                        {order.status === 'cancelled'
+                                            ? '❌ Order cancelled — your wallet has been refunded.'
+                                            : '⏰ Number expired — no SMS was received. Refund processed.'}
+                                    </p>
+                                </div>
+                                <button onClick={handleGetAnother}
+                                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#33CCFF] text-white font-bold text-sm shadow-[0_0_15px_rgba(0,102,255,0.3)] hover:shadow-[0_0_25px_rgba(0,102,255,0.5)] hover:scale-[1.02] transition-all">
+                                    <RotateCcw className="w-4 h-4" />
+                                    Try Again
+                                </button>
+                            </>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     )

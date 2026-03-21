@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Search, Plus, Trash2, Edit3, ToggleLeft, ToggleRight, Download, Loader2, X, Check, Globe, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Trash2, Edit3, ToggleLeft, ToggleRight, Loader2, X, Globe, ChevronLeft, ChevronRight, Info } from 'lucide-react'
 import adminApi from '../../../lib/adminAxios'
 import toast from 'react-hot-toast'
 
-// Auto-convert USD prices to Naira for display
-const USD_TO_NGN = 1500
-const toNaira = (usd) => `₦${(parseFloat(usd || 0) * USD_TO_NGN).toLocaleString()}`
+// Dynamic exchange rate — fetched from backend, fallback to 1500
 const PER_PAGE = 12
 
 export default function ManageCountriesSection() {
@@ -17,13 +15,24 @@ export default function ManageCountriesSection() {
     const [form, setForm] = useState({ name: '', code: '', flag: '', dial_code: '', twilio_code: '', price_usd: '', is_active: true })
     const [submitting, setSubmitting] = useState(false)
     const [page, setPage] = useState(1)
+    const [exchangeRate, setExchangeRate] = useState(1500)
+    const [markupPercent, setMarkupPercent] = useState(0)
 
-    // Suggestions modal
-    const [showSuggestions, setShowSuggestions] = useState(false)
-    const [suggestions, setSuggestions] = useState([])
-    const [selectedSuggestions, setSelectedSuggestions] = useState([])
-    const [fetchingSuggestions, setFetchingSuggestions] = useState(false)
-    const [importingSuggestions, setImportingSuggestions] = useState(false)
+    // Fetch pricing config from backend
+    const toNaira = useCallback((usd) => {
+        const base = parseFloat(usd || 0) * exchangeRate
+        const final_ = base * (1 + (markupPercent / 100))
+        return `₦${final_.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+    }, [exchangeRate, markupPercent])
+
+    useEffect(() => {
+        adminApi.get('/api/admin/settings/pricing-config')
+            .then(r => {
+                setExchangeRate(r.data.usd_to_ngn_rate || 1500)
+                setMarkupPercent(r.data.pricing_markup_percent || 0)
+            })
+            .catch(() => {})
+    }, [])
 
     const fetchCountries = useCallback(async () => {
         setLoading(true)
@@ -43,15 +52,11 @@ export default function ManageCountriesSection() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        if (!editingCountry) return
         setSubmitting(true)
         try {
-            if (editingCountry) {
-                await adminApi.put(`/api/admin/countries/${editingCountry.id}`, form)
-                toast.success('Country updated')
-            } else {
-                await adminApi.post('/api/admin/countries', form)
-                toast.success('Country added')
-            }
+            await adminApi.put(`/api/admin/countries/${editingCountry.id}`, form)
+            toast.success('Country updated')
             setShowForm(false); setEditingCountry(null)
             setForm({ name: '', code: '', flag: '', dial_code: '', twilio_code: '', price_usd: '', is_active: true })
             fetchCountries()
@@ -85,29 +90,6 @@ export default function ManageCountriesSection() {
         setShowForm(true)
     }
 
-    const handleFetchSuggestions = async () => {
-        setFetchingSuggestions(true); setShowSuggestions(true)
-        try {
-            const r = await adminApi.get('/api/admin/countries/suggestions')
-            setSuggestions(r.data || [])
-            setSelectedSuggestions([])
-        } catch { toast.error('Failed to fetch suggestions') }
-        finally { setFetchingSuggestions(false) }
-    }
-
-    const handleImport = async () => {
-        if (selectedSuggestions.length === 0) return toast.error('Select at least one country')
-        setImportingSuggestions(true)
-        try {
-            const selected = selectedSuggestions.map(i => suggestions[i])
-            const r = await adminApi.post('/api/admin/countries/import', { countries: selected })
-            toast.success(r.data.message)
-            setShowSuggestions(false)
-            fetchCountries()
-        } catch (err) { toast.error(err.response?.data?.message || 'Import failed') }
-        finally { setImportingSuggestions(false) }
-    }
-
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -118,14 +100,11 @@ export default function ManageCountriesSection() {
                     <span className="text-xs text-white/30">{countries.length} total</span>
                 </div>
                 <div className="flex gap-2">
-                    <button onClick={handleFetchSuggestions}
-                        className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[rgba(255,149,0,0.1)] border border-[rgba(255,149,0,0.25)] text-[#FF9500] text-xs font-bold hover:bg-[rgba(255,149,0,0.2)] transition flex items-center justify-center gap-1.5">
-                        <Download className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Fetch</span> Suggestions
-                    </button>
-                    <button onClick={() => { setShowForm(true); setEditingCountry(null); setForm({ name: '', code: '', flag: '', dial_code: '', twilio_code: '', price_usd: '', is_active: true }) }}
-                        className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF9500] to-[#FF6B00] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-[0_0_12px_rgba(255,149,0,0.2)] hover:shadow-[0_0_20px_rgba(255,149,0,0.4)] transition">
-                        <Plus className="w-3.5 h-3.5" /> Add Country
-                    </button>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(255,149,0,0.06)] border border-[rgba(255,149,0,0.12)] text-[#FF9500]/70 text-[11px]">
+                        <Info className="w-3 h-3 flex-shrink-0" />
+                        <span className="hidden sm:inline">Countries are added via</span>
+                        <span className="font-bold">API Settings → Fetch Countries</span>
+                    </div>
                 </div>
             </div>
 
@@ -136,54 +115,11 @@ export default function ManageCountriesSection() {
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 focus:outline-none focus:border-[rgba(255,149,0,0.35)] transition" />
             </div>
 
-            {/* Suggestions Modal */}
-            {showSuggestions && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-[rgba(15,20,60,0.97)] border border-[rgba(255,149,0,0.15)] rounded-2xl p-4 sm:p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-white font-bold">Available Countries</h3>
-                            <button onClick={() => setShowSuggestions(false)} className="text-white/30 hover:text-white"><X className="w-5 h-5" /></button>
-                        </div>
-                        {fetchingSuggestions ? (
-                            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 text-[#FF9500] animate-spin" /></div>
-                        ) : suggestions.length === 0 ? (
-                            <p className="text-center text-white/30 py-8">All countries already added!</p>
-                        ) : (
-                            <>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
-                                    {suggestions.map((s, i) => {
-                                        const isSelected = selectedSuggestions.includes(i)
-                                        return (
-                                            <button key={i} onClick={() => setSelectedSuggestions(prev => isSelected ? prev.filter(x => x !== i) : [...prev, i])}
-                                                className={`rounded-xl p-3 text-left border transition-all ${isSelected ? 'border-[rgba(255,149,0,0.5)] bg-[rgba(255,149,0,0.08)]' : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.04]'}`}>
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="text-lg">{s.flag}</span>
-                                                    <span className="text-sm text-white font-medium truncate">{s.name}</span>
-                                                    {isSelected && <Check className="w-3.5 h-3.5 text-[#FF9500] ml-auto flex-shrink-0" />}
-                                                </div>
-                                                <p className="text-[10px] text-white/30">{s.dial_code} · {s.code} · {toNaira(s.price_usd)}</p>
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                                <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-white/5">
-                                    <span className="text-xs text-white/30">{selectedSuggestions.length} selected</span>
-                                    <button onClick={handleImport} disabled={importingSuggestions || selectedSuggestions.length === 0}
-                                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF9500] to-[#FF6B00] text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-40 transition">
-                                        {importingSuggestions ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Import Selected
-                                    </button>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* Add/Edit Form */}
+            {/* Edit Form */}
             {showForm && (
                 <div className="rounded-2xl border border-[rgba(255,149,0,0.15)] bg-[rgba(15,20,60,0.5)] backdrop-blur-xl p-4 sm:p-5">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-white font-bold">{editingCountry ? 'Edit Country' : 'Add New Country'}</h3>
+                        <h3 className="text-white font-bold">Edit Country</h3>
                         <button onClick={() => { setShowForm(false); setEditingCountry(null) }} className="text-white/30 hover:text-white/60"><X className="w-5 h-5" /></button>
                     </div>
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -196,7 +132,7 @@ export default function ManageCountriesSection() {
                         <div className="sm:col-span-2 lg:col-span-3 flex flex-col sm:flex-row gap-3 pt-2">
                             <button type="submit" disabled={submitting}
                                 className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF9500] to-[#FF6B00] text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-40 transition">
-                                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {editingCountry ? 'Update' : 'Add Country'}
+                                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Update Country
                             </button>
                             <button type="button" onClick={() => { setShowForm(false); setEditingCountry(null) }}
                                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/50 text-sm hover:bg-white/10 transition">Cancel</button>
@@ -213,7 +149,7 @@ export default function ManageCountriesSection() {
                     <div className="text-center py-12 text-white/30">
                         <Globe className="w-10 h-10 mx-auto mb-3 opacity-30" />
                         <p className="font-semibold">No countries yet</p>
-                        <p className="text-sm mt-1">Add countries manually or fetch suggestions</p>
+                        <p className="text-sm mt-1">Fetch countries from a provider in API Settings</p>
                     </div>
                 ) : (
                     <>

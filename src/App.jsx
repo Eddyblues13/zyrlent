@@ -56,6 +56,7 @@ export default function App() {
       <Route path="/admin/users" element={<AdminAuthProvider><AdminDashboard initialSection="users" /></AdminAuthProvider>} />
       <Route path="/admin/users/:id" element={<AdminAuthProvider><ViewUserPage /></AdminAuthProvider>} />
       <Route path="/admin/orders" element={<AdminAuthProvider><AdminDashboard initialSection="orders" /></AdminAuthProvider>} />
+      <Route path="/admin/number-inventory" element={<AdminAuthProvider><AdminDashboard initialSection="number-inventory" /></AdminAuthProvider>} />
       <Route path="/admin/fund-requests" element={<AdminAuthProvider><AdminDashboard initialSection="fund-requests" /></AdminAuthProvider>} />
       <Route path="/admin/referrals" element={<AdminAuthProvider><AdminDashboard initialSection="referrals" /></AdminAuthProvider>} />
       <Route path="/admin/support" element={<AdminAuthProvider><AdminDashboard initialSection="support" /></AdminAuthProvider>} />
