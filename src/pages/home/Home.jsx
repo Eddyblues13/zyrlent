@@ -9,12 +9,12 @@ import Footer from '../../components/Footer'
 
 export default function Home() {
   return (
-    <div className="min-h-screen w-full text-[#FFFFFF] overflow-hidden relative">
+    <div className="min-h-screen w-full text-[#FFFFFF] overflow-x-hidden relative">
       <Background />
       <Navbar />
 
       {/* Hero Section */}
-      <main className="relative z-10">
+      <main className="relative z-10 pt-[88px]">
         <div className="mx-auto flex max-w-7xl flex-col gap-12 px-4 py-16 md:px-6 md:py-20 lg:gap-16">
 
           {/* Hero Content */}

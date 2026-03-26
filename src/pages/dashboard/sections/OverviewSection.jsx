@@ -51,41 +51,49 @@ function SearchableDropdown({ label, icon: Icon, items, selected, onSelect, onCl
                 </button>
 
                 {open && (
-                    <div className="absolute z-50 bottom-full mb-2 left-0 right-0 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(8,10,46,0.97)] backdrop-blur-xl shadow-[0_-20px_60px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col">
-                        <div className="max-h-[240px] overflow-y-auto">
-                            {loading ? (
-                                <div className="flex items-center justify-center py-8">
-                                    <Loader2 className="w-5 h-5 text-[#00FFFF] animate-spin" />
+                    <>
+                        {/* Mobile Backdrop */}
+                        <div className="fixed inset-0 z-40 sm:hidden" onClick={() => setOpen(false)} />
+                        
+                        <div className="absolute z-50 top-full mt-2 left-0 w-[calc(100vw-48px)] sm:w-full rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(8,10,46,0.97)] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col origin-top max-h-[60vh] sm:max-h-[300px]">
+                            {/* Search Sticky Header */}
+                            <div className="p-3 border-b border-white/8 bg-white/[0.02] sticky top-0 z-10">
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
+                                    <input
+                                        type="text"
+                                        placeholder={searchPlaceholder}
+                                        value={search}
+                                        onChange={e => setSearch(e.target.value)}
+                                        autoFocus
+                                        className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/[0.05] border border-white/8 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[rgba(0,255,255,0.3)] transition"
+                                    />
                                 </div>
-                            ) : filtered.length === 0 ? (
-                                <div className="py-6 text-center text-white/25 text-sm">No results found</div>
-                            ) : filtered.map(item => (
-                                <button
-                                    key={item.id}
-                                    onClick={() => { onSelect(item); setOpen(false); setSearch('') }}
-                                    className={`w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/[0.05] transition ${selected?.id === item.id ? 'bg-[rgba(0,255,255,0.06)]' : ''}`}
-                                >
-                                    {renderItem(item)}
-                                    {selected?.id === item.id && (
-                                        <CheckCircle2 className="w-4 h-4 text-[#00FFFF] flex-shrink-0 ml-2" />
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="p-3 border-t border-white/8">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
-                                <input
-                                    type="text"
-                                    placeholder={searchPlaceholder}
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                    autoFocus
-                                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/[0.05] border border-white/8 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[rgba(0,255,255,0.3)] transition"
-                                />
+                            </div>
+                            
+                            {/* Scrollable List */}
+                            <div className="flex-1 overflow-y-auto w-full">
+                                {loading ? (
+                                    <div className="flex items-center justify-center py-8">
+                                        <Loader2 className="w-5 h-5 text-[#00FFFF] animate-spin" />
+                                    </div>
+                                ) : filtered.length === 0 ? (
+                                    <div className="py-6 text-center text-white/25 text-sm">No results found</div>
+                                ) : filtered.map(item => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => { onSelect(item); setOpen(false); setSearch('') }}
+                                        className={`w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/[0.05] transition ${selected?.id === item.id ? 'bg-[rgba(0,255,255,0.06)]' : ''}`}
+                                    >
+                                        {renderItem(item)}
+                                        {selected?.id === item.id && (
+                                            <CheckCircle2 className="w-4 h-4 text-[#00FFFF] flex-shrink-0 ml-2" />
+                                        )}
+                                    </button>
+                                ))}
                             </div>
                         </div>
-                    </div>
+                    </>
                 )}
             </div>
         </div>
@@ -244,8 +252,8 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
 
     return (
         <div className="flex flex-col gap-8">
-            {/* Greeting */}
-            <div>
+            {/* Sticky greeting */}
+            <div className="sticky top-[61px] z-30 bg-[rgba(8,10,46,0.97)] backdrop-blur-xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 pb-4 border-b border-white/[0.05]">
                 <h2 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
                     <span role="img" aria-label="wave">👋</span> Hi, {user?.name?.split(' ')[0]}
                 </h2>

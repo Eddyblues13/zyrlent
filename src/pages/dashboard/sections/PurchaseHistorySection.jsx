@@ -64,32 +64,35 @@ export default function PurchaseHistorySection({ formatNaira }) {
 
     return (
         <div className="flex flex-col gap-5">
-            {/* Header */}
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-                <div>
-                    <h2 className="text-xl font-bold text-white">Purchase History</h2>
-                    <p className="text-white/40 text-xs mt-0.5">{meta.total} total orders</p>
+            {/* Sticky header area */}
+            <div className="sticky top-[61px] z-30 bg-[rgba(8,10,46,0.97)] backdrop-blur-xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 pb-4 flex flex-col gap-4 border-b border-white/[0.05]">
+                {/* Header */}
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div>
+                        <h2 className="text-xl font-bold text-white">Purchase History</h2>
+                        <p className="text-white/40 text-xs mt-0.5">{meta.total} total orders</p>
+                    </div>
+                    <button onClick={() => fetchOrders(page)} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/8 text-white/50 hover:text-white transition">
+                        <RefreshCw className="w-4 h-4" />
+                    </button>
                 </div>
-                <button onClick={() => fetchOrders(page)} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/8 text-white/50 hover:text-white transition">
-                    <RefreshCw className="w-4 h-4" />
-                </button>
-            </div>
 
-            {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                    <input type="text" placeholder="Search order ref, phone, service…"
-                        value={search} onChange={e => handleSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white placeholder-white/25 text-sm focus:outline-none focus:border-[rgba(0,255,255,0.35)] transition" />
-                </div>
-                <div className="flex gap-1 p-1 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] overflow-x-auto no-scrollbar">
-                    {STATUSES.map(s => (
-                        <button key={s} onClick={() => handleFilter(s)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize whitespace-nowrap transition ${filter === s ? 'bg-[rgba(0,255,255,0.15)] text-[#00FFFF]' : 'text-white/45 hover:text-white'}`}>
-                            {s}
-                        </button>
-                    ))}
+                {/* Filters */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <input type="text" placeholder="Search order ref, phone, service…"
+                            value={search} onChange={e => handleSearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white placeholder-white/25 text-sm focus:outline-none focus:border-[rgba(0,255,255,0.35)] transition" />
+                    </div>
+                    <div className="flex gap-1 p-1 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] overflow-x-auto no-scrollbar">
+                        {STATUSES.map(s => (
+                            <button key={s} onClick={() => handleFilter(s)}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize whitespace-nowrap transition ${filter === s ? 'bg-[rgba(0,255,255,0.15)] text-[#00FFFF]' : 'text-white/45 hover:text-white'}`}>
+                                {s}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 

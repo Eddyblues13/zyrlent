@@ -34,40 +34,43 @@ export default function ServicesSection({ onNavigate }) {
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Header */}
-            <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div>
-                    <h2 className="text-2xl font-bold text-white">Services</h2>
-                    <p className="text-white/40 text-sm mt-0.5">
-                        {loading ? 'Loading…' : `${filtered.length} of ${services.length} services available`}
-                    </p>
-                </div>
-                <button onClick={fetchServices} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/8 text-white/50 hover:text-white transition">
-                    <RefreshCw className="w-4 h-4" />
-                </button>
-            </div>
-
-            {/* Search + Filter */}
-            <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                    <input type="text" placeholder="Search services…"
-                        value={search} onChange={e => setSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white placeholder-white/25 text-sm focus:outline-none focus:border-[rgba(0,255,255,0.35)] transition" />
-                </div>
-            </div>
-
-            {/* Category pills */}
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                {CATEGORIES.map(cat => (
-                    <button key={cat} onClick={() => setCategory(cat)}
-                        className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap border transition ${category === cat
-                            ? 'bg-[rgba(0,255,255,0.15)] text-[#00FFFF] border-[rgba(0,255,255,0.4)]'
-                            : 'bg-[rgba(255,255,255,0.05)] text-white/50 border-[rgba(255,255,255,0.08)] hover:text-white hover:bg-white/10'
-                            }`}>
-                        {cat}
+            {/* Sticky header area — stays fixed while grid scrolls beneath */}
+            <div className="sticky top-[61px] z-30 bg-[rgba(8,10,46,0.97)] backdrop-blur-xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 pb-4 flex flex-col gap-4 border-b border-white/[0.05]">
+                {/* Header */}
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div>
+                        <h2 className="text-2xl font-bold text-white">Services</h2>
+                        <p className="text-white/40 text-sm mt-0.5">
+                            {loading ? 'Loading…' : `${filtered.length} of ${services.length} services available`}
+                        </p>
+                    </div>
+                    <button onClick={fetchServices} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/8 text-white/50 hover:text-white transition">
+                        <RefreshCw className="w-4 h-4" />
                     </button>
-                ))}
+                </div>
+
+                {/* Search + Filter */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <input type="text" placeholder="Search services…"
+                            value={search} onChange={e => setSearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white placeholder-white/25 text-sm focus:outline-none focus:border-[rgba(0,255,255,0.35)] transition" />
+                    </div>
+                </div>
+
+                {/* Category pills */}
+                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                    {CATEGORIES.map(cat => (
+                        <button key={cat} onClick={() => setCategory(cat)}
+                            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap border transition ${category === cat
+                                ? 'bg-[rgba(0,255,255,0.15)] text-[#00FFFF] border-[rgba(0,255,255,0.4)]'
+                                : 'bg-[rgba(255,255,255,0.05)] text-white/50 border-[rgba(255,255,255,0.08)] hover:text-white hover:bg-white/10'
+                                }`}>
+                            {cat}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Grid */}

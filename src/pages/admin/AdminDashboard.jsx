@@ -155,7 +155,7 @@ export default function AdminDashboard({ initialSection }) {
 
                 <div className="flex-1 lg:ml-[280px] flex flex-col min-h-screen">
                     {/* Top Bar */}
-                    <header className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,149,0,0.08)] bg-[rgba(8,10,46,0.6)] backdrop-blur-xl sticky top-0 z-50">
+                    <header className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,149,0,0.08)] bg-[rgba(8,10,46,0.6)] backdrop-blur-xl fixed top-0 w-full lg:w-[calc(100%-280px)] z-50">
                         <div className="flex items-center gap-3">
                             <button onClick={() => setIsSidebarOpen(true)} className="p-2 rounded-xl hover:bg-white/10 text-white/50 transition lg:hidden">
                                 <Menu className="w-5 h-5" />
@@ -201,7 +201,7 @@ export default function AdminDashboard({ initialSection }) {
                     </header>
 
                     {/* Main Content */}
-                    <main className="flex-1 p-5 lg:p-8">
+                    <main className="flex-1 p-5 lg:p-8 pt-[88px] lg:pt-[88px]">
                         {renderSection()}
                     </main>
                 </div>

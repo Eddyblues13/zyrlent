@@ -271,30 +271,33 @@ export default function SettingsSection({ user }) {
 
     return (
         <div className="flex flex-col gap-6 max-w-3xl">
-            {/* Header */}
-            <div>
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <User className="w-6 h-6 text-[#00FFFF]" />
-                    Settings
-                </h2>
-                <p className="text-white/40 text-sm mt-0.5">Manage your account, security and preferences</p>
-            </div>
+            {/* Sticky header + tabs */}
+            <div className="sticky top-[61px] z-30 bg-[rgba(8,10,46,0.97)] backdrop-blur-xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 pb-4 flex flex-col gap-4 border-b border-white/[0.05]">
+                {/* Header */}
+                <div>
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                        <User className="w-6 h-6 text-[#00FFFF]" />
+                        Settings
+                    </h2>
+                    <p className="text-white/40 text-sm mt-0.5">Manage your account, security and preferences</p>
+                </div>
 
-            {/* Tab Bar */}
-            <div className="flex gap-1 overflow-x-auto no-scrollbar p-1 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)]">
-                {TABS.map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition flex-1 justify-center ${activeTab === tab.id
-                            ? 'bg-[rgba(0,255,255,0.15)] text-[#00FFFF] shadow-[inset_0_0_0_1px_rgba(0,255,255,0.3)]'
-                            : 'text-white/45 hover:text-white hover:bg-white/5'
-                            }`}
-                    >
-                        <tab.icon className="w-4 h-4 flex-shrink-0" />
-                        <span className="hidden sm:inline">{tab.label}</span>
-                    </button>
-                ))}
+                {/* Tab Bar */}
+                <div className="flex gap-1 overflow-x-auto no-scrollbar p-1 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)]">
+                    {TABS.map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition flex-1 justify-center ${activeTab === tab.id
+                                ? 'bg-[rgba(0,255,255,0.15)] text-[#00FFFF] shadow-[inset_0_0_0_1px_rgba(0,255,255,0.3)]'
+                                : 'text-white/45 hover:text-white hover:bg-white/5'
+                                }`}
+                        >
+                            <tab.icon className="w-4 h-4 flex-shrink-0" />
+                            <span className="hidden sm:inline">{tab.label}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Tab Content */}

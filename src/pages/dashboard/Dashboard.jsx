@@ -177,8 +177,8 @@ export default function Dashboard({ initialSection }) {
 
             <div className="relative z-10 lg:pl-[280px] flex flex-col min-h-screen">
 
-                {/* ── Sticky Top Header ── */}
-                <header className="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-[rgba(255,255,255,0.07)] bg-[rgba(8,10,46,0.85)] backdrop-blur-xl">
+                {/* Top Bar */}
+                <header className="flex items-center justify-between px-5 py-4 border-b border-[rgba(0,255,255,0.08)] bg-[rgba(8,10,46,0.6)] backdrop-blur-xl fixed top-0 w-full lg:w-[calc(100%-280px)] z-50">
                     {/* Left */}
                     <div className="flex items-center gap-3">
                         <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-1 rounded-xl hover:bg-white/10 transition lg:hidden">
@@ -218,60 +218,65 @@ export default function Dashboard({ initialSection }) {
                             )}
                         </button>
 
-                        {/* Avatar + Dropdown */}
-                        <div className="relative" ref={avatarRef}>
-                            <button
-                                onClick={() => setShowAvatarMenu(s => !s)}
-                                className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-xl hover:bg-white/8 transition"
-                            >
-                                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#33CCFF] to-[#0099FF] flex items-center justify-center text-sm font-bold text-white shadow-[0_0_10px_rgba(0,255,255,0.3)]">
-                                    {user?.name?.[0]?.toUpperCase() || 'U'}
-                                </div>
-                                <span className="hidden sm:block text-sm font-semibold text-white/80 max-w-[100px] truncate">{user?.name?.split(' ')[0]}</span>
-                                <ChevronDown className={`w-3.5 h-3.5 text-white/40 transition-transform ${showAvatarMenu ? 'rotate-180' : ''}`} />
-                            </button>
-
-                            {/* Dropdown */}
-                            {showAvatarMenu && (
-                                <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(8,10,46,0.97)] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden z-50">
-                                    {/* User info */}
-                                    <div className="px-4 py-3.5 border-b border-white/8">
-                                        <p className="text-sm font-bold text-white truncate">{user?.name}</p>
-                                        <p className="text-xs text-white/40 truncate">{user?.email}</p>
+                            {/* Avatar + Dropdown */}
+                            <div className="relative" ref={avatarRef}>
+                                <button
+                                    onClick={() => setShowAvatarMenu(s => !s)}
+                                    className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-xl hover:bg-white/8 transition"
+                                >
+                                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#33CCFF] to-[#0099FF] flex items-center justify-center text-sm font-bold text-white shadow-[0_0_10px_rgba(0,255,255,0.3)]">
+                                        {user?.name?.[0]?.toUpperCase() || 'U'}
                                     </div>
-                                    {/* Menu items */}
-                                    <div className="py-1.5">
-                                        {[
-                                            { icon: UserIcon, label: 'Profile & Settings', action: () => goTo('settings') },
-                                            { icon: Wallet, label: 'Fund Wallet', action: () => goTo('fund-wallet') },
-                                            { icon: LifeBuoy, label: 'Support', action: () => goTo('support') },
-                                        ].map((item, i) => (
-                                            <button
-                                                key={i}
-                                                onClick={() => { item.action(); setShowAvatarMenu(false) }}
-                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/6 transition text-left"
-                                            >
-                                                <item.icon className="w-4 h-4 flex-shrink-0 text-white/30" />
-                                                {item.label}
-                                            </button>
-                                        ))}
-                                        <div className="h-px bg-white/6 my-1.5 mx-4" />
-                                        <button
-                                            onClick={handleLogout}
-                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400/80 hover:text-red-400 hover:bg-red-400/6 transition text-left"
-                                        >
-                                            <LogOut className="w-4 h-4 flex-shrink-0" />
-                                            Sign Out
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                                    <span className="hidden sm:block text-sm font-semibold text-white/80 max-w-[100px] truncate">{user?.name?.split(' ')[0]}</span>
+                                    <ChevronDown className={`w-3.5 h-3.5 text-white/40 transition-transform ${showAvatarMenu ? 'rotate-180' : ''}`} />
+                                </button>
+                                
+                                {/* Dropdown */}
+                                {showAvatarMenu && (
+                                    <>
+                                        {/* Mobile Backdrop */}
+                                        <div className="fixed inset-0 z-40 sm:hidden" onClick={() => setShowAvatarMenu(false)} />
+                                        
+                                        <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-56 origin-top-right rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(8,10,46,0.98)] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden z-50 transform transition-all duration-200">
+                                            {/* User info */}
+                                            <div className="px-4 py-3.5 border-b border-white/8 bg-white/[0.02]">
+                                                <p className="text-sm font-bold text-white truncate">{user?.name}</p>
+                                                <p className="text-xs text-white/40 truncate">{user?.email}</p>
+                                            </div>
+                                            {/* Menu items */}
+                                            <div className="py-1.5 focus:outline-none">
+                                                {[
+                                                    { icon: UserIcon, label: 'Profile & Settings', action: () => goTo('settings') },
+                                                    { icon: Wallet, label: 'Fund Wallet', action: () => goTo('fund-wallet') },
+                                                    { icon: LifeBuoy, label: 'Support', action: () => goTo('support') },
+                                                ].map((item, i) => (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => { item.action(); setShowAvatarMenu(false) }}
+                                                        className="flex items-center gap-3 px-4 py-2.5 w-full text-left text-sm text-white/50 hover:bg-white/[0.06] hover:text-white transition group focus:bg-white/[0.06]"
+                                                    >
+                                                        <item.icon className="w-4 h-4 text-white/40 group-hover:text-white transition" />
+                                                        {item.label}
+                                                    </button>
+                                                ))}
+                                                <div className="h-px bg-white/5 mx-3 my-1.5" />
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="flex items-center gap-3 px-4 py-2.5 w-full text-left text-sm text-white/50 hover:bg-red-500/10 hover:text-red-400 transition group focus:bg-red-500/10"
+                                                >
+                                                    <LogOut className="w-4 h-4 text-white/40 group-hover:text-red-400 transition" />
+                                                    Log out
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </header>
+                    </header>
 
                 {/* ── Page Content ── */}
-                <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 pb-28 md:pb-10">
+                <main className="flex-1 p-5 lg:p-8 pt-[88px] lg:pt-[88px] pb-24 md:pb-8">
                     {renderSection()}
                 </main>
             </div>

@@ -8,11 +8,12 @@ import Footer from '../../components/Footer'
 
 export default function Features() {
   return (
-    <div className="min-h-screen w-full text-[#FFFFFF] overflow-hidden relative">
+    <div className="min-h-screen w-full text-[#FFFFFF] overflow-x-hidden relative">
       <Background />
       <Navbar />
 
-      <main className="relative z-10">
+      {/* Main Content */}
+      <main className="relative z-10 pt-[88px] pb-24">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
 
           {/* Hero */}

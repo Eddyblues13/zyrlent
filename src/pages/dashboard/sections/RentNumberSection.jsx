@@ -108,63 +108,69 @@ function ServiceStep({ onSelect, selected }) {
     const others = services.filter(s => !s.is_popular)
 
     return (
-        <div className="flex flex-col gap-4 step-animate">
-            <p className="text-sm text-white/45">Choose the service you want to verify.</p>
+        <div className="flex flex-col step-animate h-full">
+            {/* Sticky top area — stays fixed while services scroll beneath */}
+            <div className="sticky top-0 z-10 bg-[#070D2E] pb-3 flex flex-col gap-3">
+                <p className="text-sm text-white/45">Choose the service you want to verify.</p>
 
-            <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-emerald-500/10 border border-emerald-500/20 self-center">
-                <Shield className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                <span className="text-[11px] font-semibold text-emerald-400">Verified & trusted by millions worldwide</span>
-            </div>
+                <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-emerald-500/10 border border-emerald-500/20 self-center">
+                    <Shield className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                    <span className="text-[11px] font-semibold text-emerald-400">Verified & trusted by millions worldwide</span>
+                </div>
 
-            {/* Testimonial snippet — social proof */}
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.03] border border-white/8">
-                <Quote className="w-4 h-4 text-[#33CCFF]/50 flex-shrink-0 mt-0.5" />
-                <div>
-                    <p className="text-[11px] text-white/50 italic leading-relaxed">"Fast, reliable, and easy – saved me hours!"</p>
-                    <p className="text-[10px] text-white/25 mt-0.5 font-semibold">— Verified User ⭐⭐⭐⭐⭐</p>
+                {/* Testimonial snippet — social proof */}
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.03] border border-white/8">
+                    <Quote className="w-4 h-4 text-[#33CCFF]/50 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <p className="text-[11px] text-white/50 italic leading-relaxed">"Fast, reliable, and easy – saved me hours!"</p>
+                        <p className="text-[10px] text-white/25 mt-0.5 font-semibold">— Verified User ⭐⭐⭐⭐⭐</p>
+                    </div>
+                </div>
+
+                <div className="relative">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <input type="text" placeholder="Search (WhatsApp, Telegram…)"
+                        value={search} onChange={e => setSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/25 text-sm focus:outline-none focus:border-[rgba(51,204,255,0.4)] transition" />
                 </div>
             </div>
 
-            <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                <input type="text" placeholder="Search (WhatsApp, Telegram…)"
-                    value={search} onChange={e => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/25 text-sm focus:outline-none focus:border-[rgba(51,204,255,0.4)] transition" />
+            {/* Scrollable service list */}
+            <div className="flex-1 overflow-y-auto pt-1">
+                {loading ? (
+                    <div className="flex flex-col gap-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-13 rounded-xl bg-white/5 animate-pulse" />)}</div>
+                ) : search ? (
+                    <div className="flex flex-col gap-2">
+                        {filtered.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
+                        {filtered.length === 0 && <p className="text-center text-white/30 text-sm py-6">No services found</p>}
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-4">
+                        {popular.length > 0 && (
+                            <div>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Star className="w-3.5 h-3.5 text-yellow-400" />
+                                    <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Most Popular</span>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    {popular.map((s, i) => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} rank={i + 1} />)}
+                                </div>
+                            </div>
+                        )}
+                        {others.length > 0 && (
+                            <div>
+                                <div className="flex items-center gap-2 mb-2 mt-2">
+                                    <Sparkles className="w-3.5 h-3.5 text-white/30" />
+                                    <span className="text-xs font-bold text-white/50 uppercase tracking-widest">All Services</span>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    {others.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
-
-            {loading ? (
-                <div className="flex flex-col gap-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-13 rounded-xl bg-white/5 animate-pulse" />)}</div>
-            ) : search ? (
-                <div className="flex flex-col gap-2">
-                    {filtered.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
-                    {filtered.length === 0 && <p className="text-center text-white/30 text-sm py-6">No services found</p>}
-                </div>
-            ) : (
-                <>
-                    {popular.length > 0 && (
-                        <div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <Star className="w-3.5 h-3.5 text-yellow-400" />
-                                <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Most Popular</span>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                {popular.map((s, i) => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} rank={i + 1} />)}
-                            </div>
-                        </div>
-                    )}
-                    {others.length > 0 && (
-                        <div>
-                            <div className="flex items-center gap-2 mb-2 mt-2">
-                                <Sparkles className="w-3.5 h-3.5 text-white/30" />
-                                <span className="text-xs font-bold text-white/50 uppercase tracking-widest">All Services</span>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                {others.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
-                            </div>
-                        </div>
-                    )}
-                </>
-            )}
         </div>
     )
 }
@@ -245,43 +251,49 @@ function CountryStep({ service, onSelect, selected }) {
     const totalAvailable = countries.reduce((sum, c) => sum + (c.available_numbers ?? 200), 0)
 
     return (
-        <div className="flex flex-col gap-4 step-animate">
-            <p className="text-sm text-white/45">Choose the country where you need the verification code.</p>
+        <div className="flex flex-col step-animate h-full">
+            {/* Sticky top area — stays fixed while countries scroll beneath */}
+            <div className="sticky top-0 z-10 bg-[#070D2E] pb-3 flex flex-col gap-3">
+                <p className="text-sm text-white/45">Choose the country where you need the verification code.</p>
 
-            {/* Availability summary */}
-            {!loading && totalAvailable > 0 && (
-                <div className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-emerald-500/8 border border-emerald-500/15 self-center">
-                    <Sparkles className="w-3 h-3 text-emerald-400" />
-                    <span className="text-[10px] font-semibold text-emerald-400">{totalAvailable.toLocaleString()} numbers available across {countries.length} countries</span>
+                {/* Availability summary */}
+                {!loading && totalAvailable > 0 && (
+                    <div className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-emerald-500/8 border border-emerald-500/15 self-center">
+                        <Sparkles className="w-3 h-3 text-emerald-400" />
+                        <span className="text-[10px] font-semibold text-emerald-400">{totalAvailable.toLocaleString()} numbers available across {countries.length} countries</span>
+                    </div>
+                )}
+
+                <div className="relative">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <input type="text" placeholder="Search country…"
+                        value={search} onChange={e => setSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/25 text-sm focus:outline-none focus:border-[rgba(51,204,255,0.4)] transition" />
                 </div>
-            )}
-
-            <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                <input type="text" placeholder="Search country…"
-                    value={search} onChange={e => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/25 text-sm focus:outline-none focus:border-[rgba(51,204,255,0.4)] transition" />
             </div>
 
-            {loading ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {Array.from({ length: 9 }).map((_, i) => <div key={i} className="h-20 rounded-xl bg-white/5 animate-pulse" />)}
-                </div>
-            ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[360px] overflow-y-auto pr-1">
-                    {filtered.map(country => (
-                        <CountryCard
-                            key={country.id}
-                            country={country}
-                            service={service}
-                            isSelected={selected?.id === country.id}
-                            onSelect={onSelect}
-                            countdown={country.is_low_stock ? countdown : null}
-                        />
-                    ))}
-                    {filtered.length === 0 && <p className="col-span-3 text-center text-white/30 text-sm py-6">No countries found</p>}
-                </div>
-            )}
+            {/* Scrollable country grid */}
+            <div className="flex-1 overflow-y-auto pt-1">
+                {loading ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {Array.from({ length: 9 }).map((_, i) => <div key={i} className="h-20 rounded-xl bg-white/5 animate-pulse" />)}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pr-1">
+                        {filtered.map(country => (
+                            <CountryCard
+                                key={country.id}
+                                country={country}
+                                service={service}
+                                isSelected={selected?.id === country.id}
+                                onSelect={onSelect}
+                                countdown={country.is_low_stock ? countdown : null}
+                            />
+                        ))}
+                        {filtered.length === 0 && <p className="col-span-3 text-center text-white/30 text-sm py-6">No countries found</p>}
+                    </div>
+                )}
+            </div>
         </div>
     )
 }
@@ -335,32 +347,25 @@ function ConfirmStep({ service, country, wallet, formatNaira }) {
     const rows = [
         {
             label: 'Platform',
-            left: <span className="flex items-center gap-2"><ServiceIconWithFallback icon={service?.icon} name={service?.name} color={service?.color} size="sm" />{service?.name}</span>,
-            right: <span className="font-bold text-white">{service?.name}</span>
+            value: <div className="flex items-center gap-2 text-white justify-end"><ServiceIconWithFallback icon={service?.icon} name={service?.name} color={service?.color} size="sm" /><span className="font-bold">{service?.name}</span></div>
         },
         {
             label: 'Country',
-            left: <span className="flex items-center gap-2"><span className="text-lg">{country?.flag}</span>{country?.name}</span>,
-            right: <span className="font-bold text-white">{formatNaira(cost)}</span>
+            value: <div className="flex items-center gap-2 text-white justify-end"><span className="text-lg leading-none">{country?.flag}</span><span className="font-bold">{country?.name}</span></div>
         },
         {
             label: 'Price',
-            left: <span className="text-white/70">{formatNaira(cost)}</span>,
-            right: <span className="font-bold text-emerald-400">{formatNaira(cost)}</span>
+            value: <span className="font-bold text-emerald-400">{formatNaira(cost)}</span>
         },
         {
             label: 'Wallet Balance',
-            left: <span className={hasSufficientBalance ? 'text-white/70' : 'text-red-400 font-bold'}>{formatNaira(wallet)}</span>,
-            right: <span className={`font-bold ${hasSufficientBalance ? 'text-white' : 'text-red-400'}`}>{formatNaira(wallet)}</span>
+            value: <span className={`font-bold ${hasSufficientBalance ? 'text-white' : 'text-red-400'}`}>{formatNaira(wallet)}</span>
         },
     ]
 
     return (
         <div className="flex flex-col gap-4 step-animate">
-            <div>
-                <p className="text-base font-bold text-white mb-0.5">Confirm</p>
-                <p className="text-sm text-white/45">Review your selection before proceeding.</p>
-            </div>
+            <p className="text-sm text-white/45">Review your selection before proceeding.</p>
 
             {!hasSufficientBalance && (
                 <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/25">
@@ -377,8 +382,8 @@ function ConfirmStep({ service, country, wallet, formatNaira }) {
                 <div className="divide-y divide-white/[0.06]">
                     {rows.map(row => (
                         <div key={row.label} className="flex items-center justify-between px-4 py-3">
-                            <div className="flex items-center gap-2 text-sm text-white/50">{row.label}:{'\u00A0'}<span className="text-white/80">{row.left}</span></div>
-                            <div className="text-sm text-right">{row.right}</div>
+                            <div className="text-sm text-white/50">{row.label}</div>
+                            <div className="text-sm text-right">{row.value}</div>
                         </div>
                     ))}
                 </div>
@@ -694,8 +699,8 @@ export default function RentNumberSection({ wallet, formatNaira, onNavigate, pre
 
     return (
         <div className="flex flex-col gap-6 max-w-2xl">
-            {/* Header */}
-            <div>
+            {/* Sticky header */}
+            <div className="sticky top-[61px] z-30 bg-[rgba(8,10,46,0.97)] backdrop-blur-xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 pb-4 border-b border-white/[0.05]">
                 <h2 className="text-2xl font-bold text-white flex items-center gap-2.5">
                     <Smartphone className="w-6 h-6 text-[#33CCFF]" />
                     Rent Virtual Number

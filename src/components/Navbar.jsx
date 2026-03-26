@@ -8,7 +8,7 @@ export default function Navbar() {
   const [navOpen, setNavOpen] = useState(false)
 
   return (
-    <header className="relative z-10 border-b border-[rgba(0,255,255,0.2)] bg-[#0A0B3D]/90 backdrop-blur-md sticky top-0">
+    <header className="fixed top-0 left-0 w-full z-50 border-b border-[rgba(0,255,255,0.2)] bg-[#0A0B3D]/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 md:px-6">
         <div className="flex items-center">
           <Link to="/">

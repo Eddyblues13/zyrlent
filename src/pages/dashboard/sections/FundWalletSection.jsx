@@ -286,8 +286,8 @@ export default function FundWalletSection({ wallet, formatNaira }) {
 
     return (
         <div className="flex flex-col gap-6 max-w-xl">
-            {/* Header */}
-            <div>
+            {/* Sticky header */}
+            <div className="sticky top-[61px] z-30 bg-[rgba(8,10,46,0.97)] backdrop-blur-xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 pb-4 border-b border-white/[0.05]">
                 <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Wallet className="w-6 h-6 text-[#00FFFF]" />
                     Fund Wallet
