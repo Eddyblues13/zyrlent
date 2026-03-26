@@ -53,41 +53,45 @@ function SearchableDropdown({ label, icon: Icon, items, selected, onSelect, onCl
                 {open && (
                     <>
                         {/* Mobile Backdrop */}
-                        <div className="fixed inset-0 z-40 sm:hidden" onClick={() => setOpen(false)} />
+                        <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm sm:hidden" onClick={() => setOpen(false)} />
                         
-                        <div className="absolute z-50 top-full mt-2 left-0 w-[calc(100vw-48px)] sm:w-full rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(8,10,46,0.97)] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col origin-top max-h-[60vh] sm:max-h-[300px]">
+                        <div className="fixed inset-x-0 bottom-0 z-50 flex flex-col max-h-[85vh] rounded-t-3xl border-t border-x border-[rgba(255,255,255,0.12)] bg-[rgba(8,10,46,0.98)] backdrop-blur-xl shadow-[0_-20px_60px_rgba(0,0,0,0.8)] overflow-hidden sm:absolute sm:inset-auto sm:left-0 sm:top-full sm:mt-2 sm:w-full sm:max-h-[300px] sm:rounded-xl sm:border sm:shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+                            {/* Mobile Drag Handle */}
+                            <div className="flex justify-center pt-3 pb-1 sm:hidden bg-white/[0.02]">
+                                <div className="w-12 h-1.5 rounded-full bg-white/20" />
+                            </div>
+
                             {/* Search Sticky Header */}
-                            <div className="p-3 border-b border-white/8 bg-white/[0.02] sticky top-0 z-10">
+                            <div className="p-4 sm:p-3 border-b border-white/8 bg-white/[0.02] sticky top-0 z-10">
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
+                                    <Search className="absolute left-4 sm:left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                                     <input
                                         type="text"
                                         placeholder={searchPlaceholder}
                                         value={search}
                                         onChange={e => setSearch(e.target.value)}
-                                        autoFocus
-                                        className="w-full pl-9 pr-3 py-2 rounded-lg bg-white/[0.05] border border-white/8 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[rgba(0,255,255,0.3)] transition"
+                                        className="w-full pl-11 sm:pl-9 pr-4 sm:pr-3 py-3 sm:py-2 rounded-xl sm:rounded-lg bg-white/[0.05] border border-white/10 text-[16px] sm:text-sm text-white placeholder-white/30 focus:outline-none focus:border-[rgba(0,255,255,0.3)] transition"
                                     />
                                 </div>
                             </div>
                             
                             {/* Scrollable List */}
-                            <div className="flex-1 overflow-y-auto w-full">
+                            <div className="flex-1 overflow-y-auto w-full pb-6 sm:pb-0">
                                 {loading ? (
-                                    <div className="flex items-center justify-center py-8">
-                                        <Loader2 className="w-5 h-5 text-[#00FFFF] animate-spin" />
+                                    <div className="flex items-center justify-center py-10">
+                                        <Loader2 className="w-6 h-6 text-[#00FFFF] animate-spin" />
                                     </div>
                                 ) : filtered.length === 0 ? (
-                                    <div className="py-6 text-center text-white/25 text-sm">No results found</div>
+                                    <div className="py-8 text-center text-white/30 text-[15px] sm:text-sm">No results found</div>
                                 ) : filtered.map(item => (
                                     <button
                                         key={item.id}
                                         onClick={() => { onSelect(item); setOpen(false); setSearch('') }}
-                                        className={`w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/[0.05] transition ${selected?.id === item.id ? 'bg-[rgba(0,255,255,0.06)]' : ''}`}
+                                        className={`w-full flex items-center justify-between px-5 sm:px-4 py-4 sm:py-3 text-left hover:bg-white/[0.06] transition border-b border-white/[0.02] last:border-0 ${selected?.id === item.id ? 'bg-[rgba(0,255,255,0.08)]' : ''}`}
                                     >
                                         {renderItem(item)}
                                         {selected?.id === item.id && (
-                                            <CheckCircle2 className="w-4 h-4 text-[#00FFFF] flex-shrink-0 ml-2" />
+                                            <CheckCircle2 className="w-5 h-5 sm:w-4 sm:h-4 text-[#00FFFF] flex-shrink-0 ml-2 shadow-[0_0_10px_rgba(0,255,255,0.2)] rounded-full" />
                                         )}
                                     </button>
                                 ))}
