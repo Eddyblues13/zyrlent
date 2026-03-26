@@ -387,7 +387,7 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                 {rentStep === 'select' && (
                     <div className="px-6 py-5">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-visible relative">
-                            <div className="relative z-20">
+                            <div className="relative">
                                 <SearchableDropdown
                                     label="Select Service"
                                     icon={Search}
@@ -417,7 +417,7 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                                     )}
                                 />
                             </div>
-                            <div className="relative z-10">
+                            <div className="relative">
                                 <SearchableDropdown
                                     label="Select Country"
                                     icon={Globe}
