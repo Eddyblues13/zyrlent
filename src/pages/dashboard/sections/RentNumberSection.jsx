@@ -60,8 +60,9 @@ function ModalStepBar({ step }) {
 }
 
 // ─── Service Row ───────────────────────────────────────────────
-function ServiceRow({ service, selected, onSelect, rank }) {
+function ServiceRow({ service, selected, onSelect, rank, formatNaira }) {
     const isSelected = selected?.id === service.id
+    const cost = parseFloat(service?.cost || 0)
     return (
         <button onClick={() => onSelect(service)}
             className={`flex items-center gap-3 w-full p-3 rounded-xl border text-left transition-all group ${isSelected
@@ -71,7 +72,15 @@ function ServiceRow({ service, selected, onSelect, rank }) {
             <ServiceIconWithFallback icon={service.icon} name={service.name} color={service.color} size="md" />
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-white truncate">{service.name}</p>
-                <p className="text-xs text-white/35">{service.category || 'Verification'}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs text-white/35">{service.category || 'Verification'}</p>
+                    {cost > 0 && (
+                        <>
+                            <span className="text-[10px] text-white/20">•</span>
+                            <span className="text-xs font-semibold text-[#00FFFF]">{formatNaira ? formatNaira(cost) : `₦${cost}`}</span>
+                        </>
+                    )}
+                </div>
             </div>
             {rank && <span className="text-[9px] font-bold text-white/25 tracking-wide flex-shrink-0">#{rank}</span>}
             <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${isSelected ? 'border-[#33CCFF] bg-[#33CCFF]' : 'border-white/20 group-hover:border-white/40'}`}>
@@ -82,7 +91,7 @@ function ServiceRow({ service, selected, onSelect, rank }) {
 }
 
 // ─── Step 1: Select Service ────────────────────────────────────
-function ServiceStep({ onSelect, selected }) {
+function ServiceStep({ onSelect, selected, formatNaira }) {
     const [services, setServices] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
@@ -96,16 +105,14 @@ function ServiceStep({ onSelect, selected }) {
 
     const filtered = services.filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
 
-    // Sort popular with explicit order: WhatsApp, Telegram, TikTok, Instagram, Facebook first
-    const POPULAR_ORDER = ['whatsapp', 'telegram', 'tiktok', 'instagram', 'facebook']
-    const popular = services.filter(s => s.is_popular).sort((a, b) => {
+    // Custom popular order as requested: Instagram, TikTok, Facebook
+    const POPULAR_ORDER = ['instagram', 'tiktok', 'facebook']
+    const popular = services.filter(s => POPULAR_ORDER.some(name => s.name.toLowerCase().includes(name))).sort((a, b) => {
         const aIdx = POPULAR_ORDER.findIndex(name => a.name.toLowerCase().includes(name))
         const bIdx = POPULAR_ORDER.findIndex(name => b.name.toLowerCase().includes(name))
-        const aRank = aIdx === -1 ? POPULAR_ORDER.length : aIdx
-        const bRank = bIdx === -1 ? POPULAR_ORDER.length : bIdx
-        return aRank - bRank
+        return aIdx - bIdx
     })
-    const others = services.filter(s => !s.is_popular)
+    const others = services.filter(s => !POPULAR_ORDER.some(name => s.name.toLowerCase().includes(name)))
 
     return (
         <div className="flex flex-col step-animate h-full">
@@ -129,7 +136,7 @@ function ServiceStep({ onSelect, selected }) {
 
                 <div className="relative">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                    <input type="text" placeholder="Search (WhatsApp, Telegram…)"
+                    <input type="text" placeholder="Search (Instagram, TikTok, Facebook…)"
                         value={search} onChange={e => setSearch(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/25 text-sm focus:outline-none focus:border-[rgba(51,204,255,0.4)] transition" />
                 </div>
@@ -141,7 +148,7 @@ function ServiceStep({ onSelect, selected }) {
                     <div className="flex flex-col gap-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-13 rounded-xl bg-white/5 animate-pulse" />)}</div>
                 ) : search ? (
                     <div className="flex flex-col gap-2">
-                        {filtered.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
+                        {filtered.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} formatNaira={formatNaira} />)}
                         {filtered.length === 0 && <p className="text-center text-white/30 text-sm py-6">No services found</p>}
                     </div>
                 ) : (
@@ -153,7 +160,7 @@ function ServiceStep({ onSelect, selected }) {
                                     <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Most Popular</span>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    {popular.map((s, i) => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} rank={i + 1} />)}
+                                    {popular.map((s, i) => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} rank={i + 1} formatNaira={formatNaira} />)}
                                 </div>
                             </div>
                         )}
@@ -164,7 +171,7 @@ function ServiceStep({ onSelect, selected }) {
                                     <span className="text-xs font-bold text-white/50 uppercase tracking-widest">All Services</span>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    {others.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
+                                    {others.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} formatNaira={formatNaira} />)}
                                 </div>
                             </div>
                         )}
@@ -246,7 +253,19 @@ function CountryStep({ service, onSelect, selected }) {
     const filtered = countries.filter(c =>
         c.name.toLowerCase().includes(search.toLowerCase()) ||
         c.code?.toLowerCase().includes(search.toLowerCase())
-    )
+    ).sort((a, b) => {
+        if (a.is_most_used && !b.is_most_used) return -1;
+        if (!a.is_most_used && b.is_most_used) return 1;
+        
+        // If both are popular, prioritize UK, then US, then CA
+        if (a.is_most_used && b.is_most_used) {
+            const getRank = (c) => c.code === 'GB' ? 1 : c.code === 'US' ? 2 : 3;
+            return getRank(a) - getRank(b);
+        }
+        
+        // Otherwise sort alphabetically
+        return a.name.localeCompare(b.name);
+    })
 
     const totalAvailable = countries.reduce((sum, c) => sum + (c.available_numbers ?? 200), 0)
 
@@ -622,8 +641,8 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
 
                 {/* Content — scrollable */}
                 <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
-                    {step === 0 && <ServiceStep onSelect={handleServiceSelect} selected={service} />}
-                    {step === 1 && <CountryStep service={service} onSelect={handleCountrySelect} selected={country} />}
+                    {step === 0 && <ServiceStep onSelect={handleServiceSelect} selected={service} formatNaira={formatNaira} />}
+                    {step === 1 && <CountryStep onSelect={handleCountrySelect} selected={country} service={service} formatNaira={formatNaira} />}
                     {step === 2 && <RentalTypeStep service={service} country={country} formatNaira={formatNaira} />}
                     {step === 3 && <ConfirmStep service={service} country={country} wallet={wallet} formatNaira={formatNaira} />}
                     {step === 4 && (

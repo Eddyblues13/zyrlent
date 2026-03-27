@@ -23,7 +23,7 @@ export default function Footer() {
               <a href="https://www.linkedin.com/company/zyrlent" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#22223b] text-white hover:bg-[#333356] transition">
                 <FaLinkedin className="h-5 w-5" />
               </a>
-              <a href="https://www.instagram.com/zyrlentapp?igsh=MTZpazlyaWNrejFoMg==" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#22223b] text-white hover:bg-[#333356] transition">
+              <a href="https://www.instagram.com/_zyrlent?igsh=YXg5Z3Qwczlnejlr" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#22223b] text-white hover:bg-[#333356] transition">
                 <FaInstagram className="h-5 w-5" />
               </a>
               <a href="https://x.com/zyrlent" target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#22223b] text-white hover:bg-[#333356] transition">
