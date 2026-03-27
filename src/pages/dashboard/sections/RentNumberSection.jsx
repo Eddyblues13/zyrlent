@@ -11,7 +11,7 @@ import toast from 'react-hot-toast'
 
 // ─── Modal Step Indicator ──────────────────────────────────────
 const STEPS = [
-    { full: 'Select Platform', short: 'Platform' },
+    { full: 'Select Service', short: 'Service' },
     { full: 'Select Country', short: 'Country' },
     { full: 'Rental Type', short: 'Type' },
     { full: 'Confirm', short: 'Confirm' },
@@ -346,7 +346,7 @@ function ConfirmStep({ service, country, wallet, formatNaira }) {
 
     const rows = [
         {
-            label: 'Platform',
+            label: 'Service',
             value: <div className="flex items-center gap-2 text-white justify-end"><ServiceIconWithFallback icon={service?.icon} name={service?.name} color={service?.color} size="sm" /><span className="font-bold">{service?.name}</span></div>
         },
         {
@@ -501,7 +501,7 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
 }
 
 // ─── The Rent Number Modal ─────────────────────────────────────
-function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initialService, initialCountry }) {
+export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initialService, initialCountry, inline = false }) {
     const [step, setStep] = useState(initialService ? (initialCountry ? 2 : 1) : 0)
     const [service, setService] = useState(initialService || null)
     const [country, setCountry] = useState(initialCountry || null)
@@ -577,24 +577,23 @@ function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initialServi
     const hasFunds = (wallet || 0) >= cost
     const canClose = step < 4 || !order || ['cancelled', 'expired'].includes(order?.status) || !!order?.otp_code
 
-    const stepLabel = ['Select Platform', 'Select Country', 'Rental Type', 'Confirm'][Math.min(step, 3)]
+    const stepLabel = ['Select Service', 'Select Country', 'Rental Type', 'Confirm'][Math.min(step, 3)]
 
-    return (
-        <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 sm:p-6"
-            onMouseDown={(e) => { if (e.target === e.currentTarget && canClose) onClose() }}
-        >
-            <div className="relative w-full sm:w-[540px] sm:max-w-[92vw] flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] rounded-t-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-[92svh] sm:h-auto sm:max-h-[88vh]">
+    const content = (
+        <div className={`relative w-full flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] ${inline ? 'rounded-2xl h-[600px] shadow-[0_0_40px_rgba(0,102,255,0.1)]' : 'sm:w-[540px] sm:max-w-[92vw] rounded-t-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-[92svh] sm:h-auto sm:max-h-[88vh]'}`}>
 
-                {/* Mobile drag handle */}
+            {/* Mobile drag handle */}
+            {!inline && (
                 <div className="flex justify-center pt-3 pb-1 sm:hidden flex-shrink-0">
                     <div className="w-10 h-1 rounded-full bg-white/20" />
                 </div>
+            )}
 
-                {/* Glow bar top */}
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#33CCFF] to-transparent opacity-50" />
+            {/* Glow bar top */}
+            <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#33CCFF] to-transparent opacity-50 ${inline ? 'rounded-t-2xl' : ''}`} />
 
-                {/* Modal Header */}
+            {/* Modal Header */}
+            {!inline && (
                 <div className="flex items-center justify-between px-4 sm:px-6 pt-3 sm:pt-5 pb-3 sm:pb-4 border-b border-white/[0.07] flex-shrink-0">
                     <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                         <span className="text-[#33CCFF]">Z</span> Rent Number
@@ -605,6 +604,7 @@ function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initialServi
                         </button>
                     )}
                 </div>
+            )}
 
                 {/* Step Bar — only for steps 0-3 */}
                 {step < 4 && (
@@ -671,6 +671,16 @@ function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initialServi
                     </div>
                 )}
             </div>
+        )
+        
+    if (inline) return content
+
+    return (
+        <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 sm:p-6"
+            onMouseDown={(e) => { if (e.target === e.currentTarget && canClose) onClose() }}
+        >
+            {content}
         </div>
     )
 }

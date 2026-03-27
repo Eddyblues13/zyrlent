@@ -136,7 +136,7 @@ function OPayTab() {
     const [submitted, setSubmitted] = useState(false)
 
     const BANK_ACCOUNT = {
-        bank: 'Providus Bank',
+        bank: 'PROVIDUS BANK',
         accountName: 'SHOBiZ TECHNOLOGIES LTD',
         accountNumber: '4209298044',
     }
@@ -173,7 +173,7 @@ function OPayTab() {
                 </div>
                 <div>
                     <p className="text-sm font-bold text-white">Manual Bank Transfer</p>
-                    <p className="text-xs text-white/40 mt-0.5">Transfer from any bank to our Providus Bank account</p>
+                    <p className="text-xs text-white/40 mt-0.5">Transfer from any bank to our PROVIDUS BANK account</p>
                 </div>
                 <div className="ml-auto flex items-center gap-1 text-amber-400 text-xs font-semibold bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20 whitespace-nowrap">
                     <AlertCircle className="w-3 h-3" /> Manual
@@ -310,8 +310,10 @@ export default function FundWalletSection({ wallet, formatNaira }) {
             </div>
 
             {/* Payment Method Tabs */}
-            <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)]">
-                <button
+            <div>
+                <label className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2.5 block">Payment Method</label>
+                <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)]">
+                    <button
                     onClick={() => setTab('korapay')}
                     className={`flex items-center justify-center gap-2.5 py-3 rounded-lg text-sm font-bold transition ${tab === 'korapay'
                         ? 'bg-[#1760EF]/20 text-white border border-[#1760EF]/40 shadow-[0_0_12px_rgba(23,96,239,0.2)]'
@@ -334,8 +336,9 @@ export default function FundWalletSection({ wallet, formatNaira }) {
                     <span className="text-[9px] bg-amber-400/15 text-amber-400 px-1.5 py-0.5 rounded font-semibold">5-30m</span>
                 </button>
             </div>
+        </div>
 
-            {/* Tab Content */}
+        {/* Tab Content */}
             {tab === 'korapay' ? (
                 <KoraPayTab wallet={wallet} formatNaira={formatNaira} />
             ) : (
