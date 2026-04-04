@@ -105,8 +105,8 @@ function ServiceStep({ onSelect, selected, formatNaira }) {
 
     const filtered = services.filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
 
-    // Custom popular order as requested: Instagram, TikTok, Facebook
-    const POPULAR_ORDER = ['instagram', 'tiktok', 'facebook']
+    // Custom popular order as requested: WhatsApp, Telegram, Instagram, TikTok, Facebook
+    const POPULAR_ORDER = ['whatsapp', 'telegram', 'instagram', 'tiktok', 'facebook']
     const popular = services.filter(s => POPULAR_ORDER.some(name => s.name.toLowerCase().includes(name))).sort((a, b) => {
         const aIdx = POPULAR_ORDER.findIndex(name => a.name.toLowerCase().includes(name))
         const bIdx = POPULAR_ORDER.findIndex(name => b.name.toLowerCase().includes(name))
