@@ -44,14 +44,25 @@ export default function Footer() {
               </div>
             </div>
           </div>
+
+          {/* Right Section: Contact */}
+          <div className="lg:col-span-8 flex flex-col lg:items-end mt-4 lg:mt-0">
+            <div className="flex flex-col gap-4">
+              <h4 className="text-lg font-semibold text-[#FFFFFF]">Contact</h4>
+              <a href="mailto:support@zyrlent.com" className="text-[#FFFFFF]/70 hover:text-[#00FFFF] transition">
+                support@zyrlent.com
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Full-width line under social icons section */}
         <div className="mt-12 h-[2px] w-full bg-[rgba(255,255,255,0.4)]"></div>
 
         <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-sm text-[#FFFFFF]/60">
-            © 2024 Zyrlent. All rights reserved.
+          <div className="flex flex-col gap-1 text-sm text-[#FFFFFF]/60 text-center md:text-left">
+            <span>© 2024 Zyrlent. All rights reserved.</span>
+            <span>Zyrlent is operated by SHOBIZ TECHNOLOGIES LTD</span>
           </div>
 
           <div className="flex items-center gap-2 rounded border border-[#FFFFFF]/20 bg-[#FFFFFF]/5 px-3 py-1 text-xs font-bold tracking-widest text-[#FFFFFF]/80">

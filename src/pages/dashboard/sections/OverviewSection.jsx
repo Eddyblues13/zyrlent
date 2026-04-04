@@ -9,6 +9,32 @@ import { RentNumberModal } from './RentNumberSection'
 // Searchable Dropdown Removed
 export default function OverviewSection({ user, wallet, stats, formatNaira, onNavigate, onWalletUpdate }) {
     const [showBalance, setShowBalance] = useState(true)
+    const [recentOrders, setRecentOrders] = useState([])
+    const [loadingOrders, setLoadingOrders] = useState(true)
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const res = await api.get('/api/orders', { params: { per_page: 3 } })
+                setRecentOrders(res.data.data || [])
+            } catch (e) {
+                console.error('Failed to load recent orders', e)
+            } finally {
+                setLoadingOrders(false)
+            }
+        }
+        fetchOrders()
+    }, [])
+
+    const timeAgo = (dateStr) => {
+        const date = new Date(dateStr)
+        if (isNaN(date)) return 'Just now'
+        const diff = Math.floor((new Date() - date) / 1000)
+        if (diff < 60) return `${diff < 0 ? 0 : diff} sec ago`
+        if (diff < 3600) return `${Math.floor(diff/60)} min ago`
+        if (diff < 86400) return `${Math.floor(diff/3600)} hr ago`
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    }
 
     return (
         <div className="flex flex-col gap-8">
@@ -90,9 +116,104 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                 wallet={wallet}
                 formatNaira={formatNaira}
                 onClose={() => {}}
-                onSuccess={onWalletUpdate}
+                onSuccess={(b) => {
+                    onWalletUpdate(b)
+                    // Refresh recent orders when a new one is successfully placed
+                    api.get('/api/orders', { params: { per_page: 3 } }).then(res => setRecentOrders(res.data.data || []))
+                }}
                 inline={true}
             />
+
+            {/* Live Verification & Recent Orders Section */}
+            <div className="flex flex-col gap-6 w-full -mt-2">
+                
+                {/* Live Verification Activity */}
+                <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(15,20,60,0.7)] to-[rgba(10,11,61,0.95)] overflow-hidden">
+                    <div className="px-4 py-3 border-b border-white/[0.05] flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></div>
+                        <h4 className="text-sm font-bold text-white">Live Verification Activity</h4>
+                    </div>
+                    <div className="flex flex-col divide-y divide-white/[0.05]">
+                        {[
+                            { flag: '🇺🇸', name: '+1 USA', service: 'WhatsApp', time: '5 sec ago' },
+                            { flag: '🇬🇧', name: '+44 UK', service: 'Telegram', time: '9 sec ago' },
+                            { flag: '🇩🇪', name: '+49 Germany', service: 'Google', time: '14 sec ago' },
+                        ].map((item, i) => (
+                            <div key={i} className="flex items-center justify-between px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-lg leading-none">{item.flag}</span>
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="text-xs font-semibold text-white/90">{item.name}</span>
+                                        <span className="text-[11px] text-white/50">{item.service}</span>
+                                        <CheckCircle2 className="w-3 h-3 text-emerald-400 opacity-80" />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-medium bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">
+                                    <CheckCircle2 className="w-2.5 h-2.5" /> {item.time}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Your Recent Orders */}
+                <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(15,20,60,0.7)] to-[rgba(10,11,61,0.95)] overflow-hidden">
+                    <div className="px-4 py-3 border-b border-white/[0.05] flex items-center justify-between">
+                        <h4 className="text-sm font-bold text-white">Your Recent Orders</h4>
+                        <button onClick={() => onNavigate('transactions')} className="text-xs font-semibold text-[#00FFFF] hover:underline">
+                            View All
+                        </button>
+                    </div>
+                    
+                    {loadingOrders ? (
+                        <div className="py-8 flex justify-center"><Loader2 className="w-5 h-5 text-[#00FFFF] animate-spin" /></div>
+                    ) : recentOrders.length === 0 ? (
+                        <div className="py-8 text-center text-xs text-white/40">No recent orders found.</div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr className="bg-[rgba(255,255,255,0.02)] text-left">
+                                        {['Service', 'Number', 'Status', 'SMS', 'Time'].map((h, i) => (
+                                            <th key={h} className={`px-4 py-2 text-[10px] font-bold text-white/40 uppercase tracking-wider ${i === 1 ? 'min-w-[110px]' : ''}`}>{h}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/[0.05]">
+                                    {recentOrders.map(order => (
+                                        <tr key={order.id} className="hover:bg-white/[0.02] transition-colors">
+                                            <td className="px-4 py-2.5">
+                                                <span className="flex items-center gap-1.5 text-xs font-semibold text-white/90">
+                                                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: order.service?.color || '#00FFFF' }} />
+                                                    {order.service?.name}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-2.5 text-xs font-mono text-[#00FFFF]">{order.phone_number || '—'}</td>
+                                            <td className="px-4 py-2.5">
+                                                <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
+                                                    order.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                                    order.status === 'pending' ? 'bg-amber-400/10 text-amber-400 border-amber-400/20' :
+                                                    'bg-white/5 text-white/40 border-white/10'
+                                                }`}>
+                                                    {order.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-2.5 text-xs max-w-[120px] truncate">
+                                                {order.otp_code 
+                                                    ? <span className="text-emerald-400 font-mono font-semibold" title={order.otp_code}>{order.otp_code}</span> 
+                                                    : <span className="text-white/25 text-[10px] italic">Waiting…</span>
+                                                }
+                                            </td>
+                                            <td className="px-4 py-2.5 text-[10px] font-medium text-white/40 whitespace-nowrap">{timeAgo(order.created_at)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            </div>
+
         </div>
     )
 }
