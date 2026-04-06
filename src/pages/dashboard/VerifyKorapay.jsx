@@ -18,27 +18,46 @@ export default function VerifyKorapay() {
             return
         }
 
+        let attempts = 0
+        const maxAttempts = 4
+        const retryDelay = 3000 // 3 seconds between retries
+
         const verifyPayment = async () => {
+            attempts++
             try {
-                const response = await api.post('/wallet/korapay/verify', { reference })
+                const response = await api.post('/api/wallet/korapay/verify', { reference })
 
                 if (response.data.success) {
                     setStatus('success')
                     setMessage(response.data.message || 'Payment successful! Wallet funded.')
-                    // Automatically redirect to wallet after success
                     setTimeout(() => navigate('/user/fund-wallet'), 3000)
                 } else {
-                    setStatus('failed')
-                    setMessage(response.data.message || 'Payment verification failed.')
+                    // If still processing and we have retries left, try again
+                    const msg = response.data.message || ''
+                    if (msg.toLowerCase().includes('processing') && attempts < maxAttempts) {
+                        setMessage(`Payment is still being processed... (attempt ${attempts}/${maxAttempts})`)
+                        setTimeout(verifyPayment, retryDelay)
+                    } else {
+                        setStatus('failed')
+                        setMessage(msg || 'Payment verification failed.')
+                    }
                 }
-                // eslint-disable-next-line no-unused-vars
             } catch (error) {
-                setStatus('failed')
-                setMessage('The payment was cancelled or verification failed.')
+                const errorMsg = error.response?.data?.message || ''
+                // If still processing or a temporary error, retry
+                if (attempts < maxAttempts && (errorMsg.toLowerCase().includes('processing') || error.response?.status === 502)) {
+                    setMessage(`Payment is still being processed... (attempt ${attempts}/${maxAttempts})`)
+                    setTimeout(verifyPayment, retryDelay)
+                } else {
+                    setStatus('failed')
+                    setMessage(errorMsg || 'The payment was cancelled or verification failed.')
+                }
             }
         }
 
-        verifyPayment()
+        // Small delay before first verify to give KoraPay time to finalize
+        const timer = setTimeout(verifyPayment, 1500)
+        return () => clearTimeout(timer)
     }, [reference, navigate])
 
     return (

@@ -14,10 +14,8 @@ function KoraPayTab({ wallet, formatNaira }) {
         if (!amount || parseFloat(amount) < 100) return
         setLoading(true)
         try {
-            const redirectUrl = window.location.origin + '/dashboard?payment=success';
             const res = await api.post('/api/wallet/korapay/initialize', {
                 amount: parseFloat(amount),
-                redirect_url: redirectUrl
             });
 
             if (res.data.checkout_url) {
