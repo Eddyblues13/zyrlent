@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Search, Plus, Trash2, Edit3, ToggleLeft, ToggleRight, Download, Loader2, X, Check, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Plus, Trash2, Edit3, ToggleLeft, ToggleRight, Download, Loader2, X, Check, ChevronLeft, ChevronRight, Percent } from 'lucide-react'
 import adminApi from '../../../lib/adminAxios'
 import { ServiceIconWithFallback } from '../../../components/ServiceIcon'
 import toast from 'react-hot-toast'
@@ -17,6 +17,9 @@ export default function ManageServicesSection() {
     const [selectedSuggestions, setSelectedSuggestions] = useState([])
     const [importing, setImporting] = useState(false)
     const [page, setPage] = useState(1)
+    const [showBulkAdjust, setShowBulkAdjust] = useState(false)
+    const [bulkPercent, setBulkPercent] = useState('')
+    const [bulkAdjusting, setBulkAdjusting] = useState(false)
 
     const loadServices = useCallback(() => {
         setLoading(true)
@@ -79,6 +82,21 @@ export default function ManageServicesSection() {
         finally { setImporting(false) }
     }
 
+    const handleBulkAdjust = async () => {
+        const pct = parseFloat(bulkPercent)
+        if (isNaN(pct) || pct === 0) return toast.error('Enter a valid non-zero percentage')
+        if (!confirm(`This will ${pct > 0 ? 'increase' : 'decrease'} ALL service prices by ${Math.abs(pct)}%. Continue?`)) return
+        setBulkAdjusting(true)
+        try {
+            const r = await adminApi.post('/api/admin/services/bulk-adjust-prices', { percentage: pct })
+            toast.success(r.data.message)
+            setBulkPercent('')
+            setShowBulkAdjust(false)
+            loadServices()
+        } catch { toast.error('Bulk adjust failed') }
+        finally { setBulkAdjusting(false) }
+    }
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -88,7 +106,11 @@ export default function ManageServicesSection() {
                     <input type="text" placeholder="Search services..." value={search} onChange={e => setSearch(e.target.value)}
                         className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-sm text-white placeholder-white/25 focus:outline-none focus:border-[rgba(255,149,0,0.4)] transition" />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                    <button onClick={() => setShowBulkAdjust(p => !p)}
+                        className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/10 text-sm text-white/70 hover:text-[#FF9500] hover:border-[rgba(255,149,0,0.3)] transition flex items-center justify-center gap-2">
+                        <Percent className="w-4 h-4" /> Bulk Adjust
+                    </button>
                     <button onClick={fetchSuggestions}
                         className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/10 text-sm text-white/70 hover:text-[#FF9500] hover:border-[rgba(255,149,0,0.3)] transition flex items-center justify-center gap-2">
                         <Download className="w-4 h-4" /> <span className="hidden sm:inline">Fetch</span> Suggestions
@@ -99,6 +121,36 @@ export default function ManageServicesSection() {
                     </button>
                 </div>
             </div>
+
+            {/* Bulk Price Adjust Panel */}
+            {showBulkAdjust && (
+                <div className="rounded-2xl border border-[rgba(255,149,0,0.15)] bg-[rgba(15,20,60,0.8)] backdrop-blur-xl p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-bold text-white">Bulk Adjust Service Prices</h3>
+                        <button onClick={() => setShowBulkAdjust(false)} className="text-white/30 hover:text-white/60"><X className="w-5 h-5" /></button>
+                    </div>
+                    <p className="text-xs text-white/40 mb-3">Enter a percentage to increase (+) or decrease (-) all service prices at once.</p>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-1.5">
+                            <input type="number" placeholder="e.g. 10 or -5" value={bulkPercent} onChange={e => setBulkPercent(e.target.value)}
+                                className="w-32 px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-sm text-white placeholder-white/25 focus:outline-none focus:border-[rgba(255,149,0,0.4)]" />
+                            <span className="text-sm text-white/50">%</span>
+                        </div>
+                        <div className="flex gap-2">
+                            {[5, 10, 20, -5, -10].map(p => (
+                                <button key={p} onClick={() => setBulkPercent(String(p))}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${String(p) === bulkPercent ? 'bg-[rgba(255,149,0,0.15)] border-[rgba(255,149,0,0.4)] text-[#FF9500]' : 'bg-white/[0.03] border-white/8 text-white/50 hover:text-white hover:bg-white/[0.06]'}`}>
+                                    {p > 0 ? '+' : ''}{p}%
+                                </button>
+                            ))}
+                        </div>
+                        <button onClick={handleBulkAdjust} disabled={bulkAdjusting || !bulkPercent}
+                            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF9500] to-[#FF6B00] text-white text-sm font-bold disabled:opacity-40 flex items-center gap-2">
+                            {bulkAdjusting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Percent className="w-4 h-4" />} Apply
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Suggestions Modal */}
             {showSuggestions && (

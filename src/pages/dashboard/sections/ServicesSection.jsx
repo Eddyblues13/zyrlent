@@ -103,10 +103,9 @@ export default function ServicesSection({ onNavigate }) {
                             </div>
 
                             <p className="text-sm font-bold text-white mb-0.5">{service.name}</p>
-                            <p className="text-[11px] text-white/40 mb-3">{service.category}</p>
+                            <p className="text-[11px] text-white/40 mb-2">{service.category}</p>
 
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-[#00FFFF]">₦{parseFloat(service.cost).toLocaleString()}</span>
+                            <div className="flex items-center justify-end">
                                 <span className="flex items-center gap-0.5 text-[10px] text-emerald-400">
                                     <CheckCircle className="w-3 h-3" /> Active
                                 </span>

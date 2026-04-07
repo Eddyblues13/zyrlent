@@ -60,9 +60,8 @@ function ModalStepBar({ step }) {
 }
 
 // ─── Service Row ───────────────────────────────────────────────
-function ServiceRow({ service, selected, onSelect, rank, formatNaira }) {
+function ServiceRow({ service, selected, onSelect, rank }) {
     const isSelected = selected?.id === service.id
-    const cost = parseFloat(service?.cost || 0)
     return (
         <button onClick={() => onSelect(service)}
             className={`flex items-center gap-3 w-full p-3 rounded-xl border text-left transition-all group ${isSelected
@@ -72,15 +71,7 @@ function ServiceRow({ service, selected, onSelect, rank, formatNaira }) {
             <ServiceIconWithFallback icon={service.icon} name={service.name} color={service.color} size="md" />
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-white truncate">{service.name}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                    <p className="text-xs text-white/35">{service.category || 'Verification'}</p>
-                    {cost > 0 && (
-                        <>
-                            <span className="text-[10px] text-white/20">•</span>
-                            <span className="text-xs font-semibold text-[#00FFFF]">{formatNaira ? formatNaira(cost) : `₦${cost}`}</span>
-                        </>
-                    )}
-                </div>
+                <p className="text-xs text-white/35 mt-0.5">{service.category || 'Verification'}</p>
             </div>
             {rank && <span className="text-[9px] font-bold text-white/25 tracking-wide flex-shrink-0">#{rank}</span>}
             <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${isSelected ? 'border-[#33CCFF] bg-[#33CCFF]' : 'border-white/20 group-hover:border-white/40'}`}>
@@ -91,7 +82,7 @@ function ServiceRow({ service, selected, onSelect, rank, formatNaira }) {
 }
 
 // ─── Step 1: Select Service ────────────────────────────────────
-function ServiceStep({ onSelect, selected, formatNaira }) {
+function ServiceStep({ onSelect, selected }) {
     const [services, setServices] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
@@ -148,7 +139,7 @@ function ServiceStep({ onSelect, selected, formatNaira }) {
                     <div className="flex flex-col gap-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-13 rounded-xl bg-white/5 animate-pulse" />)}</div>
                 ) : search ? (
                     <div className="flex flex-col gap-2">
-                        {filtered.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} formatNaira={formatNaira} />)}
+                        {filtered.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
                         {filtered.length === 0 && <p className="text-center text-white/30 text-sm py-6">No services found</p>}
                     </div>
                 ) : (
@@ -160,7 +151,7 @@ function ServiceStep({ onSelect, selected, formatNaira }) {
                                     <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Most Popular</span>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    {popular.map((s, i) => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} rank={i + 1} formatNaira={formatNaira} />)}
+                                    {popular.map((s, i) => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} rank={i + 1} />)}
                                 </div>
                             </div>
                         )}
@@ -171,7 +162,7 @@ function ServiceStep({ onSelect, selected, formatNaira }) {
                                     <span className="text-xs font-bold text-white/50 uppercase tracking-widest">All Services</span>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    {others.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} formatNaira={formatNaira} />)}
+                                    {others.map(s => <ServiceRow key={s.id} service={s} selected={selected} onSelect={onSelect} />)}
                                 </div>
                             </div>
                         )}
@@ -193,8 +184,7 @@ function useCountdownTimer(minutes = 15) {
 }
 
 // ─── Country Card with optional countdown ──────────────────────
-function CountryCard({ country, service, isSelected, onSelect, countdown }) {
-    const cost = parseFloat(service?.cost || 0)
+function CountryCard({ country, isSelected, onSelect, countdown }) {
     const available = country.available_numbers ?? 200
     const successRate = parseFloat(country.success_rate || 95)
     return (
@@ -211,9 +201,7 @@ function CountryCard({ country, service, isSelected, onSelect, countdown }) {
             <span className="text-2xl">{country.flag}</span>
             <p className="text-xs font-bold text-white leading-tight">{country.name}</p>
             <div className="flex items-center gap-1.5">
-                <p className="text-[11px] font-bold text-[#33CCFF]">₦{cost.toLocaleString()}</p>
-                <span className="text-[9px] text-emerald-400/80">·</span>
-                <p className="text-[9px] text-emerald-400/80">{successRate}%</p>
+                <p className="text-[11px] text-emerald-400/80">{successRate}% success</p>
             </div>
             {country.is_low_stock ? (
                 <>
@@ -303,7 +291,6 @@ function CountryStep({ service, onSelect, selected }) {
                             <CountryCard
                                 key={country.id}
                                 country={country}
-                                service={service}
                                 isSelected={selected?.id === country.id}
                                 onSelect={onSelect}
                                 countdown={country.is_low_stock ? countdown : null}
@@ -318,9 +305,7 @@ function CountryStep({ service, onSelect, selected }) {
 }
 
 // ─── Step 3: Rental Type ───────────────────────────────────────
-function RentalTypeStep({ service, country, formatNaira }) {
-    const cost = parseFloat(service?.cost || 0)
-
+function RentalTypeStep({ service, country }) {
     return (
         <div className="flex flex-col gap-4 step-animate">
             <p className="text-sm text-white/45">Choose how you'd like to use this number.</p>
@@ -340,10 +325,7 @@ function RentalTypeStep({ service, country, formatNaira }) {
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#33CCFF]/15 text-[#33CCFF] border border-[#33CCFF]/25">⭐ Most Popular</span>
                         </div>
                         <p className="text-xs text-white/45">Receive a single OTP and the number is released automatically.</p>
-                        <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm font-bold text-emerald-400">{formatNaira(cost)}</p>
-                        </div>
-                        <p className="text-[10px] text-white/30 mt-1 flex items-center gap-1">
+                        <p className="text-[10px] text-white/30 mt-2 flex items-center gap-1">
                             <Users className="w-2.5 h-2.5" />Most users choose this option
                         </p>
                     </div>
@@ -359,8 +341,8 @@ function RentalTypeStep({ service, country, formatNaira }) {
 }
 
 // ─── Step 4: Confirm ──────────────────────────────────────────
-function ConfirmStep({ service, country, wallet, formatNaira }) {
-    const cost = parseFloat(service?.cost || 0)
+function ConfirmStep({ service, country, wallet, formatNaira, totalPrice, priceLoading }) {
+    const cost = totalPrice ?? 0
     const hasSufficientBalance = (wallet || 0) >= cost
 
     const rows = [
@@ -373,8 +355,10 @@ function ConfirmStep({ service, country, wallet, formatNaira }) {
             value: <div className="flex items-center gap-2 text-white justify-end"><span className="text-lg leading-none">{country?.flag}</span><span className="font-bold">{country?.name}</span></div>
         },
         {
-            label: 'Price',
-            value: <span className="font-bold text-emerald-400">{formatNaira(cost)}</span>
+            label: 'Total Price',
+            value: priceLoading
+                ? <span className="text-white/40 text-xs">Calculating…</span>
+                : <span className="font-bold text-emerald-400">{formatNaira(cost)}</span>
         },
         {
             label: 'Wallet Balance',
@@ -386,7 +370,7 @@ function ConfirmStep({ service, country, wallet, formatNaira }) {
         <div className="flex flex-col gap-4 step-animate">
             <p className="text-sm text-white/45">Review your selection before proceeding.</p>
 
-            {!hasSufficientBalance && (
+            {!priceLoading && !hasSufficientBalance && (
                 <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/25">
                     <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                     <p className="text-sm text-red-400">Insufficient balance. You need <strong>{formatNaira(cost)}</strong>, you have <strong>{formatNaira(wallet)}</strong>.</p>
@@ -528,6 +512,8 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     const [order, setOrder] = useState(null)
     const [cancelling, setCancelling] = useState(false)
     const [timeLeft, setTimeLeft] = useState(20 * 60)
+    const [totalPrice, setTotalPrice] = useState(null)
+    const [priceLoading, setPriceLoading] = useState(false)
     const pollRef = useRef(null)
     const timerRef = useRef(null)
 
@@ -552,6 +538,21 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     }, [])
 
     useEffect(() => () => { clearInterval(pollRef.current); clearInterval(timerRef.current) }, [])
+
+    // Fetch total price when reaching the confirm step (step 3)
+    useEffect(() => {
+        if (step === 3 && service && country) {
+            setPriceLoading(true)
+            setTotalPrice(null)
+            api.get('/api/pricing/calculate', { params: { service_id: service.id, country_id: country.id } })
+                .then(res => setTotalPrice(res.data.total))
+                .catch(() => {
+                    toast.error('Failed to calculate price')
+                    setTotalPrice(0)
+                })
+                .finally(() => setPriceLoading(false))
+        }
+    }, [step, service, country])
 
     const handleServiceSelect = (s) => { setService(s); setStep(1) }
     const handleCountrySelect = (c) => { setCountry(c); setStep(2) }
@@ -592,7 +593,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
         finally { setCancelling(false) }
     }
 
-    const cost = parseFloat(service?.cost || 0)
+    const cost = totalPrice ?? 0
     const hasFunds = (wallet || 0) >= cost
     const canClose = step < 4 || !order || ['cancelled', 'expired'].includes(order?.status) || !!order?.otp_code
 
@@ -641,10 +642,10 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
 
                 {/* Content — scrollable */}
                 <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
-                    {step === 0 && <ServiceStep onSelect={handleServiceSelect} selected={service} formatNaira={formatNaira} />}
-                    {step === 1 && <CountryStep onSelect={handleCountrySelect} selected={country} service={service} formatNaira={formatNaira} />}
-                    {step === 2 && <RentalTypeStep service={service} country={country} formatNaira={formatNaira} />}
-                    {step === 3 && <ConfirmStep service={service} country={country} wallet={wallet} formatNaira={formatNaira} />}
+                    {step === 0 && <ServiceStep onSelect={handleServiceSelect} selected={service} />}
+                    {step === 1 && <CountryStep onSelect={handleCountrySelect} selected={country} service={service} />}
+                    {step === 2 && <RentalTypeStep service={service} country={country} />}
+                    {step === 3 && <ConfirmStep service={service} country={country} wallet={wallet} formatNaira={formatNaira} totalPrice={totalPrice} priceLoading={priceLoading} />}
                     {step === 4 && (
                         <NumberReadyView
                             order={order}
@@ -670,7 +671,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                             </button>
                         )}
                         {step === 3 && (
-                            <button onClick={handleConfirm} disabled={loading || !hasFunds}
+                            <button onClick={handleConfirm} disabled={loading || !hasFunds || priceLoading || totalPrice === null}
                                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#0055CC] to-[#33CCFF] text-white shadow-[0_0_20px_rgba(0,102,255,0.35)] hover:shadow-[0_0_30px_rgba(0,102,255,0.55)] transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.01] disabled:hover:scale-100">
                                 {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Provisioning…</> : <><Smartphone className="w-4 h-4" />Confirm & Get Number</>}
                             </button>

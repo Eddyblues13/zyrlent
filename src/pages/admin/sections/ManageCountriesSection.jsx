@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Search, Trash2, Edit3, ToggleLeft, ToggleRight, Loader2, X, Globe, ChevronLeft, ChevronRight, Info } from 'lucide-react'
+import { Search, Trash2, Edit3, ToggleLeft, ToggleRight, Loader2, X, Globe, ChevronLeft, ChevronRight, Info, Percent } from 'lucide-react'
 import adminApi from '../../../lib/adminAxios'
 import toast from 'react-hot-toast'
 
-// Dynamic exchange rate — fetched from backend, fallback to 1500
 const PER_PAGE = 12
 
 export default function ManageCountriesSection() {
@@ -12,27 +11,12 @@ export default function ManageCountriesSection() {
     const [search, setSearch] = useState('')
     const [showForm, setShowForm] = useState(false)
     const [editingCountry, setEditingCountry] = useState(null)
-    const [form, setForm] = useState({ name: '', code: '', flag: '', dial_code: '', twilio_code: '', price_usd: '', is_active: true })
+    const [form, setForm] = useState({ name: '', code: '', flag: '', dial_code: '', twilio_code: '', price: '', is_active: true })
     const [submitting, setSubmitting] = useState(false)
     const [page, setPage] = useState(1)
-    const [exchangeRate, setExchangeRate] = useState(1500)
-    const [markupPercent, setMarkupPercent] = useState(0)
-
-    // Fetch pricing config from backend
-    const toNaira = useCallback((usd) => {
-        const base = parseFloat(usd || 0) * exchangeRate
-        const final_ = base * (1 + (markupPercent / 100))
-        return `₦${final_.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
-    }, [exchangeRate, markupPercent])
-
-    useEffect(() => {
-        adminApi.get('/api/admin/settings/pricing-config')
-            .then(r => {
-                setExchangeRate(r.data.usd_to_ngn_rate || 1500)
-                setMarkupPercent(r.data.pricing_markup_percent || 0)
-            })
-            .catch(() => {})
-    }, [])
+    const [showBulkAdjust, setShowBulkAdjust] = useState(false)
+    const [bulkPercent, setBulkPercent] = useState('')
+    const [bulkAdjusting, setBulkAdjusting] = useState(false)
 
     const fetchCountries = useCallback(async () => {
         setLoading(true)
@@ -46,7 +30,6 @@ export default function ManageCountriesSection() {
     useEffect(() => { fetchCountries() }, [fetchCountries])
     useEffect(() => { setPage(1) }, [search])
 
-    // Client-side pagination
     const totalPages = Math.ceil(countries.length / PER_PAGE)
     const paged = countries.slice((page - 1) * PER_PAGE, page * PER_PAGE)
 
@@ -58,7 +41,7 @@ export default function ManageCountriesSection() {
             await adminApi.put(`/api/admin/countries/${editingCountry.id}`, form)
             toast.success('Country updated')
             setShowForm(false); setEditingCountry(null)
-            setForm({ name: '', code: '', flag: '', dial_code: '', twilio_code: '', price_usd: '', is_active: true })
+            setForm({ name: '', code: '', flag: '', dial_code: '', twilio_code: '', price: '', is_active: true })
             fetchCountries()
         } catch (err) { toast.error(err.response?.data?.message || 'Failed') }
         finally { setSubmitting(false) }
@@ -85,10 +68,27 @@ export default function ManageCountriesSection() {
         setForm({
             name: country.name, code: country.code, flag: country.flag || '',
             dial_code: country.dial_code, twilio_code: country.twilio_code,
-            price_usd: country.price_usd, is_active: country.is_active,
+            price: country.price || '', is_active: country.is_active,
         })
         setShowForm(true)
     }
+
+    const handleBulkAdjust = async () => {
+        const pct = parseFloat(bulkPercent)
+        if (isNaN(pct) || pct === 0) return toast.error('Enter a valid non-zero percentage')
+        if (!confirm(`This will ${pct > 0 ? 'increase' : 'decrease'} ALL country prices by ${Math.abs(pct)}%. Continue?`)) return
+        setBulkAdjusting(true)
+        try {
+            const r = await adminApi.post('/api/admin/countries/bulk-adjust-prices', { percentage: pct })
+            toast.success(r.data.message)
+            setBulkPercent('')
+            setShowBulkAdjust(false)
+            fetchCountries()
+        } catch { toast.error('Bulk adjust failed') }
+        finally { setBulkAdjusting(false) }
+    }
+
+    const formatPrice = (p) => `₦${Number(p || 0).toLocaleString()}`
 
     return (
         <div className="space-y-6">
@@ -100,10 +100,14 @@ export default function ManageCountriesSection() {
                     <span className="text-xs text-white/30">{countries.length} total</span>
                 </div>
                 <div className="flex gap-2">
+                    <button onClick={() => setShowBulkAdjust(v => !v)}
+                        className="px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/10 text-sm text-white/70 hover:text-[#FF9500] hover:border-[rgba(255,149,0,0.3)] transition flex items-center gap-2">
+                        <Percent className="w-4 h-4" /> Bulk Adjust
+                    </button>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(255,149,0,0.06)] border border-[rgba(255,149,0,0.12)] text-[#FF9500]/70 text-[11px]">
                         <Info className="w-3 h-3 flex-shrink-0" />
-                        <span className="hidden sm:inline">Countries are added via</span>
-                        <span className="font-bold">API Settings → Fetch Countries</span>
+                        <span className="hidden sm:inline">Countries added via</span>
+                        <span className="font-bold">API Settings → Fetch</span>
                     </div>
                 </div>
             </div>
@@ -114,6 +118,36 @@ export default function ManageCountriesSection() {
                 <input type="text" placeholder="Search countries…" value={search} onChange={e => setSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm placeholder-white/25 focus:outline-none focus:border-[rgba(255,149,0,0.35)] transition" />
             </div>
+
+            {/* Bulk Price Adjust Panel */}
+            {showBulkAdjust && (
+                <div className="rounded-2xl border border-[rgba(255,149,0,0.15)] bg-[rgba(15,20,60,0.8)] backdrop-blur-xl p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-bold text-white">Bulk Adjust Country Prices</h3>
+                        <button onClick={() => setShowBulkAdjust(false)} className="text-white/30 hover:text-white/60"><X className="w-5 h-5" /></button>
+                    </div>
+                    <p className="text-xs text-white/40 mb-3">Enter a percentage to increase (+) or decrease (-) all country prices at once.</p>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-1.5">
+                            <input type="number" placeholder="e.g. 10 or -5" value={bulkPercent} onChange={e => setBulkPercent(e.target.value)}
+                                className="w-32 px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-sm text-white placeholder-white/25 focus:outline-none focus:border-[rgba(255,149,0,0.4)]" />
+                            <span className="text-sm text-white/50">%</span>
+                        </div>
+                        <div className="flex gap-2">
+                            {[5, 10, 20, -5, -10].map(p => (
+                                <button key={p} onClick={() => setBulkPercent(String(p))}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${String(p) === bulkPercent ? 'bg-[rgba(255,149,0,0.15)] border-[rgba(255,149,0,0.4)] text-[#FF9500]' : 'bg-white/[0.03] border-white/8 text-white/50 hover:text-white hover:bg-white/[0.06]'}`}>
+                                    {p > 0 ? '+' : ''}{p}%
+                                </button>
+                            ))}
+                        </div>
+                        <button onClick={handleBulkAdjust} disabled={bulkAdjusting || !bulkPercent}
+                            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF9500] to-[#FF6B00] text-white text-sm font-bold disabled:opacity-40 flex items-center gap-2">
+                            {bulkAdjusting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Percent className="w-4 h-4" />} Apply
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Edit Form */}
             {showForm && (
@@ -128,7 +162,7 @@ export default function ManageCountriesSection() {
                         <Input label="Flag Emoji" value={form.flag} onChange={v => setForm(f => ({ ...f, flag: v }))} placeholder="🇺🇸" />
                         <Input label="Dial Code" value={form.dial_code} onChange={v => setForm(f => ({ ...f, dial_code: v }))} placeholder="+1" required />
                         <Input label="Twilio Code" value={form.twilio_code} onChange={v => setForm(f => ({ ...f, twilio_code: v.toUpperCase() }))} placeholder="US" maxLength={2} required />
-                        <Input label={`Price (USD → ${form.price_usd ? toNaira(form.price_usd) : '₦0'})`} value={form.price_usd} onChange={v => setForm(f => ({ ...f, price_usd: v }))} placeholder="1.00" type="number" step="0.01" required />
+                        <Input label="Price (₦ NGN)" value={form.price} onChange={v => setForm(f => ({ ...f, price: v }))} placeholder="1600" type="number" step="0.01" required />
                         <div className="sm:col-span-2 lg:col-span-3 flex flex-col sm:flex-row gap-3 pt-2">
                             <button type="submit" disabled={submitting}
                                 className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF9500] to-[#FF6B00] text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-40 transition">
@@ -161,7 +195,7 @@ export default function ManageCountriesSection() {
                                         <th className="px-5 py-3 text-xs text-white/40 font-medium">Country</th>
                                         <th className="px-5 py-3 text-xs text-white/40 font-medium">Code</th>
                                         <th className="px-5 py-3 text-xs text-white/40 font-medium">Dial Code</th>
-                                        <th className="px-5 py-3 text-xs text-white/40 font-medium">Price</th>
+                                        <th className="px-5 py-3 text-xs text-white/40 font-medium">Price (₦)</th>
                                         <th className="px-5 py-3 text-xs text-white/40 font-medium">Status</th>
                                         <th className="px-5 py-3 text-xs text-white/40 font-medium text-right">Actions</th>
                                     </tr>
@@ -177,7 +211,7 @@ export default function ManageCountriesSection() {
                                             </td>
                                             <td className="px-5 py-3.5 text-sm text-white/50 font-mono">{country.code}</td>
                                             <td className="px-5 py-3.5 text-sm text-white/50">{country.dial_code}</td>
-                                            <td className="px-5 py-3.5 text-sm text-[#FF9500] font-bold">{toNaira(country.price_usd)}</td>
+                                            <td className="px-5 py-3.5 text-sm text-[#FF9500] font-bold">{formatPrice(country.price)}</td>
                                             <td className="px-5 py-3.5">
                                                 <button onClick={() => handleToggle(country)}
                                                     className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full transition ${country.is_active ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10'}`}>
@@ -213,7 +247,7 @@ export default function ManageCountriesSection() {
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between mt-3 ml-[44px]">
-                                        <p className="text-sm text-[#FF9500] font-bold">{toNaira(country.price_usd)}</p>
+                                        <p className="text-sm text-[#FF9500] font-bold">{formatPrice(country.price)}</p>
                                         <div className="flex gap-1">
                                             <button onClick={() => handleToggle(country)}
                                                 className="p-2 rounded-lg hover:bg-white/[0.06] text-white/30 hover:text-[#FF9500] transition">
