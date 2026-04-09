@@ -6,6 +6,7 @@ import phoneImage from '../../assets/phone.jpg'
 import Background from '../../components/Background'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
+import TelegramChat from '../../components/TelegramChat'
 
 export default function Home() {
   return (
@@ -282,6 +283,7 @@ export default function Home() {
       </main>
 
       <Footer />
+      <TelegramChat />
     </div>
   )
 }

@@ -12,6 +12,7 @@ import api from '../../lib/axios'
 import Background from '../../components/Background'
 import Sidebar from './Sidebar'
 import NotificationPopup from '../../components/NotificationPopup'
+import TelegramChat from '../../components/TelegramChat'
 
 import OverviewSection from './sections/OverviewSection'
 import PurchaseHistorySection from './sections/PurchaseHistorySection'
@@ -280,6 +281,9 @@ export default function Dashboard({ initialSection }) {
                     {renderSection()}
                 </main>
             </div>
+
+            {/* ── Telegram Live Chat ── */}
+            <TelegramChat />
 
             {/* ── Mobile Bottom Nav ── */}
             <nav className="fixed bottom-0 left-0 w-full z-50 md:hidden border-t border-[rgba(255,255,255,0.08)] bg-[rgba(8,10,46,0.94)] backdrop-blur-xl"
