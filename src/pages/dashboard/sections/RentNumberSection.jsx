@@ -341,6 +341,10 @@ function OperatorStep({ service, country, selected, onSelect }) {
     return (
         <div className="flex flex-col gap-3 step-animate">
             <p className="text-sm text-white/45">Choose an operator. "Any" lets the system pick the best available.</p>
+            <div className="flex items-center justify-end gap-3 text-[10px] text-white/30 px-1">
+                <span>Price (USD)</span>
+                <span>Delivery Rate</span>
+            </div>
 
             {operators.map(op => {
                 const isSelected = selected === op.name
@@ -364,12 +368,17 @@ function OperatorStep({ service, country, selected, onSelect }) {
                                     )}
                                 </div>
                             </div>
-                            <div className="text-right">
+                            <div className="text-right flex flex-col items-end gap-1">
                                 {op.cost > 0 && <p className="text-xs font-bold text-emerald-400">${op.cost.toFixed(2)}</p>}
-                                <div className="flex items-center gap-2 mt-0.5">
-                                    {op.count > 0 && <span className="text-[10px] text-white/30">{op.count.toLocaleString()} numbers</span>}
-                                    {op.rate > 0 && <span className="text-[10px] text-emerald-400/70">{op.rate.toFixed(1)}%</span>}
-                                </div>
+                                {op.rate > 0 && (
+                                    <div className="flex items-center gap-1">
+                                        <div className="w-12 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                                            <div className="h-full rounded-full" style={{ width: `${Math.min(op.rate, 100)}%`, background: op.rate >= 50 ? '#34d399' : op.rate >= 20 ? '#fbbf24' : '#f87171' }} />
+                                        </div>
+                                        <span className={`text-[10px] font-semibold ${op.rate >= 50 ? 'text-emerald-400' : op.rate >= 20 ? 'text-amber-400' : 'text-red-400'}`}>{op.rate.toFixed(1)}%</span>
+                                    </div>
+                                )}
+                                {op.count > 0 && <span className="text-[10px] text-white/30">{op.count.toLocaleString()} numbers</span>}
                             </div>
                         </div>
                     </button>
