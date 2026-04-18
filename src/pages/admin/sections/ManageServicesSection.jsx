@@ -21,6 +21,13 @@ export default function ManageServicesSection() {
     const [bulkPercent, setBulkPercent] = useState('')
     const [bulkAdjusting, setBulkAdjusting] = useState(false)
 
+    // 5sim API fetch state
+    const [showApiServices, setShowApiServices] = useState(false)
+    const [apiServices, setApiServices] = useState([])
+    const [selectedApiServices, setSelectedApiServices] = useState([])
+    const [fetchingApi, setFetchingApi] = useState(false)
+    const [importingApi, setImportingApi] = useState(false)
+
     const loadServices = useCallback(() => {
         setLoading(true)
         adminApi.get('/api/admin/services')
@@ -97,6 +104,30 @@ export default function ManageServicesSection() {
         finally { setBulkAdjusting(false) }
     }
 
+    const fetchApiServices = async () => {
+        setShowApiServices(true)
+        setFetchingApi(true)
+        try {
+            const r = await adminApi.post('/api/admin/provider/fetch-services', { provider: '5sim' })
+            setApiServices(r.data.services || [])
+            setSelectedApiServices([])
+        } catch { toast.error('Failed to fetch services from 5sim') }
+        finally { setFetchingApi(false) }
+    }
+
+    const handleApiImport = async () => {
+        if (selectedApiServices.length === 0) return toast.error('Select at least one service')
+        setImportingApi(true)
+        try {
+            const toImport = apiServices.filter((_, i) => selectedApiServices.includes(i))
+            const r = await adminApi.post('/api/admin/provider/import-services', { services: toImport })
+            toast.success(r.data.message)
+            setShowApiServices(false)
+            loadServices()
+        } catch { toast.error('Import failed') }
+        finally { setImportingApi(false) }
+    }
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -114,6 +145,10 @@ export default function ManageServicesSection() {
                     <button onClick={fetchSuggestions}
                         className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/10 text-sm text-white/70 hover:text-[#FF9500] hover:border-[rgba(255,149,0,0.3)] transition flex items-center justify-center gap-2">
                         <Download className="w-4 h-4" /> <span className="hidden sm:inline">Fetch</span> Suggestions
+                    </button>
+                    <button onClick={fetchApiServices}
+                        className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/10 text-sm text-white/70 hover:text-[#33CCFF] hover:border-[rgba(51,204,255,0.3)] transition flex items-center justify-center gap-2">
+                        <Download className="w-4 h-4" /> <span className="hidden sm:inline">Fetch from</span> 5sim API
                     </button>
                     <button onClick={() => { setEditingService(null); setShowForm(true) }}
                         className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FF9500] to-[#FF6B00] text-white text-sm font-bold shadow-[0_0_12px_rgba(255,149,0,0.2)] hover:shadow-[0_0_20px_rgba(255,149,0,0.4)] transition flex items-center justify-center gap-2">
@@ -184,6 +219,49 @@ export default function ManageServicesSection() {
                                 <button onClick={handleImport} disabled={importing || selectedSuggestions.length === 0}
                                     className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#FF9500] to-[#FF6B00] text-white text-sm font-bold disabled:opacity-40 flex items-center gap-2">
                                     {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Import {selectedSuggestions.length} Service{selectedSuggestions.length !== 1 ? 's' : ''}
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
+            {/* 5sim API Services Modal */}
+            {showApiServices && (
+                <div className="rounded-2xl border border-[rgba(51,204,255,0.15)] bg-[rgba(15,20,60,0.8)] backdrop-blur-xl p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-bold text-white">5sim API Services — select to import</h3>
+                        <button onClick={() => setShowApiServices(false)} className="text-white/30 hover:text-white/60"><X className="w-5 h-5" /></button>
+                    </div>
+                    {fetchingApi ? (
+                        <div className="flex items-center justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-[#33CCFF]" /></div>
+                    ) : apiServices.length === 0 ? (
+                        <p className="text-sm text-white/30">No new services found from 5sim.</p>
+                    ) : (
+                        <>
+                            <p className="text-xs text-white/40 mb-3">{apiServices.filter(s => !s.already_exists).length} new · {apiServices.filter(s => s.already_exists).length} already added · {apiServices.length} total</p>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 max-h-[400px] overflow-y-auto">
+                                {apiServices.filter(s => !s.already_exists).map((s, i) => {
+                                    const realIndex = apiServices.indexOf(s)
+                                    const isSelected = selectedApiServices.includes(realIndex)
+                                    return (
+                                        <button key={realIndex} onClick={() => setSelectedApiServices(prev => isSelected ? prev.filter(x => x !== realIndex) : [...prev, realIndex])}
+                                            className={`rounded-xl p-3 text-left border transition-all ${isSelected ? 'border-[rgba(51,204,255,0.5)] bg-[rgba(51,204,255,0.08)]' : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.04]'}`}>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <ServiceIconWithFallback icon={s.icon} name={s.name} color={s.color} size="sm" />
+                                                <span className="text-sm text-white font-medium truncate">{s.name}</span>
+                                                {isSelected && <Check className="w-3.5 h-3.5 text-[#33CCFF] ml-auto flex-shrink-0" />}
+                                            </div>
+                                            <p className="text-xs text-white/30">{s.category} · ₦{s.cost} · {s.quantity} avail</p>
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                            <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                                <button onClick={() => setSelectedApiServices(apiServices.map((s, i) => s.already_exists ? null : i).filter(x => x !== null))} className="text-xs text-[#33CCFF] hover:underline">Select All New</button>
+                                <button onClick={handleApiImport} disabled={importingApi || selectedApiServices.length === 0}
+                                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#33CCFF] to-[#0088CC] text-white text-sm font-bold disabled:opacity-40 flex items-center gap-2">
+                                    {importingApi ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Import {selectedApiServices.length} Service{selectedApiServices.length !== 1 ? 's' : ''}
                                 </button>
                             </div>
                         </>

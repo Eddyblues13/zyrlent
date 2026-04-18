@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import adminApi from '../../../lib/adminAxios'
 import toast from 'react-hot-toast'
+import { ServiceIconWithFallback } from '../../../components/ServiceIcon'
 
 const fmtNaira = (v) => {
   const n = Number(v || 0)
@@ -1086,6 +1087,121 @@ function RoutingTab() {
 /* ══════════════════════════════════════════════════════════
    MAIN EXPORT — TABBED LAYOUT
    ══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   TAB 7: FETCH SERVICES (from 5sim API)
+   ══════════════════════════════════════════════════════════ */
+function FetchServicesTab() {
+  var [services, setServices] = useState([])
+  var [selected, setSelected] = useState([])
+  var [loading, setLoading] = useState(false)
+  var [importing, setImporting] = useState(false)
+  var [fetched, setFetched] = useState(false)
+  var [search, setSearch] = useState('')
+
+  var fetchServices = async function () {
+    setLoading(true)
+    setFetched(false)
+    try {
+      var r = await adminApi.post('/api/admin/provider/fetch-services', { provider: '5sim' })
+      setServices(r.data.services || [])
+      setSelected([])
+      setFetched(true)
+      var svcs = r.data.services || []
+      var newCount = svcs.filter(function (s) { return !s.already_exists }).length
+      toast.success('Found ' + svcs.length + ' services (' + newCount + ' new)')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to fetch services')
+    } finally { setLoading(false) }
+  }
+
+  var toggleSelect = function (i) {
+    setSelected(function (prev) { return prev.includes(i) ? prev.filter(function (x) { return x !== i }) : [...prev, i] })
+  }
+  var selectAllNew = function () {
+    setSelected(services.map(function (s, i) { return !s.already_exists ? i : null }).filter(function (i) { return i !== null }))
+  }
+
+  var handleImport = async function () {
+    var toImport = services.filter(function (_, i) { return selected.includes(i) })
+    if (toImport.length === 0) return toast.error('Select at least one service')
+    setImporting(true)
+    try {
+      var r = await adminApi.post('/api/admin/provider/import-services', { services: toImport })
+      toast.success(r.data.message)
+      fetchServices()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Import failed')
+    } finally { setImporting(false) }
+  }
+
+  var filtered = services.filter(function (s) {
+    return !search || s.name.toLowerCase().includes(search.toLowerCase())
+  })
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3 flex-wrap">
+        <button onClick={fetchServices} disabled={loading}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF9500] to-[#FF6B00] text-white text-xs font-bold uppercase tracking-wider hover:opacity-90 transition disabled:opacity-40">
+          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CloudDownload className="w-3.5 h-3.5" />} Fetch Services from 5sim
+        </button>
+        <p className="text-xs text-white/30">Pull all available services/products from the 5sim API and import them into your database.</p>
+      </div>
+
+      {fetched && (
+        <>
+          <div className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 flex-wrap">
+            <span className="text-[11px] text-white/50">Total: <b className="text-white">{services.length}</b></span>
+            <span className="text-[11px] text-green-400">New: <b>{services.filter(function (s) { return !s.already_exists }).length}</b></span>
+            <span className="text-[11px] text-white/30">In DB: <b>{services.filter(function (s) { return s.already_exists }).length}</b></span>
+            <div className="flex-1" />
+            <input type="text" placeholder="Search services…" value={search} onChange={function (e) { setSearch(e.target.value) }}
+              className="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-xs text-white placeholder-white/20 focus:outline-none focus:border-[#FF9500]/40 w-48" />
+            {services.some(function (s) { return !s.already_exists }) && (
+              <button onClick={selectAllNew} className="text-[10px] text-[#FF9500] hover:underline font-medium">Select all new</button>
+            )}
+          </div>
+
+          {filtered.length > 0 && (
+            <div className="rounded-2xl border border-white/[0.06] bg-[rgba(15,20,60,0.5)] overflow-hidden">
+              <div className="max-h-[450px] overflow-y-auto">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0">
+                  {filtered.map(function (svc) {
+                    var idx = services.indexOf(svc)
+                    var isSel = selected.includes(idx)
+                    return (
+                      <div key={idx}
+                        onClick={function () { if (!svc.already_exists) toggleSelect(idx) }}
+                        className={'flex items-center gap-2 px-3 py-2.5 border-b border-r border-white/[0.03] cursor-pointer transition ' +
+                          (svc.already_exists ? 'opacity-30 cursor-default' : isSel ? 'bg-[#FF9500]/[0.08]' : 'hover:bg-white/[0.02]')}>
+                        {!svc.already_exists ? (
+                          isSel ? <CheckSquare className="w-3.5 h-3.5 text-[#FF9500] flex-shrink-0" /> : <Square className="w-3.5 h-3.5 text-white/20 flex-shrink-0" />
+                        ) : <Check className="w-3.5 h-3.5 text-green-500/50 flex-shrink-0" />}
+                        <ServiceIconWithFallback icon={svc.icon} name={svc.name} color={svc.color} size="sm" />
+                        <span className="text-[11px] text-white/70 truncate">{svc.name}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              {selected.length > 0 && (
+                <div className="flex items-center justify-between px-4 py-3 border-t border-white/5 bg-[#FF9500]/[0.04]">
+                  <span className="text-[11px] text-[#FF9500] font-bold">{selected.length} services selected</span>
+                  <button onClick={handleImport} disabled={importing}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#FF9500] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#FF6B00] transition disabled:opacity-50">
+                    {importing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />} Import to Database
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {fetched && filtered.length === 0 && <EmptyState text="No services match your search." />}
+        </>
+      )}
+    </div>
+  )
+}
+
 var TABS = [
   { id: 'providers', label: 'Providers', icon: Shield },
   { id: 'routing', label: 'Routing', icon: Activity },
@@ -1093,6 +1209,7 @@ var TABS = [
   { id: 'fetch-countries', label: 'Fetch Countries', icon: Globe },
   { id: 'fetch-numbers', label: 'Fetch Numbers', icon: Phone },
   { id: 'fetch-pricing', label: 'Fetch Pricing', icon: DollarSign },
+  { id: 'fetch-services', label: 'Fetch Services', icon: Settings },
 ]
 
 export default function ApiSettingsSection() {
@@ -1122,6 +1239,7 @@ export default function ApiSettingsSection() {
       {activeTab === 'fetch-countries' && <FetchCountriesTab />}
       {activeTab === 'fetch-numbers' && <FetchNumbersTab />}
       {activeTab === 'fetch-pricing' && <FetchPricingTab />}
+      {activeTab === 'fetch-services' && <FetchServicesTab />}
     </div>
   )
 }
