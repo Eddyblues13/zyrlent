@@ -681,7 +681,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     const stepLabel = ['Select Service', 'Select Country', 'Select Operator', 'Confirm'][Math.min(step, 3)]
 
     const content = (
-        <div className={`relative w-full flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] ${inline ? 'rounded-2xl h-[600px] shadow-[0_0_40px_rgba(0,102,255,0.1)]' : 'sm:w-[540px] sm:max-w-[92vw] rounded-t-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-[80svh] sm:h-auto sm:max-h-[88vh] mb-[env(safe-area-inset-bottom)]'}`}>
+        <div className={`relative w-full flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] ${inline ? 'rounded-2xl h-[600px] shadow-[0_0_40px_rgba(0,102,255,0.1)]' : 'sm:w-[540px] sm:max-w-[92vw] rounded-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-[80svh] sm:h-auto sm:max-h-[88vh]'}`}>
 
             {/* Mobile drag handle */}
             {!inline && (
@@ -774,7 +774,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
 
     return (
         <div
-            className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 sm:p-6"
+            className="fixed inset-0 z-[60] flex items-start sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 pt-8 sm:p-6"
             onMouseDown={(e) => { if (e.target === e.currentTarget && canClose) onClose() }}
         >
             {content}
