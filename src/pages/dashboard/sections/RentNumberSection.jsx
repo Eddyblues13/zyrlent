@@ -594,10 +594,10 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
         pollRef.current = setInterval(async () => {
             try {
                 const res = await api.get(`/api/orders/${id}`)
+                setOrder(res.data)
                 if (res.data.otp_code || ['expired', 'cancelled'].includes(res.data.status)) {
                     clearInterval(pollRef.current)
                     clearInterval(timerRef.current)
-                    setOrder(res.data)
                     if (res.data.otp_code) toast.success('🎉 SMS received!')
                 }
             } catch { }
