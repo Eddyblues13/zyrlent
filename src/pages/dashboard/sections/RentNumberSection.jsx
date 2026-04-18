@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import {
     Search, ChevronRight, Check, CheckCircle2,
     Smartphone, Loader2, Copy, AlertCircle, Star,
-    Zap, Shield, Users, X, TrendingUp, ChevronDown,
+    Zap, Shield, Users, X, TrendingUp, ChevronDown, XCircle,
     Timer, Quote, Sparkles
 } from 'lucide-react'
 import api from '../../../lib/axios'
@@ -548,8 +548,11 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
 
             {order.status === 'pending' && !order.otp_code && (
                 <button onClick={onCancel} disabled={cancelling}
-                    className="text-sm text-white/30 hover:text-red-400 transition underline underline-offset-4 disabled:opacity-50">
-                    {cancelling ? 'Cancelling…' : "Didn't receive SMS? Cancel & get refund"}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50 transition disabled:opacity-50">
+                    {cancelling
+                        ? <><Loader2 className="w-4 h-4 animate-spin" />Cancelling on provider…</>
+                        : <><XCircle className="w-4 h-4" />Cancel Order & Get Refund</>
+                    }
                 </button>
             )}
         </div>
