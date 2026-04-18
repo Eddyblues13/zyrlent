@@ -467,57 +467,57 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
     }
 
     return (
-        <div className="flex flex-col items-center gap-5">
+        <div className="flex flex-col items-center gap-3 sm:gap-5">
             {/* Social proof */}
             <div className="flex items-center gap-2">
                 <Users className="w-3.5 h-3.5 text-[#33CCFF]" />
-                <span className="text-[11px] text-white/50">Over <span className="text-white font-bold">5,000</span> numbers rented this week</span>
+                <span className="text-[10px] sm:text-[11px] text-white/50">Over <span className="text-white font-bold">5,000</span> numbers rented this week</span>
             </div>
 
             {/* Hero */}
-            <div className="relative w-20 h-20">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#0055CC]/30 to-[#33CCFF]/10 border-2 border-[#33CCFF]/40 flex items-center justify-center shadow-[0_0_40px_rgba(51,204,255,0.25)]">
-                    <Check className="w-9 h-9 text-[#33CCFF] stroke-[3]" />
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#0055CC]/30 to-[#33CCFF]/10 border-2 border-[#33CCFF]/40 flex items-center justify-center shadow-[0_0_40px_rgba(51,204,255,0.25)]">
+                    <Check className="w-7 h-7 sm:w-9 sm:h-9 text-[#33CCFF] stroke-[3]" />
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-[#070D2E]">
-                    <Zap className="w-3.5 h-3.5 text-white" />
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-[#070D2E]">
+                    <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
                 </div>
             </div>
 
             <div className="text-center">
-                <h3 className="text-2xl font-bold text-white mb-1">Number Ready! 🚀</h3>
-                <p className="text-sm text-white/45">Copy & use instantly — your number is live.</p>
+                <h3 className="text-lg sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">Number Ready! 🚀</h3>
+                <p className="text-xs sm:text-sm text-white/45">Copy & use instantly — your number is live.</p>
             </div>
 
             {/* Phone number */}
-            <div className="w-full p-5 rounded-2xl border border-[rgba(51,204,255,0.25)] bg-[rgba(51,204,255,0.04)] text-center">
-                <p className="text-3xl font-bold text-white font-mono tracking-widest mb-4">{order.phone_number}</p>
+            <div className="w-full p-3 sm:p-5 rounded-2xl border border-[rgba(51,204,255,0.25)] bg-[rgba(51,204,255,0.04)] text-center">
+                <p className="text-xl sm:text-3xl font-bold text-white font-mono tracking-wider sm:tracking-widest mb-3 sm:mb-4 break-all">{order.phone_number}</p>
                 <button onClick={() => copy(order.phone_number, setCopiedNumber)}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
+                    className="inline-flex items-center gap-2 px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
                     {copiedNumber ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Number</>}
                 </button>
             </div>
 
             {/* Waiting */}
             {order.status === 'pending' && !order.otp_code && (
-                <div className="w-full flex flex-col items-center gap-2">
-                    <div className="flex items-center gap-2.5 bg-[rgba(0,102,255,0.1)] px-4 py-2 rounded-full border border-[rgba(0,102,255,0.2)]">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
-                        <span className="text-sm text-white/80 font-medium">Waiting for SMS…</span>
+                <div className="w-full flex flex-col items-center gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-2 sm:gap-2.5 bg-[rgba(0,102,255,0.1)] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-[rgba(0,102,255,0.2)]">
+                        <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
+                        <span className="text-xs sm:text-sm text-white/80 font-medium">Waiting for SMS…</span>
                     </div>
-                    <p className="text-sm text-white/40">Expires in: <span className="font-bold text-white">{formatTime(timeLeft)}</span></p>
-                    <p className="text-xs text-white/30">Code will appear here instantly once received.</p>
+                    <p className="text-xs sm:text-sm text-white/40">Expires in: <span className="font-bold text-white">{formatTime(timeLeft)}</span></p>
+                    <p className="text-[10px] sm:text-xs text-white/30">Code will appear here instantly once received.</p>
                 </div>
             )}
 
             {/* OTP */}
             {order.otp_code && (
-                <div className="w-full p-5 rounded-2xl border border-[#FFB800]/30 bg-[rgba(255,184,0,0.04)] relative">
+                <div className="w-full p-3 sm:p-5 rounded-2xl border border-[#FFB800]/30 bg-[rgba(255,184,0,0.04)] relative">
                     <div className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-gradient-to-tr from-orange-500 to-yellow-400 flex items-center justify-center text-white text-xs font-bold border-2 border-[#070D2E]">1</div>
-                    <p className="text-sm font-bold text-white mb-3 text-center">📩 New SMS Received!</p>
-                    <p className="text-4xl font-bold text-[#33CCFF] font-mono tracking-[0.2em] text-center mb-4 drop-shadow-[0_0_15px_rgba(51,204,255,0.4)]">{order.otp_code}</p>
+                    <p className="text-xs sm:text-sm font-bold text-white mb-2 sm:mb-3 text-center">📩 New SMS Received!</p>
+                    <p className="text-2xl sm:text-4xl font-bold text-[#33CCFF] font-mono tracking-widest sm:tracking-[0.2em] text-center mb-3 sm:mb-4 drop-shadow-[0_0_15px_rgba(51,204,255,0.4)] break-all">{order.otp_code}</p>
                     <button onClick={() => copy(order.otp_code, setCopiedCode)}
-                        className="w-full max-w-[180px] mx-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
+                        className="w-full max-w-[180px] mx-auto flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
                         {copiedCode ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Code</>}
                     </button>
                 </div>
@@ -525,11 +525,11 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
 
             {/* Need another */}
             {order.otp_code && (
-                <div className="w-full p-4 rounded-2xl border border-white/8 bg-white/[0.03] text-center flex flex-col items-center gap-2">
-                    <p className="text-sm font-bold text-white">Need another number?</p>
+                <div className="w-full p-3 sm:p-4 rounded-2xl border border-white/8 bg-white/[0.03] text-center flex flex-col items-center gap-1.5 sm:gap-2">
+                    <p className="text-xs sm:text-sm font-bold text-white">Need another number?</p>
                     <button onClick={() => { onClose(); if (onGetAnother) onGetAnother() }}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs font-bold hover:scale-[1.02] transition shadow-[0_0_12px_rgba(0,102,255,0.2)] border border-[#33CCFF]/20">
-                        <Smartphone className="w-4 h-4" />Get Another Number
+                        className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-[11px] sm:text-xs font-bold hover:scale-[1.02] transition shadow-[0_0_12px_rgba(0,102,255,0.2)] border border-[#33CCFF]/20">
+                        <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />Get Another Number
                     </button>
                     <div className="flex items-center gap-1.5 mt-0.5">
                         <Check className="w-3 h-3 text-emerald-400" />
@@ -539,8 +539,8 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
             )}
 
             {['expired', 'cancelled'].includes(order.status) && !order.otp_code && (
-                <div className="w-full p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
-                    <p className="text-sm text-red-400 font-semibold">
+                <div className="w-full p-3 sm:p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
+                    <p className="text-xs sm:text-sm text-red-400 font-semibold">
                         {order.status === 'expired' ? 'Number expired — no SMS received.' : 'Order cancelled — refund processed.'}
                     </p>
                 </div>
@@ -549,17 +549,17 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
             {order.status === 'pending' && !order.otp_code && (
                 <div className="w-full flex gap-2">
                     <button onClick={onCancel} disabled={cancelling || banning}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50 transition disabled:opacity-50">
+                        className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50 transition disabled:opacity-50">
                         {cancelling
-                            ? <><Loader2 className="w-4 h-4 animate-spin" />Cancelling…</>
-                            : <><XCircle className="w-4 h-4" />Cancel</>
+                            ? <><Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />Cancelling…</>
+                            : <><XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />Cancel</>
                         }
                     </button>
                     <button onClick={onBan} disabled={cancelling || banning}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-orange-500/15 text-orange-400 border border-orange-500/30 hover:bg-orange-500/25 hover:border-orange-500/50 transition disabled:opacity-50">
+                        className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm bg-orange-500/15 text-orange-400 border border-orange-500/30 hover:bg-orange-500/25 hover:border-orange-500/50 transition disabled:opacity-50">
                         {banning
-                            ? <><Loader2 className="w-4 h-4 animate-spin" />Banning…</>
-                            : <><Shield className="w-4 h-4" />Number Banned</>
+                            ? <><Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />Banning…</>
+                            : <><Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />Number Banned</>
                         }
                     </button>
                 </div>
