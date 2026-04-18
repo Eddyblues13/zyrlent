@@ -13,7 +13,7 @@ import toast from 'react-hot-toast'
 const STEPS = [
     { full: 'Select Service', short: 'Service' },
     { full: 'Select Country', short: 'Country' },
-    { full: 'Rental Type', short: 'Type' },
+    { full: 'Select Operator', short: 'Operator' },
     { full: 'Confirm', short: 'Confirm' },
 ]
 
@@ -304,35 +304,79 @@ function CountryStep({ service, onSelect, selected }) {
     )
 }
 
-// ─── Step 3: Rental Type ───────────────────────────────────────
-function RentalTypeStep({ service, country }) {
-    return (
-        <div className="flex flex-col gap-4 step-animate">
-            <p className="text-sm text-white/45">Choose how you'd like to use this number.</p>
+// ─── Step 3: Select Operator ───────────────────────────────────
+function OperatorStep({ service, country, selected, onSelect }) {
+    const [operators, setOperators] = useState([])
+    const [loading, setLoading] = useState(true)
 
-            {/* Pre-selected option */}
-            <div className="p-4 rounded-xl border-2 border-[rgba(51,204,255,0.5)] bg-[rgba(51,204,255,0.07)] relative">
-                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#33CCFF] flex items-center justify-center">
-                    <Check className="w-3 h-3 text-black stroke-[3]" />
-                </div>
-                <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[rgba(51,204,255,0.15)] border border-[rgba(51,204,255,0.3)] flex items-center justify-center flex-shrink-0">
-                        <Smartphone className="w-4 h-4 text-[#33CCFF]" />
-                    </div>
-                    <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                            <p className="text-sm font-bold text-white">One-Time SMS Verification</p>
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#33CCFF]/15 text-[#33CCFF] border border-[#33CCFF]/25">⭐ Most Popular</span>
-                        </div>
-                        <p className="text-xs text-white/45">Receive a single OTP and the number is released automatically.</p>
-                        <p className="text-[10px] text-white/30 mt-2 flex items-center gap-1">
-                            <Users className="w-2.5 h-2.5" />Most users choose this option
-                        </p>
-                    </div>
-                </div>
+    useEffect(() => {
+        if (!service || !country) return
+        setLoading(true)
+        api.get('/api/operators', { params: { service_id: service.id, country_id: country.id } })
+            .then(res => setOperators(res.data.operators || []))
+            .catch(() => {
+                toast.error('Failed to load operators')
+                setOperators([{ name: 'any', cost: 0, count: 0, rate: 0 }])
+            })
+            .finally(() => setLoading(false))
+    }, [service, country])
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <Loader2 className="w-6 h-6 text-[#33CCFF] animate-spin" />
+                <p className="text-sm text-white/40">Loading available operators…</p>
             </div>
+        )
+    }
 
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/8">
+    if (operators.length === 0) {
+        return (
+            <div className="text-center py-8">
+                <p className="text-sm text-white/40">No operators available for this combination.</p>
+            </div>
+        )
+    }
+
+    return (
+        <div className="flex flex-col gap-3 step-animate">
+            <p className="text-sm text-white/45">Choose an operator. "Any" lets the system pick the best available.</p>
+
+            {operators.map(op => {
+                const isSelected = selected === op.name
+                return (
+                    <button key={op.name} onClick={() => onSelect(op.name)}
+                        className={`w-full p-4 rounded-xl border text-left transition-all ${isSelected
+                            ? 'border-[rgba(51,204,255,0.5)] bg-[rgba(51,204,255,0.07)]'
+                            : 'border-white/8 bg-white/[0.03] hover:border-white/15 hover:bg-white/[0.05]'
+                        }`}>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-[#33CCFF] bg-[#33CCFF]' : 'border-white/20'}`}>
+                                    {isSelected && <Check className="w-3 h-3 text-black stroke-[3]" />}
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-white capitalize">
+                                        {op.name === 'any' ? '🎲 Any Operator' : op.name}
+                                    </p>
+                                    {op.name === 'any' && (
+                                        <p className="text-[10px] text-white/30 mt-0.5">Best availability — auto-selected operator</p>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                {op.cost > 0 && <p className="text-xs font-bold text-emerald-400">${op.cost.toFixed(2)}</p>}
+                                <div className="flex items-center gap-2 mt-0.5">
+                                    {op.count > 0 && <span className="text-[10px] text-white/30">{op.count.toLocaleString()} numbers</span>}
+                                    {op.rate > 0 && <span className="text-[10px] text-emerald-400/70">{op.rate.toFixed(1)}%</span>}
+                                </div>
+                            </div>
+                        </div>
+                    </button>
+                )
+            })}
+
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/8 mt-1">
                 <TrendingUp className="w-4 h-4 text-[#33CCFF] flex-shrink-0" />
                 <p className="text-[11px] text-white/50">Over <span className="text-white font-semibold">5,000 numbers</span> rented this week.</p>
             </div>
@@ -508,6 +552,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     const [step, setStep] = useState(initialService ? (initialCountry ? 2 : 1) : 0)
     const [service, setService] = useState(initialService || null)
     const [country, setCountry] = useState(initialCountry || null)
+    const [operator, setOperator] = useState('any')
     const [loading, setLoading] = useState(false)
     const [order, setOrder] = useState(null)
     const [cancelling, setCancelling] = useState(false)
@@ -556,11 +601,12 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
 
     const handleServiceSelect = (s) => { setService(s); setStep(1) }
     const handleCountrySelect = (c) => { setCountry(c); setStep(2) }
+    const handleOperatorSelect = (op) => { setOperator(op); setStep(3) }
 
     const handleConfirm = async () => {
         setLoading(true)
         try {
-            const res = await api.post('/api/orders', { service_id: service.id, country_id: country.id })
+            const res = await api.post('/api/orders', { service_id: service.id, country_id: country.id, operator })
             const newOrder = res.data.order
             setOrder(newOrder)
             setStep(4) // number ready view
@@ -597,7 +643,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     const hasFunds = (wallet || 0) >= cost
     const canClose = step < 4 || !order || ['cancelled', 'expired'].includes(order?.status) || !!order?.otp_code
 
-    const stepLabel = ['Select Service', 'Select Country', 'Rental Type', 'Confirm'][Math.min(step, 3)]
+    const stepLabel = ['Select Service', 'Select Country', 'Select Operator', 'Confirm'][Math.min(step, 3)]
 
     const content = (
         <div className={`relative w-full flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] ${inline ? 'rounded-2xl h-[600px] shadow-[0_0_40px_rgba(0,102,255,0.1)]' : 'sm:w-[540px] sm:max-w-[92vw] rounded-t-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-[92svh] sm:h-auto sm:max-h-[88vh]'}`}>
@@ -644,14 +690,14 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                 <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
                     {step === 0 && <ServiceStep onSelect={handleServiceSelect} selected={service} />}
                     {step === 1 && <CountryStep onSelect={handleCountrySelect} selected={country} service={service} />}
-                    {step === 2 && <RentalTypeStep service={service} country={country} />}
+                    {step === 2 && <OperatorStep service={service} country={country} selected={operator} onSelect={handleOperatorSelect} />}
                     {step === 3 && <ConfirmStep service={service} country={country} wallet={wallet} formatNaira={formatNaira} totalPrice={totalPrice} priceLoading={priceLoading} />}
                     {step === 4 && (
                         <NumberReadyView
                             order={order}
                             formatNaira={formatNaira}
                             onClose={onClose}
-                            onGetAnother={() => { setService(null); setCountry(null); setOrder(null); setStep(0); setTimeLeft(20 * 60) }}
+                            onGetAnother={() => { setService(null); setCountry(null); setOperator('any'); setOrder(null); setStep(0); setTimeLeft(20 * 60) }}
                             onCancel={handleCancel}
                             cancelling={cancelling}
                             timeLeft={timeLeft}
@@ -664,12 +710,6 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                 {step < 4 && (
                     <div className="flex flex-col gap-2 px-4 sm:px-6 pb-5 sm:pb-5 pt-2 sm:pt-3 border-t border-white/[0.06] flex-shrink-0 bg-[#070D2E]">
                         {/* Primary CTA */}
-                        {step === 2 && (
-                            <button onClick={() => setStep(3)}
-                                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#0055CC] to-[#33CCFF] text-white shadow-[0_0_20px_rgba(0,102,255,0.35)] hover:shadow-[0_0_30px_rgba(0,102,255,0.55)] transition-all hover:scale-[1.01]">
-                                Continue <ChevronRight className="w-4 h-4" />
-                            </button>
-                        )}
                         {step === 3 && (
                             <button onClick={handleConfirm} disabled={loading || !hasFunds || priceLoading || totalPrice === null}
                                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#0055CC] to-[#33CCFF] text-white shadow-[0_0_20px_rgba(0,102,255,0.35)] hover:shadow-[0_0_30px_rgba(0,102,255,0.55)] transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.01] disabled:hover:scale-100">
@@ -682,7 +722,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                                 ← Back
                             </button>
                         )}
-                        {step < 2 && step > 0 && (
+                        {step > 0 && step < 3 && (
                             <p className="text-[11px] text-white/25 text-center">Select an option above to continue</p>
                         )}
                         {step === 3 && (
