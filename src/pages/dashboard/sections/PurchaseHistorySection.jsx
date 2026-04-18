@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Search, ChevronLeft, ChevronRight, RefreshCw, Clock, CheckCircle, XCircle, X, Copy, Check, Zap, Smartphone, ArrowRight } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight, RefreshCw, Clock, CheckCircle, XCircle, X, Copy, Check, Zap, Smartphone, ArrowRight, Shield, Loader2 } from 'lucide-react'
 import api from '../../../lib/axios'
 import toast from 'react-hot-toast'
 
@@ -40,6 +40,7 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
     const [order, setOrder] = useState(initialOrder)
     const [timeLeft, setTimeLeft] = useState(calcTimeLeft(initialOrder.expires_at))
     const [cancelling, setCancelling] = useState(false)
+    const [banning, setBanning] = useState(false)
     const [copiedNumber, setCopiedNumber] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
     const pollRef = useRef(null)
@@ -103,6 +104,23 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
             toast.error(e.response?.data?.message || 'Cancel failed')
         } finally {
             setCancelling(false)
+        }
+    }
+
+    const handleBan = async () => {
+        setBanning(true)
+        try {
+            const res = await api.post(`/api/orders/${order.id}/ban`)
+            toast.success(res.data.message)
+            clearInterval(pollRef.current)
+            clearInterval(timerRef.current)
+            const cancelled = { ...order, status: 'cancelled' }
+            setOrder(cancelled)
+            if (onOrderUpdate) onOrderUpdate(cancelled)
+        } catch (e) {
+            toast.error(e.response?.data?.message || 'Ban failed')
+        } finally {
+            setBanning(false)
         }
     }
 
@@ -222,15 +240,24 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
                         </div>
                     </div>
 
-                    {/* Cancel button for pending */}
+                    {/* Cancel & Ban buttons for pending */}
                     {isPending && (
-                        <button onClick={handleCancel} disabled={cancelling}
-                            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50 transition disabled:opacity-50">
-                            {cancelling
-                                ? <><Clock className="w-4 h-4 animate-spin" />Cancelling on provider…</>
-                                : <><XCircle className="w-4 h-4" />Cancel Order & Get Refund</>
-                            }
-                        </button>
+                        <div className="w-full flex gap-2">
+                            <button onClick={handleCancel} disabled={cancelling || banning}
+                                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50 transition disabled:opacity-50">
+                                {cancelling
+                                    ? <><Loader2 className="w-4 h-4 animate-spin" />Cancelling…</>
+                                    : <><XCircle className="w-4 h-4" />Cancel</>
+                                }
+                            </button>
+                            <button onClick={handleBan} disabled={cancelling || banning}
+                                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-orange-500/15 text-orange-400 border border-orange-500/30 hover:bg-orange-500/25 hover:border-orange-500/50 transition disabled:opacity-50">
+                                {banning
+                                    ? <><Loader2 className="w-4 h-4 animate-spin" />Banning…</>
+                                    : <><Shield className="w-4 h-4" />Number Banned</>
+                                }
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
