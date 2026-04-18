@@ -147,10 +147,10 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
                     </button>
                 </div>
 
-                <div className="flex flex-col items-center gap-5 px-5 py-5">
+                <div className="flex flex-col items-center gap-3 sm:gap-5 px-4 sm:px-5 py-4 sm:py-5">
                     {/* Status hero */}
-                    <div className="relative w-16 h-16">
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 ${
+                    <div className="relative w-14 h-14 sm:w-16 sm:h-16">
+                        <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center border-2 ${
                             order.otp_code || order.status === 'completed'
                                 ? 'bg-emerald-500/15 border-emerald-500/40'
                                 : isPending
@@ -158,31 +158,31 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
                                     : 'bg-red-500/10 border-red-500/30'
                         }`}>
                             {order.otp_code || order.status === 'completed'
-                                ? <Check className="w-7 h-7 text-emerald-400 stroke-[3]" />
+                                ? <Check className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400 stroke-[3]" />
                                 : isPending
-                                    ? <Clock className="w-7 h-7 text-[#33CCFF] animate-pulse" />
-                                    : <XCircle className="w-7 h-7 text-red-400" />
+                                    ? <Clock className="w-6 h-6 sm:w-7 sm:h-7 text-[#33CCFF] animate-pulse" />
+                                    : <XCircle className="w-6 h-6 sm:w-7 sm:h-7 text-red-400" />
                             }
                         </div>
                     </div>
 
                     <div className="text-center">
-                        <h4 className="text-lg font-bold text-white">
+                        <h4 className="text-base sm:text-lg font-bold text-white">
                             {order.otp_code ? 'SMS Received! 🎉' : isPending ? 'Waiting for SMS…' : order.status === 'cancelled' ? 'Order Cancelled' : order.status === 'expired' ? 'Order Expired' : 'Order Complete'}
                         </h4>
-                        <p className="text-sm text-white/40 mt-0.5">
+                        <p className="text-xs sm:text-sm text-white/40 mt-0.5">
                             {order.service?.name} · {order.country?.flag} {order.country?.name}
                         </p>
                     </div>
 
                     {/* Timer for pending */}
                     {isPending && (
-                        <div className="flex flex-col items-center gap-1.5">
-                            <div className="flex items-center gap-2.5 bg-[rgba(0,102,255,0.1)] px-4 py-2 rounded-full border border-[rgba(0,102,255,0.2)]">
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
-                                <span className="text-sm text-white/80 font-medium">Listening for SMS…</span>
+                        <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+                            <div className="flex items-center gap-2 sm:gap-2.5 bg-[rgba(0,102,255,0.1)] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-[rgba(0,102,255,0.2)]">
+                                <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
+                                <span className="text-xs sm:text-sm text-white/80 font-medium">Listening for SMS…</span>
                             </div>
-                            <p className="text-sm text-white/40">
+                            <p className="text-xs sm:text-sm text-white/40">
                                 Expires in: <span className={`font-bold ${timeLeft < 60 ? 'text-red-400' : 'text-white'}`}>{formatTime(timeLeft)}</span>
                             </p>
                         </div>
@@ -190,11 +190,11 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
 
                     {/* Phone number */}
                     {order.phone_number && (
-                        <div className="w-full p-4 rounded-2xl border border-[rgba(51,204,255,0.2)] bg-[rgba(51,204,255,0.04)] text-center">
-                            <p className="text-xs text-white/40 mb-1.5">Phone Number</p>
-                            <p className="text-2xl font-bold text-white font-mono tracking-widest mb-3">{order.phone_number}</p>
+                        <div className="w-full p-3 sm:p-4 rounded-2xl border border-[rgba(51,204,255,0.2)] bg-[rgba(51,204,255,0.04)] text-center">
+                            <p className="text-[10px] sm:text-xs text-white/40 mb-1 sm:mb-1.5">Phone Number</p>
+                            <p className="text-xl sm:text-2xl font-bold text-white font-mono tracking-wider sm:tracking-widest mb-2 sm:mb-3 break-all">{order.phone_number}</p>
                             <button onClick={() => copy(order.phone_number, setCopiedNumber)}
-                                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
+                                className="inline-flex items-center gap-2 px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
                                 {copiedNumber ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Number</>}
                             </button>
                         </div>
@@ -202,13 +202,13 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
 
                     {/* OTP Code */}
                     {order.otp_code && (
-                        <div className="w-full p-4 rounded-2xl border border-[#FFB800]/30 bg-[rgba(255,184,0,0.04)] relative">
+                        <div className="w-full p-3 sm:p-4 rounded-2xl border border-[#FFB800]/30 bg-[rgba(255,184,0,0.04)] relative">
                             <div className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-gradient-to-tr from-orange-500 to-yellow-400 flex items-center justify-center text-white text-xs font-bold border-2 border-[#070D2E]">📩</div>
-                            <p className="text-xs text-white/40 mb-1.5 text-center">Verification Code</p>
-                            <p className="text-3xl font-bold text-[#33CCFF] font-mono tracking-[0.2em] text-center mb-3 drop-shadow-[0_0_15px_rgba(51,204,255,0.4)]">{order.otp_code}</p>
+                            <p className="text-[10px] sm:text-xs text-white/40 mb-1 sm:mb-1.5 text-center">Verification Code</p>
+                            <p className="text-2xl sm:text-3xl font-bold text-[#33CCFF] font-mono tracking-widest sm:tracking-[0.2em] text-center mb-2 sm:mb-3 drop-shadow-[0_0_15px_rgba(51,204,255,0.4)] break-all">{order.otp_code}</p>
                             <div className="flex justify-center">
                                 <button onClick={() => copy(order.otp_code, setCopiedCode)}
-                                    className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
+                                    className="inline-flex items-center gap-2 px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
                                     {copiedCode ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Code</>}
                                 </button>
                             </div>
@@ -217,8 +217,8 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
 
                     {/* Cancelled / Expired notice */}
                     {['cancelled', 'expired'].includes(order.status) && !order.otp_code && (
-                        <div className="w-full p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
-                            <p className="text-sm text-red-400 font-semibold">
+                        <div className="w-full p-3 sm:p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
+                            <p className="text-xs sm:text-sm text-red-400 font-semibold">
                                 {order.status === 'expired' ? 'Number expired — no SMS received. Wallet refunded.' : 'Order cancelled — wallet refunded.'}
                             </p>
                         </div>
@@ -229,11 +229,11 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
                         <div className="divide-y divide-white/[0.06]">
                             {[
                                 { label: 'Status', value: <StatusBadge status={order.status} /> },
-                                { label: 'Cost', value: <span className="text-sm font-bold text-white">{formatNaira(order.cost)}</span> },
-                                { label: 'Created', value: <span className="text-sm text-white/60">{formatDate(order.created_at)}</span> },
+                                { label: 'Cost', value: <span className="text-xs sm:text-sm font-bold text-white">{formatNaira(order.cost)}</span> },
+                                { label: 'Created', value: <span className="text-xs sm:text-sm text-white/60">{formatDate(order.created_at)}</span> },
                             ].map(row => (
-                                <div key={row.label} className="flex items-center justify-between px-4 py-2.5">
-                                    <span className="text-xs text-white/40">{row.label}</span>
+                                <div key={row.label} className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-2.5">
+                                    <span className="text-[10px] sm:text-xs text-white/40">{row.label}</span>
                                     {row.value}
                                 </div>
                             ))}
@@ -244,17 +244,17 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
                     {isPending && (
                         <div className="w-full flex gap-2">
                             <button onClick={handleCancel} disabled={cancelling || banning}
-                                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50 transition disabled:opacity-50">
+                                className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50 transition disabled:opacity-50">
                                 {cancelling
-                                    ? <><Loader2 className="w-4 h-4 animate-spin" />Cancelling…</>
-                                    : <><XCircle className="w-4 h-4" />Cancel</>
+                                    ? <><Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />Cancelling…</>
+                                    : <><XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />Cancel</>
                                 }
                             </button>
                             <button onClick={handleBan} disabled={cancelling || banning}
-                                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-orange-500/15 text-orange-400 border border-orange-500/30 hover:bg-orange-500/25 hover:border-orange-500/50 transition disabled:opacity-50">
+                                className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm bg-orange-500/15 text-orange-400 border border-orange-500/30 hover:bg-orange-500/25 hover:border-orange-500/50 transition disabled:opacity-50">
                                 {banning
-                                    ? <><Loader2 className="w-4 h-4 animate-spin" />Banning…</>
-                                    : <><Shield className="w-4 h-4" />Number Banned</>
+                                    ? <><Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />Banning…</>
+                                    : <><Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />Number Banned</>
                                 }
                             </button>
                         </div>
