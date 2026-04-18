@@ -125,9 +125,9 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 sm:p-6"
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 sm:p-6"
             onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
-            <div className="relative w-full sm:w-[500px] sm:max-w-[92vw] rounded-t-3xl sm:rounded-2xl bg-[#070D2E] border border-[rgba(51,204,255,0.2)] shadow-[0_0_80px_rgba(0,102,255,0.2)] max-h-[90svh] sm:max-h-[88vh] overflow-y-auto">
+            <div className="relative w-full sm:w-[500px] sm:max-w-[92vw] rounded-t-3xl sm:rounded-2xl bg-[#070D2E] border border-[rgba(51,204,255,0.2)] shadow-[0_0_80px_rgba(0,102,255,0.2)] max-h-[80svh] sm:max-h-[88vh] mb-[env(safe-area-inset-bottom)] overflow-y-auto pb-20 sm:pb-0">
                 {/* Glow bar */}
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#33CCFF] to-transparent opacity-50 rounded-t-2xl" />
 
