@@ -229,6 +229,7 @@ const LOGO_MAP = {
     peloton: 'https://cdn.simpleicons.org/peloton/FFFFFF',
     ticktick: 'https://www.google.com/s2/favicons?domain=ticktick.com&sz=128',
     todoist: 'https://cdn.simpleicons.org/todoist/E44332',
+    omi: 'https://www.google.com/s2/favicons?domain=omi.chat&sz=128',
     any: 'https://cdn.simpleicons.org/simpleicons/FFFFFF',
     other: 'https://cdn.simpleicons.org/simpleicons/FFFFFF',
 }
@@ -309,8 +310,8 @@ export function resolveServiceLogo(icon) {
     // Try original lowercase
     if (LOGO_MAP[icon.toLowerCase()]) return LOGO_MAP[icon.toLowerCase()]
 
-    // For unknown short names, try Google favicon as last resort
-    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(icon.toLowerCase())}.com&sz=128`
+    // For unknown short names, fall back to letter square (return null)
+    return null
 }
 
 /**
