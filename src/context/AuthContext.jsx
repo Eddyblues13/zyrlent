@@ -21,6 +21,17 @@ export const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        // Support admin "Login as User" via ?impersonate=TOKEN
+        const params = new URLSearchParams(window.location.search);
+        const impersonateToken = params.get('impersonate');
+        if (impersonateToken) {
+            localStorage.setItem('auth_token', impersonateToken);
+            // Clean the URL so the token isn't visible
+            const url = new URL(window.location);
+            url.searchParams.delete('impersonate');
+            window.history.replaceState({}, '', url.pathname);
+        }
+
         const token = localStorage.getItem('auth_token');
         if (token) {
             fetchUser();
