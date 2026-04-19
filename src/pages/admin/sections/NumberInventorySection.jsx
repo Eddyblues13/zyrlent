@@ -201,7 +201,7 @@ const NumberFormModal = ({ number, filterOpts, onClose, onSaved }) => {
                     </div>
 
                     {/* Prices */}
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label className="text-[10px] text-white/40 font-medium uppercase tracking-wider">Cost Price *</label>
                             <input

@@ -153,7 +153,7 @@ function ProvidersTab() {
 
                 {/* Routing Stats */}
                 {p.total_requests > 0 && (
-                  <div className="mt-3 pt-3 border-t border-white/5 grid grid-cols-4 gap-3">
+                  <div className="mt-3 pt-3 border-t border-white/5 grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div>
                       <p className="text-[9px] text-white/30 uppercase tracking-wider">Priority</p>
                       <p className="text-sm font-bold text-white">#{p.priority}</p>
@@ -396,7 +396,7 @@ function PricingConfigTab() {
           </div>
           <div className="p-4 rounded-xl bg-[#FF9500]/[0.05] border border-[#FF9500]/10">
             <p className="text-[10px] text-white/40 uppercase tracking-wider font-bold mb-3">Live Preview — $1.00 USD number</p>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <p className="text-[10px] text-white/30">Provider Cost (USD)</p>
                 <p className="text-sm font-bold text-white">$1.00</p>
