@@ -3,11 +3,61 @@ import {
     Search, ChevronRight, Check, CheckCircle2,
     Smartphone, Loader2, Copy, AlertCircle, Star,
     Zap, Shield, Users, X, TrendingUp, ChevronDown, XCircle,
-    Timer, Quote, Sparkles
+    Timer, Quote, Sparkles, Radio, Wifi
 } from 'lucide-react'
 import api from '../../../lib/axios'
 import { ServiceIconWithFallback } from '../../../components/ServiceIcon'
 import toast from 'react-hot-toast'
+
+// ─── Provider Status Badge ─────────────────────────────────────
+const PROVIDER_STATUS_STYLES = {
+    amber:   { bg: 'bg-amber-400/10',   border: 'border-amber-400/20',   text: 'text-amber-400',   dot: 'bg-amber-400' },
+    emerald: { bg: 'bg-emerald-500/10',  border: 'border-emerald-500/20', text: 'text-emerald-400', dot: 'bg-emerald-400' },
+    blue:    { bg: 'bg-blue-400/10',     border: 'border-blue-400/20',    text: 'text-blue-400',    dot: 'bg-blue-400' },
+    red:     { bg: 'bg-red-400/10',      border: 'border-red-400/20',     text: 'text-red-400',     dot: 'bg-red-400' },
+    gray:    { bg: 'bg-white/5',         border: 'border-white/10',       text: 'text-white/50',    dot: 'bg-white/40' },
+}
+
+function ProviderStatusBadge({ info }) {
+    if (!info) return null
+    const style = PROVIDER_STATUS_STYLES[info.status_color] || PROVIDER_STATUS_STYLES.gray
+    const isActive = info.status === 'RECEIVED'
+
+    return (
+        <div className={`w-full rounded-xl border ${style.border} ${style.bg} overflow-hidden`}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.05]">
+                <div className="flex items-center gap-2">
+                    <Radio className={`w-3.5 h-3.5 ${style.text} ${isActive ? 'animate-pulse' : ''}`} />
+                    <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Provider Status</span>
+                </div>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${style.bg} ${style.text} border ${style.border}`}>
+                    {info.provider}
+                </span>
+            </div>
+            {/* Body */}
+            <div className="px-3 py-2.5 flex flex-col gap-1.5">
+                <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${style.dot} ${isActive ? 'shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse' : ''}`} />
+                    <span className={`text-xs font-semibold ${style.text}`}>{info.status_label}</span>
+                </div>
+                <div className="flex items-center gap-3 text-[10px] text-white/40 flex-wrap">
+                    {info.operator && <span>Operator: <span className="text-white/60 font-medium">{info.operator}</span></span>}
+                    {info.product && <span>Product: <span className="text-white/60 font-medium capitalize">{info.product}</span></span>}
+                    {info.sms_count > 0 && (
+                        <span className="flex items-center gap-1">
+                            <Wifi className="w-3 h-3 text-emerald-400" />
+                            <span className="text-emerald-400 font-semibold">{info.sms_count} SMS received</span>
+                        </span>
+                    )}
+                </div>
+                {info.expires_at && isActive && (
+                    <p className="text-[10px] text-white/30">Provider expiry: {new Date(info.expires_at).toLocaleTimeString()}</p>
+                )}
+            </div>
+        </div>
+    )
+}
 
 // ─── Modal Step Indicator ──────────────────────────────────────
 const STEPS = [
@@ -455,7 +505,7 @@ function ConfirmStep({ service, country, wallet, formatNaira, totalPrice, priceL
 }
 
 // ─── Number Ready Post-Order ───────────────────────────────────
-function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, cancelling, onBan, banning, timeLeft, formatTime }) {
+function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, cancelling, onBan, banning, timeLeft, formatTime, providerInfo }) {
     const [copiedNumber, setCopiedNumber] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
 
@@ -498,6 +548,9 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
                     </button>
                 </div>
             </div>
+
+            {/* Provider Status Badge */}
+            <ProviderStatusBadge info={providerInfo} />
 
             {/* Status + Timer */}
             {isWaiting && (
@@ -579,6 +632,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     const [operator, setOperator] = useState('any')
     const [loading, setLoading] = useState(false)
     const [order, setOrder] = useState(null)
+    const [providerInfo, setProviderInfo] = useState(null)
     const [cancelling, setCancelling] = useState(false)
     const [banning, setBanning] = useState(false)
     const [timeLeft, setTimeLeft] = useState(20 * 60)
@@ -598,6 +652,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
             try {
                 const res = await api.get(`/api/orders/${id}`)
                 setOrder(res.data)
+                if (res.data.provider_info) setProviderInfo(res.data.provider_info)
                 if (res.data.otp_code || ['expired', 'cancelled'].includes(res.data.status)) {
                     clearInterval(pollRef.current)
                     clearInterval(timerRef.current)
@@ -795,13 +850,14 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                             order={order}
                             formatNaira={formatNaira}
                             onClose={onClose}
-                            onGetAnother={() => { setService(null); setCountry(null); setOperator('any'); setOrder(null); setStep(0); setTimeLeft(20 * 60) }}
+                            onGetAnother={() => { setService(null); setCountry(null); setOperator('any'); setOrder(null); setProviderInfo(null); setStep(0); setTimeLeft(20 * 60) }}
                             onCancel={handleCancel}
                             cancelling={cancelling}
                             onBan={handleBan}
                             banning={banning}
                             timeLeft={timeLeft}
                             formatTime={formatTime}
+                            providerInfo={providerInfo}
                         />
                     )}
                 </div>
