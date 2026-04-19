@@ -611,10 +611,10 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
 
     // Fetch total price when reaching the rental type or confirm step
     useEffect(() => {
-        if ((step === 2 || step === 3) && service && country) {
+        if ((step === 2 || step === 3) && service && country && operator) {
             setPriceLoading(true)
             setTotalPrice(null)
-            api.get('/api/pricing/calculate', { params: { service_id: service.id, country_id: country.id } })
+            api.get('/api/pricing/calculate', { params: { service_id: service.id, country_id: country.id, operator } })
                 .then(res => setTotalPrice(res.data.total))
                 .catch(() => {
                     toast.error('Failed to calculate price')
@@ -622,7 +622,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                 })
                 .finally(() => setPriceLoading(false))
         }
-    }, [step, service, country])
+    }, [step, service, country, operator])
 
     const handleServiceSelect = (s) => { setService(s); setStep(1) }
     const [autoOperatorLoading, setAutoOperatorLoading] = useState(false)
