@@ -466,102 +466,105 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
         setTimeout(() => setter(false), 2000)
     }
 
-    return (
-        <div className="flex flex-col items-center gap-3 sm:gap-5">
-            {/* Social proof */}
-            <div className="flex items-center gap-2">
-                <Users className="w-3.5 h-3.5 text-[#33CCFF]" />
-                <span className="text-[10px] sm:text-[11px] text-white/50">Over <span className="text-white font-bold">5,000</span> numbers rented this week</span>
-            </div>
+    const isWaiting = order.status === 'pending' && !order.otp_code
+    const isDone = !!order.otp_code
+    const isFailed = ['expired', 'cancelled'].includes(order.status) && !order.otp_code
 
-            {/* Hero */}
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#0055CC]/30 to-[#33CCFF]/10 border-2 border-[#33CCFF]/40 flex items-center justify-center shadow-[0_0_40px_rgba(51,204,255,0.25)]">
-                    <Check className="w-7 h-7 sm:w-9 sm:h-9 text-[#33CCFF] stroke-[3]" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-[#070D2E]">
-                    <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+    return (
+        <div className="flex flex-col items-center gap-4 sm:gap-5">
+            {/* Hero checkmark */}
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-[#0055CC]/30 to-[#33CCFF]/20 border-[3px] border-[#33CCFF]/50 flex items-center justify-center shadow-[0_0_50px_rgba(51,204,255,0.3)]">
+                    <Check className="w-9 h-9 sm:w-11 sm:h-11 text-[#33CCFF] stroke-[3]" />
                 </div>
             </div>
 
             <div className="text-center">
-                <h3 className="text-lg sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">Number Ready! 🚀</h3>
-                <p className="text-xs sm:text-sm text-white/45">Copy & use instantly — your number is live.</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">Number Ready! 🚀</h3>
+                <p className="text-xs sm:text-sm text-white/45">Your virtual number is active and waiting for SMS.</p>
             </div>
 
-            {/* Phone number */}
-            <div className="w-full p-3 sm:p-5 rounded-2xl border border-[rgba(51,204,255,0.25)] bg-[rgba(51,204,255,0.04)] text-center">
-                <p className="text-xl sm:text-3xl font-bold text-white font-mono tracking-wider sm:tracking-widest mb-3 sm:mb-4 break-all">{order.phone_number}</p>
-                <button onClick={() => copy(order.phone_number, setCopiedNumber)}
-                    className="inline-flex items-center gap-2 px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
-                    {copiedNumber ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Number</>}
+            {/* Phone number card */}
+            <div className="w-full p-4 sm:p-5 rounded-2xl border border-[rgba(51,204,255,0.25)] bg-[rgba(51,204,255,0.04)] text-center">
+                <p className="text-2xl sm:text-3xl font-bold text-white font-mono tracking-wider mb-3 sm:mb-4 break-all">{order.phone_number}</p>
+                <div className="flex items-center justify-center gap-3">
+                    <button onClick={() => copy(order.phone_number, setCopiedNumber)}
+                        className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
+                        {copiedNumber ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Number</>}
+                    </button>
+                    <button onClick={() => { if (order.sms_url) window.open(order.sms_url, '_blank') }}
+                        className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-white/[0.06] text-white text-xs sm:text-sm font-bold hover:bg-white/10 transition border border-white/10">
+                        <Quote className="w-4 h-4" />Open SMS Inbox
+                    </button>
+                </div>
+            </div>
+
+            {/* Status + Timer */}
+            {isWaiting && (
+                <div className="flex flex-col items-center gap-1.5">
+                    <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
+                        <span className="text-sm text-white/70 font-medium">Status: Waiting for SMS</span>
+                    </div>
+                    <p className="text-sm text-white/50">Rental expires in: <span className="font-bold text-white">{formatTime(timeLeft)}</span></p>
+                    <p className="text-xs text-white/30 mt-0.5">SMS will appear here instantly once received.</p>
+                </div>
+            )}
+
+            {/* Bottom section: two cards side by side */}
+            {(isDone || isWaiting) && (
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Need another number */}
+                    <div className="p-3 sm:p-4 rounded-2xl border border-white/10 bg-white/[0.03] flex flex-col gap-2">
+                        <p className="text-sm font-bold text-white">Need another number?</p>
+                        <p className="text-[11px] text-white/35">Rent again in one click.</p>
+                        <button onClick={() => { onClose(); if (onGetAnother) onGetAnother() }}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs font-bold hover:scale-[1.02] transition shadow-[0_0_12px_rgba(0,102,255,0.2)] border border-[#33CCFF]/20 w-fit">
+                            <Smartphone className="w-3.5 h-3.5" />Get Another Number
+                        </button>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            <Check className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                            <span className="text-[10px] text-emerald-400/80">Credits deducted successfully after activation.</span>
+                        </div>
+                    </div>
+
+                    {/* OTP card */}
+                    {isDone ? (
+                        <div className="p-3 sm:p-4 rounded-2xl border border-[#33CCFF]/30 bg-[rgba(51,204,255,0.05)] relative flex flex-col items-center justify-center gap-2">
+                            <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-gradient-to-tr from-orange-500 to-yellow-400 flex items-center justify-center text-white text-[10px] font-bold border-2 border-[#070D2E]">1</div>
+                            <div className="flex items-center gap-1.5">
+                                <p className="text-sm font-bold text-white">New SMS Received!</p>
+                                <span className="text-base">🚀</span>
+                            </div>
+                            <p className="text-3xl sm:text-4xl font-bold text-[#33CCFF] font-mono tracking-widest text-center drop-shadow-[0_0_15px_rgba(51,204,255,0.4)] break-all">{order.otp_code}</p>
+                            <button onClick={() => copy(order.otp_code, setCopiedCode)}
+                                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs font-bold hover:scale-[1.02] transition shadow-[0_0_12px_rgba(0,102,255,0.2)] border border-[#33CCFF]/20">
+                                {copiedCode ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Code</>}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="p-3 sm:p-4 rounded-2xl border border-white/5 bg-white/[0.02] flex flex-col items-center justify-center gap-2">
+                            <Loader2 className="w-6 h-6 text-[#33CCFF]/40 animate-spin" />
+                            <p className="text-xs text-white/25">Waiting for OTP…</p>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Cancel / refund link */}
+            {isWaiting && (
+                <button onClick={onCancel} disabled={cancelling}
+                    className="text-xs text-[#33CCFF]/60 hover:text-[#33CCFF] transition underline underline-offset-2 disabled:opacity-50">
+                    {cancelling ? 'Cancelling…' : "Didn't receive SMS? Cancel and get refund."}
                 </button>
-            </div>
-
-            {/* Waiting */}
-            {order.status === 'pending' && !order.otp_code && (
-                <div className="w-full flex flex-col items-center gap-1.5 sm:gap-2">
-                    <div className="flex items-center gap-2 sm:gap-2.5 bg-[rgba(0,102,255,0.1)] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-[rgba(0,102,255,0.2)]">
-                        <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
-                        <span className="text-xs sm:text-sm text-white/80 font-medium">Waiting for SMS…</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-white/40">Expires in: <span className="font-bold text-white">{formatTime(timeLeft)}</span></p>
-                    <p className="text-[10px] sm:text-xs text-white/30">Code will appear here instantly once received.</p>
-                </div>
             )}
 
-            {/* OTP */}
-            {order.otp_code && (
-                <div className="w-full p-3 sm:p-5 rounded-2xl border border-[#FFB800]/30 bg-[rgba(255,184,0,0.04)] relative">
-                    <div className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-gradient-to-tr from-orange-500 to-yellow-400 flex items-center justify-center text-white text-xs font-bold border-2 border-[#070D2E]">1</div>
-                    <p className="text-xs sm:text-sm font-bold text-white mb-2 sm:mb-3 text-center">📩 New SMS Received!</p>
-                    <p className="text-2xl sm:text-4xl font-bold text-[#33CCFF] font-mono tracking-widest sm:tracking-[0.2em] text-center mb-3 sm:mb-4 drop-shadow-[0_0_15px_rgba(51,204,255,0.4)] break-all">{order.otp_code}</p>
-                    <button onClick={() => copy(order.otp_code, setCopiedCode)}
-                        className="w-full max-w-[180px] mx-auto flex items-center justify-center gap-2 px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
-                        {copiedCode ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Code</>}
-                    </button>
-                </div>
-            )}
-
-            {/* Need another */}
-            {order.otp_code && (
-                <div className="w-full p-3 sm:p-4 rounded-2xl border border-white/8 bg-white/[0.03] text-center flex flex-col items-center gap-1.5 sm:gap-2">
-                    <p className="text-xs sm:text-sm font-bold text-white">Need another number?</p>
-                    <button onClick={() => { onClose(); if (onGetAnother) onGetAnother() }}
-                        className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-[11px] sm:text-xs font-bold hover:scale-[1.02] transition shadow-[0_0_12px_rgba(0,102,255,0.2)] border border-[#33CCFF]/20">
-                        <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4" />Get Another Number
-                    </button>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                        <Check className="w-3 h-3 text-emerald-400" />
-                        <span className="text-[10px] text-emerald-400 italic">Credits deducted successfully after activation.</span>
-                    </div>
-                </div>
-            )}
-
-            {['expired', 'cancelled'].includes(order.status) && !order.otp_code && (
+            {/* Failed state */}
+            {isFailed && (
                 <div className="w-full p-3 sm:p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
                     <p className="text-xs sm:text-sm text-red-400 font-semibold">
                         {order.status === 'expired' ? 'Number expired — no SMS received.' : 'Order cancelled — refund processed.'}
                     </p>
-                </div>
-            )}
-
-            {order.status === 'pending' && !order.otp_code && (
-                <div className="w-full flex gap-2">
-                    <button onClick={onCancel} disabled={cancelling || banning}
-                        className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50 transition disabled:opacity-50">
-                        {cancelling
-                            ? <><Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />Cancelling…</>
-                            : <><XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />Cancel</>
-                        }
-                    </button>
-                    <button onClick={onBan} disabled={cancelling || banning}
-                        className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm bg-orange-500/15 text-orange-400 border border-orange-500/30 hover:bg-orange-500/25 hover:border-orange-500/50 transition disabled:opacity-50">
-                        {banning
-                            ? <><Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />Banning…</>
-                            : <><Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />Number Banned</>
-                        }
-                    </button>
                 </div>
             )}
         </div>
