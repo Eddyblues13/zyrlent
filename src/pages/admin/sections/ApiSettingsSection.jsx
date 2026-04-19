@@ -15,6 +15,65 @@ const fmtNaira = (v) => {
   return '\u20A6' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
+/* ── Per-Provider Markup Selector ── */
+const MARKUP_PRESETS = [0, 5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 300, 500]
+
+function MarkupSelector({ providerId, currentMarkup, onUpdated }) {
+  const [value, setValue] = useState(currentMarkup)
+  const [custom, setCustom] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => { setValue(currentMarkup) }, [currentMarkup])
+
+  const isPreset = MARKUP_PRESETS.includes(Number(value))
+
+  const save = async (v) => {
+    setSaving(true)
+    try {
+      await adminApi.put('/api/admin/providers/' + providerId, { markup_percent: parseFloat(v) })
+      toast.success('Markup updated to ' + v + '%')
+      onUpdated()
+    } catch { toast.error('Failed to update markup') }
+    finally { setSaving(false); setCustom(false) }
+  }
+
+  if (custom || !isPreset) {
+    return (
+      <div className="flex items-center gap-2">
+        <input type="number" min="0" max="1000" step="0.5" value={value}
+          onChange={e => setValue(e.target.value)}
+          className="w-20 px-2 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-xs text-white text-center font-mono focus:outline-none focus:border-[rgba(255,149,0,0.4)]" />
+        <span className="text-[10px] text-white/30">%</span>
+        <button onClick={() => save(value)} disabled={saving}
+          className="px-2 py-1 rounded-lg bg-[#FF9500]/20 text-[#FF9500] text-[10px] font-bold hover:bg-[#FF9500]/30 transition disabled:opacity-40">
+          {saving ? '...' : 'Save'}
+        </button>
+        {isPreset && <button onClick={() => setCustom(false)} className="text-white/20 hover:text-white/40 text-[10px]">✕</button>}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      {MARKUP_PRESETS.map(p => (
+        <button key={p} onClick={() => { setValue(p); save(p) }}
+          disabled={saving}
+          className={'px-2 py-1 rounded-lg text-[10px] font-bold transition ' +
+            (Number(value) === p
+              ? 'bg-[#FF9500] text-white shadow-[0_0_8px_rgba(255,149,0,0.3)]'
+              : 'bg-white/[0.04] text-white/30 hover:bg-white/[0.08] hover:text-white/50')
+          }>
+          {p}%
+        </button>
+      ))}
+      <button onClick={() => setCustom(true)}
+        className="px-2 py-1 rounded-lg text-[10px] font-bold bg-white/[0.04] text-white/30 hover:bg-white/[0.08] hover:text-white/50 transition">
+        Custom
+      </button>
+    </div>
+  )
+}
+
 /* ══════════════════════════════════════════════════════════
    TAB 1: PROVIDERS (multi-provider CRUD)
    ══════════════════════════════════════════════════════════ */
@@ -150,6 +209,17 @@ function ProvidersTab() {
                     })}
                   </div>
                 )}
+
+                {/* Price Markup */}
+                <div className="mt-3 pt-3 border-t border-white/5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Percent className="w-3.5 h-3.5 text-[#FF9500]" />
+                      <span className="text-[10px] text-white/40 font-medium uppercase tracking-wider">Price Markup</span>
+                    </div>
+                    <MarkupSelector providerId={p.id} currentMarkup={p.markup_percent ?? 0} onUpdated={load} />
+                  </div>
+                </div>
 
                 {/* Routing Stats */}
                 {p.total_requests > 0 && (
