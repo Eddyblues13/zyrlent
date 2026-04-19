@@ -13,12 +13,14 @@ import toast from 'react-hot-toast'
 const STEPS = [
     { full: 'Select Service', short: 'Service' },
     { full: 'Select Country', short: 'Country' },
+    { full: 'Best Operator', short: 'Operator' },
     { full: 'Confirm', short: 'Confirm' },
 ]
 
 const STEP_MICROCOPY = [
-    '3 steps to get your number',
-    'Almost there! 2 steps left',
+    '4 steps to get your number',
+    'Almost there! 3 steps left',
+    'Finding the best operator for you…',
     'Last step! Confirm to get your number 🚀',
 ]
 
@@ -51,7 +53,7 @@ function ModalStepBar({ step }) {
             </div>
             {/* Progress microcopy — completion incentive */}
             <p className="text-[11px] text-center font-medium text-[#33CCFF]/70 animate-pulse">
-                {STEP_MICROCOPY[Math.min(step, 2)]}
+                {STEP_MICROCOPY[Math.min(step, 3)]}
             </p>
         </div>
     )
@@ -604,9 +606,9 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
 
     useEffect(() => () => { clearInterval(pollRef.current); clearInterval(timerRef.current) }, [])
 
-    // Fetch total price when reaching the confirm step (step 2)
+    // Fetch total price when reaching the confirm step (step 3)
     useEffect(() => {
-        if (step === 2 && service && country) {
+        if (step === 3 && service && country) {
             setPriceLoading(true)
             setTotalPrice(null)
             api.get('/api/pricing/calculate', { params: { service_id: service.id, country_id: country.id } })
@@ -624,11 +626,10 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     const handleCountrySelect = async (c) => {
         setCountry(c)
         setAutoOperatorLoading(true)
-        setStep(2) // go to confirm step (will show loading)
+        setStep(2) // show "finding best operator" step
         try {
             const res = await api.get('/api/operators', { params: { service_id: service.id, country_id: c.id } })
             const ops = res.data.operators || []
-            // Pick operator with highest delivery rate that has available numbers
             const available = ops.filter(op => op.name !== 'any' && op.count > 0 && op.rate > 0)
             if (available.length > 0) {
                 const best = available.reduce((a, b) => b.rate > a.rate ? b : a)
@@ -640,9 +641,10 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
             setOperator('any')
         } finally {
             setAutoOperatorLoading(false)
+            setStep(3) // auto-advance to confirm
         }
     }
-    const handleOperatorSelect = (op) => { setOperator(op); setStep(2) }
+    const handleOperatorSelect = (op) => { setOperator(op); setStep(3) }
 
     const handleConfirm = async () => {
         setLoading(true)
@@ -650,7 +652,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
             const res = await api.post('/api/orders', { service_id: service.id, country_id: country.id, operator })
             const newOrder = res.data.order
             setOrder(newOrder)
-            setStep(3) // number ready view
+            setStep(4) // number ready view
             toast.success(res.data.message)
             if (onSuccess) onSuccess(res.data.wallet_balance)
             startTimer()
@@ -695,9 +697,9 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
 
     const cost = totalPrice ?? 0
     const hasFunds = (wallet || 0) >= cost
-    const canClose = step < 3 || !order || ['cancelled', 'expired'].includes(order?.status) || !!order?.otp_code
+    const canClose = step < 4 || !order || ['cancelled', 'expired'].includes(order?.status) || !!order?.otp_code
 
-    const stepLabel = ['Select Service', 'Select Country', 'Confirm'][Math.min(step, 2)]
+    const stepLabel = ['Select Service', 'Select Country', 'Finding Best Operator', 'Confirm'][Math.min(step, 3)]
 
     const content = (
         <div className={`relative w-full flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] ${inline ? 'rounded-2xl h-[600px] shadow-[0_0_40px_rgba(0,102,255,0.1)]' : 'sm:w-[540px] sm:max-w-[92vw] rounded-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-[80svh] sm:h-auto sm:max-h-[88vh]'}`}>
@@ -726,15 +728,15 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                 </div>
             )}
 
-                {/* Step Bar — only for steps 0-2 */}
-                {step < 3 && (
+                {/* Step Bar — only for steps 0-3 */}
+                {step < 4 && (
                     <div className="px-3 sm:px-6 pt-2 sm:pt-4 pb-2 sm:pb-3 border-b border-white/[0.05] flex-shrink-0">
                         <ModalStepBar step={step} />
                     </div>
                 )}
 
                 {/* Step title */}
-                {step < 3 && (
+                {step < 4 && (
                     <div className="px-4 sm:px-6 pt-2 sm:pt-4 pb-0.5 flex-shrink-0">
                         <h3 className="text-base sm:text-lg font-bold text-white">{stepLabel}</h3>
                     </div>
@@ -744,13 +746,15 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                 <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
                     {step === 0 && <ServiceStep onSelect={handleServiceSelect} selected={service} />}
                     {step === 1 && <CountryStep onSelect={handleCountrySelect} selected={country} service={service} />}
-                    {step === 2 && autoOperatorLoading ? (
-                        <div className="flex flex-col items-center justify-center py-12 gap-3">
-                            <Loader2 className="w-6 h-6 text-[#33CCFF] animate-spin" />
-                            <p className="text-sm text-white/40">Finding best operator…</p>
+                    {step === 2 && (
+                        <div className="flex flex-col items-center justify-center py-16 gap-4 step-animate">
+                            <Loader2 className="w-8 h-8 text-[#33CCFF] animate-spin" />
+                            <p className="text-sm font-semibold text-white/60">Finding the best operator…</p>
+                            <p className="text-xs text-white/30">Auto-selecting the operator with the highest delivery rate</p>
                         </div>
-                    ) : step === 2 && <ConfirmStep service={service} country={country} wallet={wallet} formatNaira={formatNaira} totalPrice={totalPrice} priceLoading={priceLoading} />}
-                    {step === 3 && (
+                    )}
+                    {step === 3 && <ConfirmStep service={service} country={country} wallet={wallet} formatNaira={formatNaira} totalPrice={totalPrice} priceLoading={priceLoading} />}
+                    {step === 4 && (
                         <NumberReadyView
                             order={order}
                             formatNaira={formatNaira}
@@ -767,25 +771,25 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                 </div>
 
                 {/* Footer Buttons */}
-                {step < 3 && (
+                {step < 4 && (
                     <div className="flex flex-col gap-2 px-4 sm:px-6 pb-5 sm:pb-5 pt-2 sm:pt-3 border-t border-white/[0.06] flex-shrink-0 bg-[#070D2E]">
                         {/* Primary CTA */}
-                        {step === 2 && (
-                            <button onClick={handleConfirm} disabled={loading || !hasFunds || priceLoading || totalPrice === null || autoOperatorLoading}
+                        {step === 3 && (
+                            <button onClick={handleConfirm} disabled={loading || !hasFunds || priceLoading || totalPrice === null}
                                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#0055CC] to-[#33CCFF] text-white shadow-[0_0_20px_rgba(0,102,255,0.35)] hover:shadow-[0_0_30px_rgba(0,102,255,0.55)] transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.01] disabled:hover:scale-100">
                                 {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Provisioning…</> : <><Smartphone className="w-4 h-4" />Confirm & Get Number</>}
                             </button>
                         )}
-                        {step > 0 && (
-                            <button onClick={() => setStep(s => s - 1)}
+                        {step > 0 && step !== 2 && (
+                            <button onClick={() => setStep(s => s === 3 ? 1 : s - 1)}
                                 className="w-full py-3 rounded-xl text-sm font-semibold text-white/40 hover:text-white hover:bg-white/5 transition border border-transparent hover:border-white/10">
                                 ← Back
                             </button>
                         )}
-                        {step > 0 && step < 2 && (
+                        {step === 1 && (
                             <p className="text-[11px] text-white/25 text-center">Select an option above to continue</p>
                         )}
-                        {step === 2 && (
+                        {step === 3 && (
                             <p className="text-[11px] text-white/30 text-center -mt-1">Your credits will be deducted only after SMS delivery.</p>
                         )}
                     </div>
