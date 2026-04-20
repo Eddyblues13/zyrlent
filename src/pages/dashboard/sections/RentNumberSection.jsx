@@ -716,10 +716,14 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
             startPolling(newOrder.id)
         } catch (e) {
             const data = e.response?.data
+            const msg = data?.message || 'Failed to provision number'
             if (e.response?.status === 422 && data?.balance !== undefined) {
                 toast.error(`Need ${formatNaira(data.required)}, wallet has ${formatNaira(data.balance)}.`)
+            } else if (msg.includes('provider balance') || msg.includes('authentication issue') || msg.includes('providers are currently active')) {
+                // System-level issue — show persistent warning
+                toast.error(msg, { duration: 8000, icon: '⚠️' })
             } else {
-                toast.error(data?.message || 'Failed to provision number')
+                toast.error(msg, { duration: 5000 })
             }
         } finally {
             setLoading(false)
