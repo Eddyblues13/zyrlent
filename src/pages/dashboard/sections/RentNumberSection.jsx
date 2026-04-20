@@ -688,9 +688,23 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
         try {
             const res = await api.get('/api/operators', { params: { service_id: service.id, country_id: c.id } })
             const ops = res.data.operators || []
-            const available = ops.filter(op => op.name !== 'any' && op.count > 0 && op.rate > 0)
-            if (available.length > 0) {
-                const best = available.reduce((a, b) => b.rate > a.rate ? b : a)
+            // Find the operator(s) with the highest rate
+            let best = null;
+            let maxRate = -1;
+            let maxCost = -1;
+            for (const op of ops) {
+                if (op.count > 0 && op.rate > 0) {
+                    if (op.rate > maxRate) {
+                        best = op;
+                        maxRate = op.rate;
+                        maxCost = op.cost;
+                    } else if (op.rate === maxRate && op.cost > maxCost) {
+                        best = op;
+                        maxCost = op.cost;
+                    }
+                }
+            }
+            if (best) {
                 setOperator(best.name)
             } else {
                 setOperator('any')
@@ -763,7 +777,13 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     const stepLabel = ['Select Service', 'Select Country', 'Rental Type', 'Confirm'][Math.min(step, 3)]
 
     const content = (
-        <div className={`relative w-full flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] ${inline ? 'rounded-2xl h-[600px] shadow-[0_0_40px_rgba(0,102,255,0.1)]' : 'sm:w-[540px] sm:max-w-[92vw] rounded-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-[80svh] sm:h-auto sm:max-h-[88vh]'}`}>
+        <div
+            className={`relative w-full flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] ${inline
+                ? 'rounded-2xl h-[600px] shadow-[0_0_40px_rgba(0,102,255,0.1)]'
+                : 'sm:w-[540px] sm:max-w-[92vw] rounded-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-screen max-h-screen sm:h-auto sm:max-h-[88vh]'}
+                overflow-y-auto`}
+            style={{ WebkitOverflowScrolling: 'touch' }}
+        >
 
             {/* Mobile drag handle */}
             {!inline && (
@@ -897,10 +917,14 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
 
     return (
         <div
-            className="fixed inset-0 z-[60] flex items-start sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 pt-8 sm:p-6"
+            className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 pt-4 sm:p-6"
+            style={{ WebkitOverflowScrolling: 'touch' }}
             onMouseDown={(e) => { if (e.target === e.currentTarget && canClose) onClose() }}
         >
-            {content}
+            {/* On mobile, modal fills screen and is scrollable */}
+            <div className="w-full sm:w-auto max-w-full sm:max-w-[92vw] h-full sm:h-auto flex flex-col justify-center">
+                {content}
+            </div>
         </div>
     )
 }
