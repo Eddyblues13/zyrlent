@@ -648,18 +648,50 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     }, [])
 
     const startPolling = useCallback((id) => {
-        pollRef.current = setInterval(async () => {
+        // Fetch immediately once so fast-arriving OTPs are reflected without waiting for the first tick
+        const fetchOnceAndStart = async () => {
             try {
                 const res = await api.get(`/api/orders/${id}`)
                 setOrder(res.data)
                 if (res.data.provider_info) setProviderInfo(res.data.provider_info)
                 if (res.data.otp_code || ['expired', 'cancelled'].includes(res.data.status)) {
+                    // If already finished on provider side, no need to poll further
                     clearInterval(pollRef.current)
                     clearInterval(timerRef.current)
                     if (res.data.otp_code) toast.success('🎉 SMS received!')
+                    return
                 }
-            } catch { }
-        }, 5000)
+            } catch (e) {
+                // If order not found or unauthorized, stop polling to avoid noisy requests
+                if (e.response?.status === 404) {
+                    clearInterval(pollRef.current)
+                    clearInterval(timerRef.current)
+                    toast.error('Order not found.')
+                    return
+                }
+            }
+
+            // Start regular polling every 3s
+            pollRef.current = setInterval(async () => {
+                try {
+                    const res = await api.get(`/api/orders/${id}`)
+                    setOrder(res.data)
+                    if (res.data.provider_info) setProviderInfo(res.data.provider_info)
+                    if (res.data.otp_code || ['expired', 'cancelled'].includes(res.data.status)) {
+                        clearInterval(pollRef.current)
+                        clearInterval(timerRef.current)
+                        if (res.data.otp_code) toast.success('🎉 SMS received!')
+                    }
+                } catch (e) {
+                    if (e.response?.status === 404) {
+                        clearInterval(pollRef.current)
+                        clearInterval(timerRef.current)
+                    }
+                }
+            }, 3000)
+        }
+
+        fetchOnceAndStart()
     }, [])
 
     useEffect(() => () => { clearInterval(pollRef.current); clearInterval(timerRef.current) }, [])
