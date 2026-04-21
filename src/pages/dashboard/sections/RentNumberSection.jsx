@@ -6,6 +6,7 @@ import {
     Timer, Quote, Sparkles, Radio, Wifi
 } from 'lucide-react'
 import api from '../../../lib/axios'
+import echo from '../../../lib/echo'
 import { ServiceIconWithFallback } from '../../../components/ServiceIcon'
 import toast from 'react-hot-toast'
 
@@ -640,6 +641,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     const [priceLoading, setPriceLoading] = useState(false)
     const pollRef = useRef(null)
     const timerRef = useRef(null)
+    const echoChannelRef = useRef(null)   // tracks the active Echo private channel
 
     const formatTime = (s) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
@@ -647,54 +649,82 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
         timerRef.current = setInterval(() => setTimeLeft(p => p <= 0 ? (clearInterval(timerRef.current), 0) : p - 1), 1000)
     }, [])
 
+    // Stops polling, timer, and disconnects the Echo channel.
+    const stopAll = useCallback(() => {
+        clearInterval(pollRef.current)
+        clearInterval(timerRef.current)
+        if (echoChannelRef.current) {
+            echo.leave(`orders.${echoChannelRef.current}`)
+            echoChannelRef.current = null
+        }
+    }, [])
+
     const startPolling = useCallback((id) => {
-        // Fetch immediately once so fast-arriving OTPs are reflected without waiting for the first tick
+        // ── 1. Subscribe via Reverb websocket (instant push) ──────────────
+        try {
+            echoChannelRef.current = id
+            // Re-read the token at subscription time so it's always fresh
+            const token = localStorage.getItem('auth_token')
+            if (token) {
+                echo.options.auth.headers.Authorization = `Bearer ${token}`
+            }
+            echo.private(`orders.${id}`)
+                .listen('.otp.received', (data) => {
+                    // Backend broadcasted an OTP — update state immediately
+                    setOrder(prev => ({
+                        ...prev,
+                        otp_code:     data.otp_code,
+                        status:       data.status,
+                        sms_from:     data.sms_from,
+                        completed_at: data.completed_at,
+                    }))
+                    stopAll()
+                    toast.success('🎉 SMS received!')
+                })
+        } catch (wsErr) {
+            console.warn('Echo subscription failed (websocket unavailable, falling back to polling):', wsErr)
+        }
+
+        // ── 2. HTTP fallback polling (catches anything missed by websocket) ─
         const fetchOnceAndStart = async () => {
             try {
                 const res = await api.get(`/api/orders/${id}`)
                 setOrder(res.data)
                 if (res.data.provider_info) setProviderInfo(res.data.provider_info)
                 if (res.data.otp_code || ['expired', 'cancelled'].includes(res.data.status)) {
-                    // If already finished on provider side, no need to poll further
-                    clearInterval(pollRef.current)
-                    clearInterval(timerRef.current)
+                    stopAll()
                     if (res.data.otp_code) toast.success('🎉 SMS received!')
                     return
                 }
             } catch (e) {
-                // If order not found or unauthorized, stop polling to avoid noisy requests
                 if (e.response?.status === 404) {
-                    clearInterval(pollRef.current)
-                    clearInterval(timerRef.current)
+                    stopAll()
                     toast.error('Order not found.')
                     return
                 }
             }
 
-            // Start regular polling every 3s
+            // Poll every 3s as a safety net
             pollRef.current = setInterval(async () => {
                 try {
                     const res = await api.get(`/api/orders/${id}`)
                     setOrder(res.data)
                     if (res.data.provider_info) setProviderInfo(res.data.provider_info)
                     if (res.data.otp_code || ['expired', 'cancelled'].includes(res.data.status)) {
-                        clearInterval(pollRef.current)
-                        clearInterval(timerRef.current)
+                        stopAll()
                         if (res.data.otp_code) toast.success('🎉 SMS received!')
                     }
                 } catch (e) {
-                    if (e.response?.status === 404) {
-                        clearInterval(pollRef.current)
-                        clearInterval(timerRef.current)
-                    }
+                    if (e.response?.status === 404) stopAll()
                 }
             }, 3000)
         }
 
         fetchOnceAndStart()
-    }, [])
+    }, [stopAll])
 
-    useEffect(() => () => { clearInterval(pollRef.current); clearInterval(timerRef.current) }, [])
+    // Clean up on unmount
+    useEffect(() => () => stopAll(), [stopAll])
 
     // Fetch total price when reaching the rental type or confirm step
     useEffect(() => {
@@ -755,18 +785,24 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
             const res = await api.post('/api/orders', { service_id: service.id, country_id: country.id, operator })
             const newOrder = res.data.order
             setOrder(newOrder)
+            // If backend already found the OTP via the retry loop, show it immediately
+            if (res.data.provider_info) setProviderInfo(res.data.provider_info)
             setStep(4) // number ready view
             toast.success(res.data.message)
             if (onSuccess) onSuccess(res.data.wallet_balance)
             startTimer()
-            startPolling(newOrder.id)
+            // If OTP already present in the response, no need to start polling/websocket
+            if (!newOrder.otp_code) {
+                startPolling(newOrder.id)
+            } else {
+                toast.success('🎉 SMS received!')
+            }
         } catch (e) {
             const data = e.response?.data
             const msg = data?.message || 'Failed to provision number'
             if (e.response?.status === 422 && data?.balance !== undefined) {
                 toast.error(`Need ${formatNaira(data.required)}, wallet has ${formatNaira(data.balance)}.`)
             } else if (msg.includes('provider balance') || msg.includes('authentication issue') || msg.includes('providers are currently active')) {
-                // System-level issue — show persistent warning
                 toast.error(msg, { duration: 8000, icon: '⚠️' })
             } else {
                 toast.error(msg, { duration: 5000 })
