@@ -752,9 +752,30 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
             toast.success(res.data.message)
             clearInterval(pollRef.current); clearInterval(timerRef.current)
             setOrder(p => ({ ...p, status: 'cancelled' }))
-            if (onSuccess) onSuccess(res.data.wallet_balance)
-        } catch (e) { toast.error(e.response?.data?.message || 'Cancel failed') }
-        finally { setCancelling(false) }
+            if (onSuccess && res.data.wallet_balance !== undefined) onSuccess(res.data.wallet_balance)
+        } catch (e) {
+            const status = e.response?.status
+            const data = e.response?.data || {}
+            const msg = data.message || 'Cancel failed'
+            const wallet = data.wallet_balance ?? data.wallet
+
+            // Show message
+            if (status === 404) {
+                toast.error('Order not found or you are not authorized to cancel this order.')
+            } else {
+                toast.error(msg)
+            }
+
+            // Update wallet if backend returned a fresh balance
+            if (onSuccess && wallet !== undefined) onSuccess(wallet)
+
+            // If already cancelled or expired, still update local order state to reflect backend
+            if (msg.toLowerCase().includes('already cancelled') || msg.toLowerCase().includes('expired') || status === 404) {
+                setOrder(p => ({ ...p, status: 'cancelled' }))
+            }
+        } finally {
+            setCancelling(false)
+        }
     }
 
     const handleBan = async () => {
@@ -765,9 +786,27 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
             toast.success(res.data.message)
             clearInterval(pollRef.current); clearInterval(timerRef.current)
             setOrder(p => ({ ...p, status: 'cancelled' }))
-            if (onSuccess) onSuccess(res.data.wallet_balance)
-        } catch (e) { toast.error(e.response?.data?.message || 'Ban failed') }
-        finally { setBanning(false) }
+            if (onSuccess && res.data.wallet_balance !== undefined) onSuccess(res.data.wallet_balance)
+        } catch (e) {
+            const status = e.response?.status
+            const data = e.response?.data || {}
+            const msg = data.message || 'Ban failed'
+            const wallet = data.wallet_balance ?? data.wallet
+
+            if (status === 404) {
+                toast.error('Order not found or you are not authorized to ban this order.')
+            } else {
+                toast.error(msg)
+            }
+
+            if (onSuccess && wallet !== undefined) onSuccess(wallet)
+
+            if (msg.toLowerCase().includes('already cancelled') || msg.toLowerCase().includes('expired') || status === 404) {
+                setOrder(p => ({ ...p, status: 'cancelled' }))
+            }
+        } finally {
+            setBanning(false)
+        }
     }
 
     const cost = totalPrice ?? 0
