@@ -458,7 +458,7 @@ function ConfirmStep({ service, country, wallet, formatNaira, totalPrice, priceL
 }
 
 // ─── Number Ready Post-Order ───────────────────────────────────
-function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, cancelling, onBan, banning, timeLeft, formatTime, providerInfo }) {
+function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, cancelling, onBan, banning, timeLeft, formatTime }) {
     const [copiedNumber, setCopiedNumber] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
 
@@ -489,14 +489,14 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
 
             {/* Phone number card */}
             <div className="w-full p-4 sm:p-5 rounded-2xl border border-[rgba(51,204,255,0.25)] bg-[rgba(51,204,255,0.04)] text-center">
-                <p className="text-2xl sm:text-3xl font-bold text-white font-mono tracking-wider mb-3 sm:mb-4 break-all">{order.phone_number}</p>
-                <div className="flex items-center justify-center gap-3">
+                <p className="text-xl sm:text-3xl font-bold text-white font-mono tracking-wider mb-3 sm:mb-4 break-all">{order.phone_number}</p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
                     <button onClick={() => copy(order.phone_number, setCopiedNumber)}
-                        className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
+                        className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
                         {copiedNumber ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Number</>}
                     </button>
                     <button onClick={() => { if (order.sms_url) window.open(order.sms_url, '_blank') }}
-                        className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-white/[0.06] text-white text-xs sm:text-sm font-bold hover:bg-white/10 transition border border-white/10">
+                        className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl bg-white/[0.06] text-white text-xs sm:text-sm font-bold hover:bg-white/10 transition border border-white/10">
                         <Quote className="w-4 h-4" />Open SMS Inbox
                     </button>
                 </div>
@@ -584,7 +584,6 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
     const [operator, setOperator] = useState('any')
     const [loading, setLoading] = useState(false)
     const [order, setOrder] = useState(null)
-    const [providerInfo, setProviderInfo] = useState(null)
     const [cancelling, setCancelling] = useState(false)
     const [banning, setBanning] = useState(false)
     const [timeLeft, setTimeLeft] = useState(20 * 60)
@@ -645,7 +644,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                 const res = await api.get(`/api/orders/${id}`)
                 consecutiveErrors = 0 // reset on success
                 setOrder(res.data)
-                if (res.data.provider_info) setProviderInfo(res.data.provider_info)
+
                 if (res.data.otp_code || ['expired', 'cancelled', 'completed'].includes(res.data.status)) {
                     stopAll()
                     if (res.data.otp_code) toast.success('🎉 SMS received!')
@@ -750,8 +749,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
             const res = await api.post('/api/orders', { service_id: service.id, country_id: country.id, operator })
             const newOrder = res.data.order
             setOrder(newOrder)
-            // If backend already found the OTP via the retry loop, show it immediately
-            if (res.data.provider_info) setProviderInfo(res.data.provider_info)
+
             setStep(4) // number ready view
             toast.success(res.data.message)
             if (onSuccess) onSuccess(res.data.wallet_balance)
@@ -852,7 +850,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
         <div
             className={`relative w-full flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] ${inline
                 ? 'rounded-2xl h-[600px] shadow-[0_0_40px_rgba(0,102,255,0.1)]'
-                : 'sm:w-[540px] sm:max-w-[92vw] rounded-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] h-screen max-h-screen sm:h-auto sm:max-h-[88vh]'}
+                : 'sm:w-[540px] sm:max-w-[92vw] rounded-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] max-h-[100dvh] sm:max-h-[88vh]'}
                 overflow-y-auto`}
             style={{ WebkitOverflowScrolling: 'touch' }}
         >
@@ -946,14 +944,14 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                             order={order}
                             formatNaira={formatNaira}
                             onClose={onClose}
-                            onGetAnother={() => { setService(null); setCountry(null); setOperator('any'); setOrder(null); setProviderInfo(null); setStep(0); setTimeLeft(20 * 60) }}
+                            onGetAnother={() => { setService(null); setCountry(null); setOperator('any'); setOrder(null); setStep(0); setTimeLeft(20 * 60) }}
                             onCancel={handleCancel}
                             cancelling={cancelling}
                             onBan={handleBan}
                             banning={banning}
                             timeLeft={timeLeft}
                             formatTime={formatTime}
-                            providerInfo={providerInfo}
+
                         />
                     )}
                 </div>
@@ -989,14 +987,11 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
 
     return (
         <div
-            className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-0 pt-4 sm:p-6"
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 sm:p-6"
             style={{ WebkitOverflowScrolling: 'touch' }}
             onMouseDown={(e) => { if (e.target === e.currentTarget && canClose) onClose() }}
         >
-            {/* On mobile, modal fills screen and is scrollable */}
-            <div className="w-full sm:w-auto max-w-full sm:max-w-[92vw] h-full sm:h-auto flex flex-col justify-center">
-                {content}
-            </div>
+            {content}
         </div>
     )
 }

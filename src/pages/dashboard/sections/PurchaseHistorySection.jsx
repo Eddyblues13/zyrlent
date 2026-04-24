@@ -45,7 +45,7 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
     const [banning, setBanning] = useState(false)
     const [copiedNumber, setCopiedNumber] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
-    const [providerInfo, setProviderInfo] = useState(initialOrder.provider_info || null)
+
     const pollRef = useRef(null)
     const timerRef = useRef(null)
 
