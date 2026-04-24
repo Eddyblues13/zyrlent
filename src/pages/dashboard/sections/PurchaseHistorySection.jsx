@@ -131,8 +131,10 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
                     if (updated.otp_code) toast.success('🎉 SMS received!')
                     if (onOrderUpdate) onOrderUpdate(updated)
                 }
-            } catch { }
-        }, 5000)
+            } catch (e) {
+                console.warn(`[OrderDetail Poll] Error polling order #${order.id}:`, e.message)
+            }
+        }, 2000)
     }, [order.id, onOrderUpdate])
 
     useEffect(() => {

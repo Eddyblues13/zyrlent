@@ -686,38 +686,52 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
         }
 
         // ── 2. HTTP fallback polling (catches anything missed by websocket) ─
-        const fetchOnceAndStart = async () => {
+        let consecutiveErrors = 0
+        const maxConsecutiveErrors = 5
+
+        const pollOrder = async () => {
             try {
                 const res = await api.get(`/api/orders/${id}`)
+                consecutiveErrors = 0 // reset on success
                 setOrder(res.data)
                 if (res.data.provider_info) setProviderInfo(res.data.provider_info)
-                if (res.data.otp_code || ['expired', 'cancelled'].includes(res.data.status)) {
+                if (res.data.otp_code || ['expired', 'cancelled', 'completed'].includes(res.data.status)) {
                     stopAll()
                     if (res.data.otp_code) toast.success('🎉 SMS received!')
-                    return
+                    return true // signal: stop polling
                 }
             } catch (e) {
+                consecutiveErrors++
+                console.warn(`[OTP Poll] Error polling order #${id} (attempt ${consecutiveErrors}):`, e.message)
                 if (e.response?.status === 404) {
                     stopAll()
                     toast.error('Order not found.')
-                    return
+                    return true
+                }
+                if (e.response?.status === 401) {
+                    stopAll()
+                    toast.error('Session expired. Please login again.')
+                    return true
+                }
+                if (consecutiveErrors >= maxConsecutiveErrors) {
+                    stopAll()
+                    toast.error('Lost connection to server. Please refresh the page.')
+                    return true
                 }
             }
+            return false
+        }
 
-            // Poll every 3s as a safety net
+        // Immediate first poll
+        const fetchOnceAndStart = async () => {
+            const shouldStop = await pollOrder()
+            if (shouldStop) return
+
+            // Poll every 2s as a safety net (faster than 3s for better UX)
             pollRef.current = setInterval(async () => {
-                try {
-                    const res = await api.get(`/api/orders/${id}`)
-                    setOrder(res.data)
-                    if (res.data.provider_info) setProviderInfo(res.data.provider_info)
-                    if (res.data.otp_code || ['expired', 'cancelled'].includes(res.data.status)) {
-                        stopAll()
-                        if (res.data.otp_code) toast.success('🎉 SMS received!')
-                    }
-                } catch (e) {
-                    if (e.response?.status === 404) stopAll()
-                }
-            }, 3000)
+                const done = await pollOrder()
+                if (done) clearInterval(pollRef.current)
+            }, 2000)
         }
 
         fetchOnceAndStart()
