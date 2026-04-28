@@ -850,7 +850,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
         <div
             className={`relative w-full flex flex-col bg-[#070D2E] border border-[rgba(51,204,255,0.2)] ${inline
                 ? 'rounded-2xl h-[600px] shadow-[0_0_40px_rgba(0,102,255,0.1)]'
-                : 'sm:w-[540px] sm:max-w-[92vw] rounded-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] max-h-[100dvh] sm:max-h-[88vh]'}
+                : 'sm:w-[540px] sm:max-w-[92vw] rounded-3xl sm:rounded-2xl shadow-[0_0_80px_rgba(0,102,255,0.2)] max-h-[calc(100dvh-96px)] sm:max-h-[88vh]'}
                 overflow-y-auto`}
             style={{ WebkitOverflowScrolling: 'touch' }}
         >
@@ -987,7 +987,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
 
     return (
         <div
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 sm:p-6"
+            className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-md p-4 pb-[80px] sm:pb-6 sm:p-6"
             style={{ WebkitOverflowScrolling: 'touch' }}
             onMouseDown={(e) => { if (e.target === e.currentTarget && canClose) onClose() }}
         >

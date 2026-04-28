@@ -156,6 +156,7 @@ const NumberFormModal = ({ number, filterOpts, onClose, onSaved }) => {
                             >
                                 <option value="twilio" className="bg-[#0F1440]">Twilio</option>
                                 <option value="5sim" className="bg-[#0F1440]">5SIM</option>
+                                <option value="smspool" className="bg-[#0F1440]">SMSPool</option>
                                 <option value="smspva" className="bg-[#0F1440]">SMSPVA</option>
                                 <option value="manual" className="bg-[#0F1440]">Manual</option>
                             </select>

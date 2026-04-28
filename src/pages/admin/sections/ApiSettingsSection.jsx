@@ -153,7 +153,7 @@ function ProvidersTab() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={'w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold ' + (p.is_configured ? 'bg-[#FF9500]/10 text-[#FF9500]' : 'bg-red-500/10 text-red-400')}>
-                      {p.type === 'twilio' ? 'TW' : p.type === '5sim' ? '5S' : p.type.slice(0, 2).toUpperCase()}
+                      {p.type === 'twilio' ? 'TW' : p.type === '5sim' ? '5S' : p.type === 'smspool' ? 'SP' : p.type.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
@@ -1083,7 +1083,7 @@ function RoutingTab() {
                     <td className="py-3 px-3">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-lg bg-[#FF9500]/10 flex items-center justify-center text-[10px] font-bold text-[#FF9500]">
-                          {p.type === 'twilio' ? 'TW' : p.type === '5sim' ? '5S' : p.type.slice(0, 2).toUpperCase()}
+                          {p.type === 'twilio' ? 'TW' : p.type === '5sim' ? '5S' : p.type === 'smspool' ? 'SP' : p.type.slice(0, 2).toUpperCase()}
                         </div>
                         <div>
                           <p className="text-white font-medium">{p.name}</p>
