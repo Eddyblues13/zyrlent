@@ -1161,6 +1161,8 @@ function RoutingTab() {
    TAB 7: FETCH SERVICES (from 5sim API)
    ══════════════════════════════════════════════════════════ */
 function FetchServicesTab() {
+  var [providers, setProviders] = useState([])
+  var [selectedProvider, setSelectedProvider] = useState('')
   var [services, setServices] = useState([])
   var [selected, setSelected] = useState([])
   var [loading, setLoading] = useState(false)
@@ -1168,11 +1170,18 @@ function FetchServicesTab() {
   var [fetched, setFetched] = useState(false)
   var [search, setSearch] = useState('')
 
+  useEffect(function() {
+    adminApi.get('/api/admin/provider/list').then(function(r) {
+      setProviders(r.data)
+      if (r.data.length > 0) setSelectedProvider(r.data[0].id)
+    }).catch(function() {})
+  }, [])
+
   var fetchServices = async function () {
     setLoading(true)
     setFetched(false)
     try {
-      var r = await adminApi.post('/api/admin/provider/fetch-services', { provider: '5sim' })
+      var r = await adminApi.post('/api/admin/provider/fetch-services', { provider: selectedProvider })
       setServices(r.data.services || [])
       setSelected([])
       setFetched(true)
@@ -1208,14 +1217,20 @@ function FetchServicesTab() {
     return !search || s.name.toLowerCase().includes(search.toLowerCase())
   })
 
+  var cp = providers.find(function(p) { return p.id === selectedProvider })
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
-        <button onClick={fetchServices} disabled={loading}
+        {providers.length > 0 && (
+          <ProviderSelect providers={providers} value={selectedProvider} onChange={function(v) { setSelectedProvider(v); setFetched(false); setServices([]) }} />
+        )}
+        <button onClick={fetchServices} disabled={loading || !cp?.is_configured}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF9500] to-[#FF6B00] text-white text-xs font-bold uppercase tracking-wider hover:opacity-90 transition disabled:opacity-40">
-          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CloudDownload className="w-3.5 h-3.5" />} Fetch Services from 5sim
+          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CloudDownload className="w-3.5 h-3.5" />} Fetch Services
         </button>
-        <p className="text-xs text-white/30">Pull all available services/products from the 5sim API and import them into your database.</p>
+        <p className="text-xs text-white/30">Pull all available services/products from the selected provider API and import them into your database.</p>
+        {cp && !cp.is_configured && <CredWarning />}
       </div>
 
       {fetched && (
