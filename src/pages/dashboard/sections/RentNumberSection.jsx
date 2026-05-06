@@ -714,19 +714,19 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
         try {
             const res = await api.get('/api/operators', { params: { service_id: service.id, country_id: c.id } })
             const ops = res.data.operators || []
-            // Find the operator(s) with the highest rate
+            // Find the most expensive operator; tie-break on highest delivery rate
             let best = null;
-            let maxRate = -1;
-            let maxCost = -1;
+            let bestCost = -1;
+            let bestRate = -1;
             for (const op of ops) {
-                if (op.count > 0 && op.rate > 0) {
-                    if (op.rate > maxRate) {
+                if (op.count > 0 && op.rate > 0 && op.cost > 0) {
+                    if (op.cost > bestCost) {
                         best = op;
-                        maxRate = op.rate;
-                        maxCost = op.cost;
-                    } else if (op.rate === maxRate && op.cost > maxCost) {
+                        bestCost = op.cost;
+                        bestRate = op.rate;
+                    } else if (op.cost === bestCost && op.rate > bestRate) {
                         best = op;
-                        maxCost = op.cost;
+                        bestRate = op.rate;
                     }
                 }
             }
