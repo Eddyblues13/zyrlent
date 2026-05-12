@@ -2,6 +2,7 @@
 
 
 import { FaLinkedin, FaInstagram, FaXTwitter, FaTiktok } from 'react-icons/fa6'
+import { Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
 export default function Footer() {
@@ -35,12 +36,17 @@ export default function Footer() {
             </div>
 
             <div className="mt-4">
-              <h4 className="text-lg font-semibold text-[#FFFFFF] mb-3">Terms of Service</h4>
-              <div className="text-sm text-[#FFFFFF]/70 leading-relaxed font-mono">
-                This webapp's codebase is<br />
-                protected. Any unapproved<br />
-                duplication, redistribution<br />
-                or use is prohibited.
+              <h4 className="text-lg font-semibold text-[#FFFFFF] mb-3">Legal</h4>
+              <div className="flex flex-col gap-2">
+                <Link to="/privacy-policy" className="text-[#FFFFFF]/70 hover:text-[#00FFFF] transition">
+                  Privacy Policy
+                </Link>
+                <div className="text-sm text-[#FFFFFF]/70 leading-relaxed font-mono mt-2">
+                  This webapp's codebase is<br />
+                  protected. Any unapproved<br />
+                  duplication, redistribution<br />
+                  or use is prohibited.
+                </div>
               </div>
             </div>
           </div>

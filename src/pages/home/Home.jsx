@@ -279,6 +279,88 @@ export default function Home() {
               ))}
             </div>
           </section>
+
+          {/* Trust & Transparency Section */}
+          <section className="mt-20 mb-12 max-w-5xl mx-auto rounded-3xl border border-[rgba(0,255,255,0.2)] bg-[rgba(15,20,60,0.6)] backdrop-blur-sm p-8 md:p-12 shadow-[0_0_40px_rgba(0,255,255,0.05)]">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-[#FFFFFF]">Zyrlent Trust & Transparency</h2>
+              <p className="mt-4 text-[#00FFFF] text-lg font-semibold">Reliable Infrastructure for SMS Verification</p>
+              <p className="mt-4 text-[#FFFFFF]/80 max-w-3xl mx-auto leading-relaxed">
+                Zyrlent is built to provide secure, scalable, and reliable virtual number services for individuals, developers, and businesses worldwide. Our infrastructure supports high-volume SMS verification and automated integrations through a secure wallet-based system.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              {/* Our Services */}
+              <div>
+                <h3 className="text-xl font-bold text-[#FFFFFF] mb-4 flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-[#00FFFF]" /> Our Services
+                </h3>
+                <p className="text-[#FFFFFF]/70 mb-3">Zyrlent provides the following solutions:</p>
+                <ul className="space-y-2 text-[#FFFFFF]/70 list-disc list-inside">
+                  <li>Virtual phone numbers for online verification</li>
+                  <li>Instant SMS code delivery</li>
+                  <li>Secure wallet funding and transactions</li>
+                  <li>Developer API integration</li>
+                  <li>Automated verification workflows</li>
+                </ul>
+                <p className="mt-3 text-[#FFFFFF]/70 text-sm">These services help users verify accounts, test applications, and integrate SMS verification into their systems.</p>
+              </div>
+
+              {/* Security & Compliance */}
+              <div>
+                <h3 className="text-xl font-bold text-[#FFFFFF] mb-4 flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-[#00FFFF]" /> Security & Compliance
+                </h3>
+                <p className="text-[#FFFFFF]/70 mb-3">We prioritize platform security and responsible usage. To maintain the integrity of our services:</p>
+                <ul className="space-y-2 text-[#FFFFFF]/70 list-disc list-inside">
+                  <li>All transactions are logged and monitored</li>
+                  <li>Fraudulent or abusive activity is strictly prohibited</li>
+                  <li>Users must comply with our Terms of Service</li>
+                  <li>Our platform infrastructure is continuously monitored</li>
+                </ul>
+              </div>
+
+              {/* Built for Developers & Businesses */}
+              <div>
+                <h3 className="text-xl font-bold text-[#FFFFFF] mb-4 flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-[#00FFFF]" /> Built for Developers & Businesses
+                </h3>
+                <p className="text-[#FFFFFF]/70 mb-3">Zyrlent provides tools for developers and organizations to integrate SMS verification into their systems. Our API allows:</p>
+                <ul className="space-y-2 text-[#FFFFFF]/70 list-disc list-inside">
+                  <li>Automated number requests</li>
+                  <li>SMS retrieval</li>
+                  <li>Real-time service integration</li>
+                </ul>
+                <p className="mt-3 text-[#FFFFFF]/70 text-sm">This makes Zyrlent suitable for testing environments, account verification workflows, and application integrations.</p>
+              </div>
+
+              {/* Our Technology */}
+              <div>
+                <h3 className="text-xl font-bold text-[#FFFFFF] mb-4 flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-[#00FFFF]" /> Our Technology
+                </h3>
+                <p className="text-[#FFFFFF]/70 mb-3">The Zyrlent platform is designed with a scalable infrastructure capable of supporting global users and high-volume verification requests. Features include:</p>
+                <ul className="space-y-2 text-[#FFFFFF]/70 list-disc list-inside">
+                  <li>Secure wallet architecture</li>
+                  <li>Real-time SMS processing</li>
+                  <li>API-based automation</li>
+                  <li>Reliable uptime infrastructure</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-12 pt-8 border-t border-[rgba(0,255,255,0.2)] text-center">
+              <h3 className="text-lg font-bold text-[#FFFFFF] mb-2">Company Information</h3>
+              <p className="text-[#FFFFFF]/70 mb-6 max-w-2xl mx-auto">
+                Zyrlent is a product of SHOBiZ Technologies Ltd, a technology company focused on building scalable digital platforms.
+              </p>
+              <h3 className="text-lg font-bold text-[#FFFFFF] mb-2">Contact</h3>
+              <p className="text-[#FFFFFF]/70">For inquiries, partnerships, or support:</p>
+              <a href="mailto:support@zyrlent.com" className="text-[#00FFFF] hover:underline font-semibold mt-1 inline-block">support@zyrlent.com</a>
+            </div>
+          </section>
+
         </div>
       </main>
 

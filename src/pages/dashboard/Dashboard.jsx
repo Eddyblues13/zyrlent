@@ -12,6 +12,7 @@ import api from '../../lib/axios'
 import Background from '../../components/Background'
 import Sidebar from './Sidebar'
 import NotificationPopup from '../../components/NotificationPopup'
+import QuickSetupNotice from '../../components/QuickSetupNotice'
 import TelegramChat from '../../components/TelegramChat'
 
 import OverviewSection from './sections/OverviewSection'
@@ -164,6 +165,7 @@ export default function Dashboard({ initialSection }) {
 
             {/* Notification popup — shown on all pages */}
             {user && <NotificationPopup onCountChange={setNotifCount} />}
+            {user && <QuickSetupNotice />}
 
             <Sidebar
                 isOpen={isSidebarOpen}

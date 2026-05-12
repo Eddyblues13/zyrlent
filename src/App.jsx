@@ -15,11 +15,14 @@ import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ViewUserPage from './pages/admin/ViewUserPage'
 
+import PrivacyPolicy from './pages/legal/PrivacyPolicy'
+
 export default function App() {
   return (
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Home />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/partners" element={<Partners />} />
       <Route path="/features" element={<Features />} />
       <Route path="/register" element={<SignUp />} />
