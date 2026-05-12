@@ -495,10 +495,6 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
                         className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
                         {copiedNumber ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Number</>}
                     </button>
-                    <button onClick={() => { if (order.sms_url) window.open(order.sms_url, '_blank') }}
-                        className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl bg-white/[0.06] text-white text-xs sm:text-sm font-bold hover:bg-white/10 transition border border-white/10">
-                        <Quote className="w-4 h-4" />Open SMS Inbox
-                    </button>
                 </div>
             </div>
 
@@ -541,7 +537,11 @@ function NumberReadyView({ order, formatNaira, onClose, onGetAnother, onCancel, 
                                 <p className="text-sm font-bold text-white">New SMS Received!</p>
                                 <span className="text-base">🚀</span>
                             </div>
-                            <p className="text-3xl sm:text-4xl font-bold text-[#33CCFF] font-mono tracking-widest text-center drop-shadow-[0_0_15px_rgba(51,204,255,0.4)] break-all">{order.otp_code}</p>
+                            {String(order.otp_code).length > 15 ? (
+                                <p className="text-sm sm:text-base font-medium text-[#33CCFF] text-center break-words px-2">{order.otp_code}</p>
+                            ) : (
+                                <p className="text-3xl sm:text-4xl font-bold text-[#33CCFF] font-mono tracking-widest text-center drop-shadow-[0_0_15px_rgba(51,204,255,0.4)] break-all">{order.otp_code}</p>
+                            )}
                             <button onClick={() => copy(order.otp_code, setCopiedCode)}
                                 className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs font-bold hover:scale-[1.02] transition shadow-[0_0_12px_rgba(0,102,255,0.2)] border border-[#33CCFF]/20">
                                 {copiedCode ? <><Check className="w-4 h-4" />Copied!</> : <><Copy className="w-4 h-4" />Copy Code</>}
@@ -894,7 +894,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                 )}
 
                 {/* Content — scrollable */}
-                <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div className={`flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 ${inline ? 'pb-32' : 'pb-4'} sm:pb-4 min-h-0 overscroll-contain`} style={{ WebkitOverflowScrolling: 'touch' }}>
                     {step === 0 && <ServiceStep onSelect={handleServiceSelect} selected={service} />}
                     {step === 1 && <CountryStep onSelect={handleCountrySelect} selected={country} service={service} />}
                     {step === 2 && (

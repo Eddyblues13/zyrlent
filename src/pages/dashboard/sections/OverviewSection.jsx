@@ -127,34 +127,6 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
             {/* Live Verification & Recent Orders Section */}
             <div className="flex flex-col gap-6 w-full -mt-2">
                 
-                {/* Live Verification Activity */}
-                <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(15,20,60,0.7)] to-[rgba(10,11,61,0.95)] overflow-hidden">
-                    <div className="px-4 py-3 border-b border-white/[0.05] flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></div>
-                        <h4 className="text-sm font-bold text-white">Live Verification Activity</h4>
-                    </div>
-                    <div className="flex flex-col divide-y divide-white/[0.05]">
-                        {[
-                            { flag: '🇺🇸', name: '+1 USA', service: 'WhatsApp', time: '5 sec ago' },
-                            { flag: '🇬🇧', name: '+44 UK', service: 'Telegram', time: '9 sec ago' },
-                            { flag: '🇩🇪', name: '+49 Germany', service: 'Google', time: '14 sec ago' },
-                        ].map((item, i) => (
-                            <div key={i} className="flex items-center justify-between px-4 py-2.5 hover:bg-white/[0.02] transition-colors group">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-lg leading-none">{item.flag}</span>
-                                    <div className="flex items-center gap-2.5">
-                                        <span className="text-xs font-semibold text-white/90">{item.name}</span>
-                                        <span className="text-[11px] text-white/50">{item.service}</span>
-                                        <CheckCircle2 className="w-3 h-3 text-emerald-400 opacity-80" />
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-medium bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">
-                                    <CheckCircle2 className="w-2.5 h-2.5" /> {item.time}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
 
                 {/* Your Recent Orders */}
                 <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(15,20,60,0.7)] to-[rgba(10,11,61,0.95)] overflow-hidden">

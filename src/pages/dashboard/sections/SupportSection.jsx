@@ -84,7 +84,7 @@ export default function SupportSection() {
                 {[
                     { icon: MessageCircle, label: 'Live Chat', desc: 'Avg. 2 min response', color: '#00FFFF', bg: 'rgba(0,255,255,0.1)', href: '#' },
                     { icon: Mail, label: 'Email Support', desc: 'support@zyrlent.com', color: '#33CCFF', bg: 'rgba(51,204,255,0.1)', href: 'mailto:support@zyrlent.com' },
-                    { icon: Phone, label: 'Phone', desc: '+1 (800) ZYRLENT', color: '#0099FF', bg: 'rgba(0,153,255,0.1)', href: 'tel:+18009975368' },
+                    // { icon: Phone, label: 'Phone', desc: '+1 (800) ZYRLENT', color: '#0099FF', bg: 'rgba(0,153,255,0.1)', href: 'tel:+18009975368' },
                 ].map((c, i) => (
                     <a key={i} href={c.href}
                         className="flex flex-col gap-3 p-5 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(15,20,60,0.5)] hover:border-[rgba(0,255,255,0.25)] hover:bg-[rgba(15,20,60,0.8)] transition group">

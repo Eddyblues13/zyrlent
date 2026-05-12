@@ -212,8 +212,12 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
                     {order.otp_code && (
                         <div className="w-full p-3 sm:p-4 rounded-2xl border border-[#FFB800]/30 bg-[rgba(255,184,0,0.04)] relative">
                             <div className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-gradient-to-tr from-orange-500 to-yellow-400 flex items-center justify-center text-white text-xs font-bold border-2 border-[#070D2E]">📩</div>
-                            <p className="text-[10px] sm:text-xs text-white/40 mb-1 sm:mb-1.5 text-center">Verification Code</p>
-                            <p className="text-2xl sm:text-3xl font-bold text-[#33CCFF] font-mono tracking-widest sm:tracking-[0.2em] text-center mb-2 sm:mb-3 drop-shadow-[0_0_15px_rgba(51,204,255,0.4)] break-all">{order.otp_code}</p>
+                            <p className="text-[10px] sm:text-xs text-white/40 mb-1 sm:mb-1.5 text-center">Verification Code / SMS</p>
+                            {String(order.otp_code).length > 15 ? (
+                                <p className="text-sm sm:text-base font-medium text-[#33CCFF] text-center mb-2 sm:mb-3 break-words px-2 sm:px-4">{order.otp_code}</p>
+                            ) : (
+                                <p className="text-2xl sm:text-3xl font-bold text-[#33CCFF] font-mono tracking-widest sm:tracking-[0.2em] text-center mb-2 sm:mb-3 drop-shadow-[0_0_15px_rgba(51,204,255,0.4)] break-all">{order.otp_code}</p>
+                            )}
                             <div className="flex justify-center">
                                 <button onClick={() => copy(order.otp_code, setCopiedCode)}
                                     className="inline-flex items-center gap-2 px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-[#0055CC] to-[#0077EE] text-white text-xs sm:text-sm font-bold hover:scale-[1.02] transition shadow-[0_0_15px_rgba(0,102,255,0.3)] border border-[#33CCFF]/20">
