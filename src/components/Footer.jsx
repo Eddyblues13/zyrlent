@@ -68,7 +68,6 @@ export default function Footer() {
         <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col gap-1 text-sm text-[#FFFFFF]/60 text-center md:text-left">
             <span>© 2024 Zyrlent. All rights reserved.</span>
-            <span>Zyrlent is operated by SHOBIZ TECHNOLOGIES LTD</span>
           </div>
 
           <div className="flex items-center gap-2 rounded border border-[#FFFFFF]/20 bg-[#FFFFFF]/5 px-3 py-1 text-xs font-bold tracking-widest text-[#FFFFFF]/80">
