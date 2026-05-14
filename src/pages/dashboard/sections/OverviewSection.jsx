@@ -33,7 +33,7 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
         if (diff < 60) return `${diff < 0 ? 0 : diff} sec ago`
         if (diff < 3600) return `${Math.floor(diff/60)} min ago`
         if (diff < 86400) return `${Math.floor(diff/3600)} hr ago`
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     }
 
     return (

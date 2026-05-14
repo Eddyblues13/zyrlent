@@ -41,7 +41,8 @@ export default function Footer() {
                 <Link to="/privacy-policy" className="text-[#FFFFFF]/70 hover:text-[#00FFFF] transition">
                   Privacy Policy
                 </Link>
-                <div className="text-sm text-[#FFFFFF]/70 leading-relaxed font-mono mt-2">
+                <h4 className="text-lg font-semibold text-[#FFFFFF] mt-3 mb-1">Terms of Service</h4>
+                <div className="text-sm text-[#FFFFFF]/70 leading-relaxed font-mono">
                   This webapp's codebase is<br />
                   protected. Any unapproved<br />
                   duplication, redistribution<br />
