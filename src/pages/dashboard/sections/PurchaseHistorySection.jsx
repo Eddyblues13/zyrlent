@@ -241,7 +241,7 @@ function OrderDetailModal({ order: initialOrder, formatNaira, onClose, onOrderUp
                         <div className="divide-y divide-white/[0.06]">
                             {[
                                 { label: 'Status', value: <StatusBadge status={order.status} /> },
-                                { label: 'Cost', value: <span className="text-xs sm:text-sm font-bold text-white">{formatNaira(order.cost)}</span> },
+                                { label: 'Amount', value: <span className="text-xs sm:text-sm font-bold text-white">{formatNaira(order.cost)}</span> },
                                 { label: 'Created', value: <span className="text-xs sm:text-sm text-white/60">{formatDate(order.created_at)}</span> },
                             ].map(row => (
                                 <div key={row.label} className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-2.5">
@@ -380,7 +380,7 @@ export default function PurchaseHistorySection({ formatNaira }) {
                 <table className="w-full border-collapse">
                     <thead>
                         <tr className="bg-[rgba(255,255,255,0.04)] text-left">
-                            {['Order', 'Service', 'Country', 'Phone Number', 'OTP Code', 'Cost', 'Status', 'Date', ''].map(h => (
+                            {['Order', 'Service', 'Country', 'Phone Number', 'OTP Code', 'Amount', 'Status', 'Date', ''].map(h => (
                                 <th key={h} className="px-4 py-3 text-[11px] font-bold text-white/35 uppercase tracking-wider">{h}</th>
                             ))}
                         </tr>
