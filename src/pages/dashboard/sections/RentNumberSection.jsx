@@ -894,7 +894,7 @@ export function RentNumberModal({ wallet, formatNaira, onClose, onSuccess, initi
                 )}
 
                 {/* Content — scrollable */}
-                <div className={`flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 ${inline ? 'pb-32' : 'pb-4'} sm:pb-4 min-h-0 overscroll-contain`} style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div className={`flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4 ${inline && step >= 4 ? 'pb-32' : 'pb-4'} sm:pb-4 min-h-0 overscroll-contain`} style={{ WebkitOverflowScrolling: 'touch' }}>
                     {step === 0 && <ServiceStep onSelect={handleServiceSelect} selected={service} />}
                     {step === 1 && <CountryStep onSelect={handleCountrySelect} selected={country} service={service} />}
                     {step === 2 && (
