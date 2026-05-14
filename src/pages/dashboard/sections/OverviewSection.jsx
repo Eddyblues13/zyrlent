@@ -146,7 +146,7 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                             <table className="w-full border-collapse">
                                 <thead>
                                     <tr className="bg-[rgba(255,255,255,0.02)] text-left">
-                                        {['Service', 'Number', 'Status', 'SMS', 'Date'].map((h, i) => (
+                                        {['Service', 'Number', 'Status', 'SMS', 'Amount', 'Date'].map((h, i) => (
                                             <th key={h} className={`px-4 py-2 text-[10px] font-bold text-white/40 uppercase tracking-wider ${i === 1 ? 'min-w-[110px]' : ''}`}>{h}</th>
                                         ))}
                                     </tr>
@@ -176,6 +176,7 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                                                     : <span className="text-white/25 text-[10px] italic">Waiting…</span>
                                                 }
                                             </td>
+                                            <td className="px-4 py-2.5 text-xs font-semibold text-white/70 whitespace-nowrap">{formatNaira(order.total_price || order.price || 0)}</td>
                                             <td className="px-4 py-2.5 text-[10px] font-medium text-white/40 whitespace-nowrap">{timeAgo(order.created_at)}</td>
                                         </tr>
                                     ))}
