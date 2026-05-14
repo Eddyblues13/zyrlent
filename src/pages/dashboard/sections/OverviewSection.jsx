@@ -132,7 +132,7 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                 <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-gradient-to-b from-[rgba(15,20,60,0.7)] to-[rgba(10,11,61,0.95)] overflow-hidden">
                     <div className="px-4 py-3 border-b border-white/[0.05] flex items-center justify-between">
                         <h4 className="text-sm font-bold text-white">Your Recent Orders</h4>
-                        <button onClick={() => onNavigate('transactions')} className="text-xs font-semibold text-[#00FFFF] hover:underline">
+                        <button onClick={() => onNavigate('purchase-history')} className="text-xs font-semibold text-[#00FFFF] hover:underline">
                             View All
                         </button>
                     </div>
