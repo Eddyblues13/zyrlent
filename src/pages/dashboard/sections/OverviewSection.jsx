@@ -146,7 +146,7 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                             <table className="w-full border-collapse">
                                 <thead>
                                     <tr className="bg-[rgba(255,255,255,0.02)] text-left">
-                                        {['Service', 'Number', 'Status', 'SMS', 'Time'].map((h, i) => (
+                                        {['Service', 'Number', 'Status', 'SMS', 'Date'].map((h, i) => (
                                             <th key={h} className={`px-4 py-2 text-[10px] font-bold text-white/40 uppercase tracking-wider ${i === 1 ? 'min-w-[110px]' : ''}`}>{h}</th>
                                         ))}
                                     </tr>
