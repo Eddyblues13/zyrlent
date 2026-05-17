@@ -71,9 +71,9 @@ export default function Footer() {
             <span>© 2024 Zyrlent. All rights reserved.</span>
           </div>
 
-          <div className="flex items-center gap-2 rounded border border-[#FFFFFF]/20 bg-[#FFFFFF]/5 px-3 py-1 text-xs font-bold tracking-widest text-[#FFFFFF]/80">
-            DMCA <span className="text-[#00FFFF] mx-1">|</span> PROTECTED
-          </div>
+          <a href="//www.dmca.com/Protection/Status.aspx?ID=2cd61eed-da2f-4a61-9e9e-8fcc1efba7c3" title="DMCA.com Protection Status" className="dmca-badge">
+            <img src="https://images.dmca.com/Badges/_dmca_premi_badge_2.png?ID=2cd61eed-da2f-4a61-9e9e-8fcc1efba7c3" alt="DMCA.com Protection Status" className="h-8 w-auto" />
+          </a>
         </div>
       </div>
     </footer>
