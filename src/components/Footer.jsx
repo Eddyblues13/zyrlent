@@ -72,7 +72,7 @@ export default function Footer() {
           </div>
 
           <a href="//www.dmca.com/Protection/Status.aspx?ID=2cd61eed-da2f-4a61-9e9e-8fcc1efba7c3" title="DMCA.com Protection Status" className="dmca-badge">
-            <img src="https://images.dmca.com/Badges/_dmca_premi_badge_2.png?ID=2cd61eed-da2f-4a61-9e9e-8fcc1efba7c3" alt="DMCA.com Protection Status" className="h-8 w-auto" />
+            <img src="https://images.dmca.com/Badges/dmca-badge-w100-5x1-06.png?ID=2cd61eed-da2f-4a61-9e9e-8fcc1efba7c3" alt="DMCA.com Protection Status" className="h-8 w-auto" />
           </a>
         </div>
       </div>
