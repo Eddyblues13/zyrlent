@@ -1,7 +1,32 @@
-import { useState } from 'react'
-import { Wallet, Copy, Check, CreditCard, Building2, Smartphone, AlertCircle, ExternalLink, Shield, Zap } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Wallet, Copy, Check, CreditCard, Building2, Smartphone, AlertCircle, ExternalLink, Shield, Zap, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react'
 import api from '../../../lib/axios'
 import toast from 'react-hot-toast'
+
+function formatDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString('en-NG', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+function getMethod(tx) {
+    if (tx.reference?.startsWith('fund_') || tx.description?.toLowerCase().includes('korapay')) {
+        return 'KoraPay'
+    }
+    return 'Bank Transfer'
+}
+
+function DepositStatusBadge({ status }) {
+    const styles = {
+        completed: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+        pending: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
+        failed: 'bg-red-500/15 text-red-400 border-red-500/25',
+        expired: 'bg-white/10 text-white/50 border-white/10',
+    }
+    return (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${styles[status] || 'bg-white/10 text-white/60 border-white/10'}`}>
+            {status}
+        </span>
+    )
+}
 
 const QUICK_AMOUNTS = [10000, 15000, 20000, 30000, 50000, 100000]
 
@@ -126,7 +151,7 @@ function KoraPayTab({ wallet, formatNaira }) {
 }
 
 /* ─── BANK TRANSFER MANUAL TAB ─── */
-function OPayTab() {
+function OPayTab({ onSuccess }) {
     const [amount, setAmount] = useState('')
     const [ref, setRef] = useState('')
     const [copied, setCopied] = useState(null)
@@ -155,6 +180,7 @@ function OPayTab() {
             })
             toast.success(res.data.message)
             setSubmitted(true)
+            if (onSuccess) onSuccess()
         } catch (e) {
             toast.error(e.response?.data?.message || 'Submission failed. Please try again.')
         } finally {
@@ -281,6 +307,46 @@ function OPayTab() {
 /* ─── MAIN COMPONENT ─── */
 export default function FundWalletSection({ wallet, formatNaira }) {
     const [tab, setTab] = useState('korapay')
+    const [deposits, setDeposits] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [page, setPage] = useState(1)
+    const [meta, setMeta] = useState({ last_page: 1, total: 0 })
+
+    const fetchDeposits = async (p = 1) => {
+        setLoading(true)
+        try {
+            const res = await api.get('/api/wallet/transactions', {
+                params: {
+                    page: p,
+                    per_page: 5,
+                    type: 'credit'
+                }
+            })
+            setDeposits(res.data.data || [])
+            setMeta({
+                last_page: res.data.last_page || 1,
+                total: res.data.total || 0
+            })
+        } catch (err) {
+            toast.error('Failed to load recent deposits')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchDeposits(1)
+    }, [])
+
+    const handlePageChange = (p) => {
+        setPage(p)
+        fetchDeposits(p)
+    }
+
+    const handleSuccess = () => {
+        setPage(1)
+        fetchDeposits(1)
+    }
 
     return (
         <div className="flex flex-col gap-6 max-w-xl">
@@ -312,36 +378,144 @@ export default function FundWalletSection({ wallet, formatNaira }) {
                 <label className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2.5 block">Payment Method</label>
                 <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)]">
                     <button
-                    onClick={() => setTab('korapay')}
-                    className={`flex items-center justify-center gap-2.5 py-3 rounded-lg text-sm font-bold transition ${tab === 'korapay'
-                        ? 'bg-[#1760EF]/20 text-white border border-[#1760EF]/40 shadow-[0_0_12px_rgba(23,96,239,0.2)]'
-                        : 'text-white/45 hover:bg-white/5'
-                        }`}
-                >
-                    <span className="w-6 h-6 rounded bg-[#1760EF] flex items-center justify-center text-[10px] font-black text-white">KP</span>
-                    KoraPay
-                    <span className="text-[9px] bg-[#1760EF]/20 text-[#7aabff] px-1.5 py-0.5 rounded font-semibold">Instant</span>
-                </button>
-                <button
-                    onClick={() => setTab('opay')}
-                    className={`flex items-center justify-center gap-2.5 py-3 rounded-lg text-sm font-bold transition ${tab === 'opay'
-                        ? 'bg-[#00C364]/15 text-white border border-[#00C364]/35 shadow-[0_0_12px_rgba(0,195,100,0.15)]'
-                        : 'text-white/45 hover:bg-white/5'
-                        }`}
-                >
-                    <span className="w-6 h-6 rounded bg-[#00C364] flex items-center justify-center"><Building2 className="w-3.5 h-3.5 text-white" /></span>
-                    Bank Transfer
-                    <span className="text-[9px] bg-amber-400/15 text-amber-400 px-1.5 py-0.5 rounded font-semibold">5-30m</span>
-                </button>
+                        onClick={() => setTab('korapay')}
+                        className={`flex items-center justify-center gap-2.5 py-3 rounded-lg text-sm font-bold transition ${tab === 'korapay'
+                            ? 'bg-[#1760EF]/20 text-white border border-[#1760EF]/40 shadow-[0_0_12px_rgba(23,96,239,0.2)]'
+                            : 'text-white/45 hover:bg-white/5'
+                            }`}
+                    >
+                        <span className="w-6 h-6 rounded bg-[#1760EF] flex items-center justify-center text-[10px] font-black text-white">KP</span>
+                        KoraPay
+                        <span className="text-[9px] bg-[#1760EF]/20 text-[#7aabff] px-1.5 py-0.5 rounded font-semibold">Instant</span>
+                    </button>
+                    <button
+                        onClick={() => setTab('opay')}
+                        className={`flex items-center justify-center gap-2.5 py-3 rounded-lg text-sm font-bold transition ${tab === 'opay'
+                            ? 'bg-[#00C364]/15 text-white border border-[#00C364]/35 shadow-[0_0_12px_rgba(0,195,100,0.15)]'
+                            : 'text-white/45 hover:bg-white/5'
+                            }`}
+                    >
+                        <span className="w-6 h-6 rounded bg-[#00C364] flex items-center justify-center"><Building2 className="w-3.5 h-3.5 text-white" /></span>
+                        Bank Transfer
+                        <span className="text-[9px] bg-amber-400/15 text-amber-400 px-1.5 py-0.5 rounded font-semibold">5-30m</span>
+                    </button>
+                </div>
             </div>
-        </div>
 
-        {/* Tab Content */}
+            {/* Tab Content */}
             {tab === 'korapay' ? (
                 <KoraPayTab wallet={wallet} formatNaira={formatNaira} />
             ) : (
-                <OPayTab />
+                <OPayTab onSuccess={handleSuccess} />
             )}
+
+            {/* Recent Deposits Section */}
+            <div className="mt-4 flex flex-col gap-4">
+                <div className="flex items-center justify-between border-b border-white/[0.05] pb-2">
+                    <div>
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            Recent Deposits
+                        </h3>
+                        <p className="text-white/40 text-xs mt-0.5">Your credit history</p>
+                    </div>
+                    <button 
+                        onClick={() => fetchDeposits(page)} 
+                        disabled={loading}
+                        className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/8 text-white/50 hover:text-white transition disabled:opacity-40"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                    </button>
+                </div>
+
+                {/* Table for Desktop & Cards for Mobile */}
+                {/* Desktop View */}
+                <div className="hidden md:block rounded-xl overflow-hidden border border-[rgba(255,255,255,0.08)] bg-[rgba(15,20,60,0.3)]">
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="bg-[rgba(255,255,255,0.04)] text-left">
+                                    {['REFERENCE', 'AMOUNT', 'METHOD', 'STATUS', 'DATE'].map(h => (
+                                        <th key={h} className="px-4 py-3 text-[10px] font-bold text-white/35 uppercase tracking-wider">{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr><td colSpan={5} className="text-center py-8 text-white/30 text-xs">Loading deposits…</td></tr>
+                                ) : deposits.length === 0 ? (
+                                    <tr><td colSpan={5} className="text-center py-8 text-white/30 text-xs">No recent deposits found.</td></tr>
+                                ) : deposits.map(dep => (
+                                    <tr key={dep.id} className="border-t border-[rgba(255,255,255,0.05)] hover:bg-white/3 transition">
+                                        <td className="px-4 py-3 text-xs font-mono text-white/60 max-w-[120px] truncate" title={dep.reference}>
+                                            {dep.reference}
+                                        </td>
+                                        <td className="px-4 py-3 font-bold text-xs text-emerald-400">
+                                            +{formatNaira(dep.amount)}
+                                        </td>
+                                        <td className="px-4 py-3 text-xs text-white/70">
+                                            {getMethod(dep)}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <DepositStatusBadge status={dep.status} />
+                                        </td>
+                                        <td className="px-4 py-3 text-[11px] text-white/40">
+                                            {formatDate(dep.created_at)}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Mobile View */}
+                <div className="flex flex-col gap-2.5 md:hidden">
+                    {loading ? (
+                        <div className="text-center py-8 text-white/30 text-xs">Loading deposits…</div>
+                    ) : deposits.length === 0 ? (
+                        <div className="text-center py-8 text-white/30 text-xs">No recent deposits found.</div>
+                    ) : deposits.map(dep => (
+                        <div key={dep.id} className="p-3.5 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(15,20,60,0.5)] flex flex-col gap-2">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-mono text-white/60 truncate max-w-[150px]" title={dep.reference}>
+                                    {dep.reference}
+                                </span>
+                                <span className="font-bold text-sm text-emerald-400">
+                                    +{formatNaira(dep.amount)}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-white/40 border-t border-white/5 pt-2">
+                                <span>{getMethod(dep)}</span>
+                                <div className="flex items-center gap-2">
+                                    <DepositStatusBadge status={dep.status} />
+                                    <span className="text-[10px] text-white/30">{formatDate(dep.created_at)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Pagination */}
+                {!loading && meta.last_page > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                        <button 
+                            disabled={page <= 1} 
+                            onClick={() => handlePageChange(page - 1)}
+                            className="p-1.5 rounded-lg border border-white/10 hover:bg-white/8 disabled:opacity-30 transition"
+                        >
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="text-xs text-white/50">Page {page} of {meta.last_page}</span>
+                        <button 
+                            disabled={page >= meta.last_page} 
+                            onClick={() => handlePageChange(page + 1)}
+                            className="p-1.5 rounded-lg border border-white/10 hover:bg-white/8 disabled:opacity-30 transition"
+                        >
+                            <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

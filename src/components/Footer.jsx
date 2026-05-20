@@ -68,7 +68,7 @@ export default function Footer() {
 
         <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col gap-1 text-sm text-[#FFFFFF]/60 text-center md:text-left">
-            <span>© 2024 Zyrlent. All rights reserved.</span>
+            <span>© 2026 Zyrlent. All rights reserved.</span>
           </div>
 
           <a href="//www.dmca.com/Protection/Status.aspx?ID=2cd61eed-da2f-4a61-9e9e-8fcc1efba7c3" title="DMCA.com Protection Status" className="dmca-badge">
