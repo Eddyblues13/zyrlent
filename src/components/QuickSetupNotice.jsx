@@ -5,13 +5,9 @@ export default function QuickSetupNotice({ triggerOpen, onClose }) {
     const [isOpen, setIsOpen] = useState(false)
 
     useEffect(() => {
-        // Check if the user has already seen the notice
-        const hasSeenNotice = localStorage.getItem('zyrlent_quick_setup_seen')
-        if (!hasSeenNotice) {
-            // Small delay for a smooth entry after the dashboard loads
-            const timer = setTimeout(() => setIsOpen(true), 800)
-            return () => clearTimeout(timer)
-        }
+        // Small delay for a smooth entry after the dashboard loads
+        const timer = setTimeout(() => setIsOpen(true), 800)
+        return () => clearTimeout(timer)
     }, [])
 
     useEffect(() => {
@@ -22,7 +18,6 @@ export default function QuickSetupNotice({ triggerOpen, onClose }) {
 
     const handleClose = () => {
         setIsOpen(false)
-        localStorage.setItem('zyrlent_quick_setup_seen', 'true')
         if (onClose) onClose()
     }
 

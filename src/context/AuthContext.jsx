@@ -153,6 +153,8 @@ export const AuthProvider = ({ children }) => {
             console.error('Logout error UI side', error);
         } finally {
             localStorage.removeItem('auth_token');
+            localStorage.removeItem('zyrlent_quick_setup_seen');
+            sessionStorage.removeItem('zyrlent_quick_setup_seen');
             setUser(null);
             toast.success('Logged out.');
             setIsLoading(false);
