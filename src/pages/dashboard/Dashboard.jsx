@@ -77,6 +77,7 @@ export default function Dashboard({ initialSection }) {
     const [stats, setStats] = useState({ transactions: 0, verifications: 0, total_spent: 0, pending_sms: 0 })
     const [notifCount, setNotifCount] = useState(0)
     const [rentPreSelect, setRentPreSelect] = useState(null)
+    const [showSetupNotice, setShowSetupNotice] = useState(false)
     const avatarRef = useRef(null)
 
     // Derive active section from URL path, falling back to initialSection prop
@@ -123,6 +124,9 @@ export default function Dashboard({ initialSection }) {
         new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount || 0)
 
     const goTo = (sectionId, extra) => {
+        if (sectionId === 'overview') {
+            setShowSetupNotice(true)
+        }
         if (sectionId === 'rent-number' && extra) {
             setRentPreSelect(extra)
         } else {
@@ -165,7 +169,7 @@ export default function Dashboard({ initialSection }) {
 
             {/* Notification popup — shown on all pages */}
             {user && <NotificationPopup onCountChange={setNotifCount} />}
-            {user && <QuickSetupNotice />}
+            {user && <QuickSetupNotice triggerOpen={showSetupNotice} onClose={() => setShowSetupNotice(false)} />}
 
             <Sidebar
                 isOpen={isSidebarOpen}

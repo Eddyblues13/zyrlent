@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, AlertCircle, Smartphone, Globe, Shield, HelpCircle, Megaphone } from 'lucide-react'
 
-export default function QuickSetupNotice() {
+export default function QuickSetupNotice({ triggerOpen, onClose }) {
     const [isOpen, setIsOpen] = useState(false)
 
     useEffect(() => {
@@ -14,9 +14,16 @@ export default function QuickSetupNotice() {
         }
     }, [])
 
+    useEffect(() => {
+        if (triggerOpen) {
+            setIsOpen(true)
+        }
+    }, [triggerOpen])
+
     const handleClose = () => {
         setIsOpen(false)
         localStorage.setItem('zyrlent_quick_setup_seen', 'true')
+        if (onClose) onClose()
     }
 
     if (!isOpen) return null

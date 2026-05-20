@@ -39,11 +39,20 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
     return (
         <div className="flex flex-col gap-8">
             {/* Sticky greeting */}
-            <div className="sticky top-[61px] z-30 bg-[rgba(8,10,46,0.97)] backdrop-blur-xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 pb-4 border-b border-white/[0.05]">
-                <h2 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
-                    <span role="img" aria-label="wave">👋</span> Hi, {user?.name?.split(' ')[0]}
-                </h2>
-                <p className="text-white/50 mt-1 text-sm">Ready to verify some numbers today?</p>
+            <div className="sticky top-[61px] z-30 bg-[rgba(8,10,46,0.97)] backdrop-blur-xl -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 pb-4 border-b border-white/[0.05] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
+                        <span role="img" aria-label="wave">👋</span> Hi, {user?.name?.split(' ')[0]}
+                    </h2>
+                    <p className="text-white/50 mt-1 text-sm">Ready to verify some numbers today?</p>
+                </div>
+                <button
+                    onClick={() => onNavigate('overview')}
+                    className="self-start sm:self-center px-4 py-2 rounded-xl border border-[#00FFFF]/20 bg-[#00FFFF]/5 text-[#00FFFF] text-xs font-bold transition hover:bg-[#00FFFF]/10 hover:border-[#00FFFF]/45 flex items-center gap-2 shadow-[0_0_10px_rgba(0,255,255,0.05)] cursor-pointer"
+                >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    WhatsApp Setup Guide
+                </button>
             </div>
 
             {/* Main Grid */}
