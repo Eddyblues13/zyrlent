@@ -3,7 +3,8 @@ import {
     ArrowLeft, Eye, Wallet, Shield, Loader2, Plus, Minus, X,
     Ban, CheckCircle, Mail, Bell, ExternalLink, UserCheck,
     ArrowUpRight, ArrowDownLeft, Clock, Copy, KeyRound,
-    History, Globe, Monitor, Smartphone, Crown, ChevronLeft, ChevronRight
+    History, Globe, Monitor, Smartphone, Crown, ChevronLeft, ChevronRight,
+    Trash2
 } from 'lucide-react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAdminAuth } from '../../context/AdminAuthContext'
@@ -78,6 +79,9 @@ export default function ViewUserPage() {
 
     // Toggle reseller
     const [resellerLoading, setResellerLoading] = useState(false)
+
+    // Delete user
+    const [deleteLoading, setDeleteLoading] = useState(false)
 
     // Login History
     const [loginHistory, setLoginHistory] = useState([])
@@ -220,6 +224,20 @@ export default function ViewUserPage() {
             window.open(url, '_blank')
         } catch (e) { toast.error(e.response?.data?.message || 'Failed') }
         finally { setLoginAsLoading(false) }
+    }
+
+    const handleDeleteUser = async () => {
+        if (!window.confirm(`Are you absolutely sure you want to permanently delete ${user.name}? This action cannot be undone and will delete all associated data.`)) return
+        setDeleteLoading(true)
+        try {
+            const r = await adminApi.delete(`/api/admin/users/${id}`)
+            toast.success(r.data.message)
+            navigate('/admin/users')
+        } catch (e) {
+            toast.error(e.response?.data?.message || 'Failed to delete user')
+        } finally {
+            setDeleteLoading(false)
+        }
     }
 
     // ─── Loading State ──────────────────────────────────────
@@ -703,6 +721,20 @@ export default function ViewUserPage() {
                                         className={`w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition disabled:opacity-40 ${user.is_reseller ? 'bg-red-500/15 text-red-400 hover:bg-red-500/25' : 'bg-purple-500/15 text-purple-400 hover:bg-purple-500/25'}`}>
                                         {resellerLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crown className="w-4 h-4" />}
                                         {user.is_reseller ? 'Remove Reseller Status' : 'Make Reseller'}
+                                    </button>
+                                </Card>
+
+                                {/* Delete User (Danger Zone) */}
+                                <Card className="p-5 space-y-4 !border-red-500/20 bg-red-500/[0.02]">
+                                    <div className="flex items-center gap-2">
+                                        <Trash2 className="w-5 h-5 text-red-400" />
+                                        <h4 className="text-sm font-bold text-white">Danger Zone</h4>
+                                    </div>
+                                    <p className="text-xs text-white/35">Permanently delete this user, their wallet, activation history, IP logs, and all other associated data. This action is irreversible.</p>
+                                    <button onClick={handleDeleteUser} disabled={deleteLoading}
+                                        className="w-full py-3 rounded-xl bg-red-500/15 text-red-400 text-sm font-bold flex items-center justify-center gap-2 hover:bg-red-500/25 transition disabled:opacity-40">
+                                        {deleteLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                        Delete User Permanently
                                     </button>
                                 </Card>
 

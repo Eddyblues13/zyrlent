@@ -3,7 +3,7 @@ import {
     Search, ChevronLeft, ChevronRight, Users, Eye, Loader2,
     UserX, UserCheck, UserPlus, TrendingUp, ShieldAlert,
     KeyRound, Ban, DollarSign, Mail, Bell, LogIn, X, Copy,
-    Code2, Crown
+    Code2, Crown, Trash2
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import adminApi from '../../../lib/adminAxios'
@@ -67,6 +67,21 @@ const UserQuickActions = ({ user, onClose, onRefresh }) => {
             onRefresh()
         } catch (err) {
             toast.error(err.response?.data?.message || 'Action failed')
+        } finally {
+            setActionLoading(null)
+        }
+    }
+
+    const handleDelete = async () => {
+        if (!window.confirm(`Are you absolutely sure you want to permanently delete ${user.name}? This action cannot be undone and will delete all associated data.`)) return
+        setActionLoading('delete')
+        try {
+            const res = await adminApi.delete(`/api/admin/users/${user.id}`)
+            toast.success(res.data.message)
+            onClose()
+            onRefresh()
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Delete failed')
         } finally {
             setActionLoading(null)
         }
@@ -215,6 +230,12 @@ const UserQuickActions = ({ user, onClose, onRefresh }) => {
                                 className="w-full py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold hover:bg-blue-500/20 disabled:opacity-30 transition flex items-center justify-center gap-1.5">
                                 {actionLoading === 'login-as' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LogIn className="w-3.5 h-3.5" />}
                                 Login as User
+                            </button>
+
+                            <button onClick={handleDelete} disabled={actionLoading === 'delete'}
+                                className="w-full py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold hover:bg-red-500/20 disabled:opacity-30 transition flex items-center justify-center gap-1.5">
+                                {actionLoading === 'delete' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                                Delete User Permanently
                             </button>
 
                             <button onClick={() => navigate(`/admin/users/${user.id}`)}
