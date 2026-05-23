@@ -259,6 +259,7 @@ export default function Dashboard({ initialSection }) {
                                                 {[
                                                     { icon: UserIcon, label: 'Profile & Settings', action: () => goTo('settings') },
                                                     { icon: Wallet, label: 'Fund Wallet', action: () => goTo('fund-wallet') },
+                                                    { icon: Code, label: 'Developer API', action: () => goTo('developer') },
                                                     { icon: LifeBuoy, label: 'Support', action: () => goTo('support') },
                                                 ].map((item, i) => (
                                                     <button
