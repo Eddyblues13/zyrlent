@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import {
     Menu, Bell, User as UserIcon, LayoutDashboard, Wallet,
     ShoppingCart, History, ArrowLeftRight, Settings, LifeBuoy,
-    Plus, ChevronRight, LogOut, ChevronDown, Gift
+    Plus, ChevronRight, LogOut, ChevronDown, Gift, Code
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -25,6 +25,7 @@ import SupportSection from './sections/SupportSection'
 import SettingsSection from './sections/SettingsSection'
 import ReferralSection from './sections/ReferralSection'
 import NotificationsSection from './sections/NotificationsSection'
+import DeveloperSection from './sections/DeveloperSection'
 
 import logo from '../../assets/logo.png'
 
@@ -39,6 +40,7 @@ export const NAV_ITEMS = [
     { id: 'referral', label: 'Refer & Earn', icon: Gift, path: '/user/referral' },
     { id: 'notifications', label: 'Notifications', icon: Bell, path: '/user/notifications' },
     { id: 'support', label: 'Support', icon: LifeBuoy, path: '/user/support' },
+    { id: 'developer', label: 'Developer API', icon: Code, path: '/user/developer' },
     { id: 'settings', label: 'Settings', icon: UserIcon, path: '/user/settings' },
 ]
 
@@ -63,6 +65,7 @@ const PATH_TO_SECTION = {
     '/user/referral': 'referral',
     '/user/notifications': 'notifications',
     '/user/support': 'support',
+    '/user/developer': 'developer',
     '/user/settings': 'settings',
 }
 
@@ -158,6 +161,7 @@ export default function Dashboard({ initialSection }) {
             case 'referral': return <ReferralSection />
             case 'notifications': return <NotificationsSection />
             case 'support': return <SupportSection />
+            case 'developer': return <DeveloperSection />
             case 'settings': return <SettingsSection user={user} />
             default: return <OverviewSection user={user} wallet={wallet} stats={stats} formatNaira={formatNaira} onNavigate={goTo} />
         }

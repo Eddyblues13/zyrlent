@@ -50,6 +50,7 @@ export default function App() {
       <Route path="/user/notifications" element={<Dashboard initialSection="notifications" />} />
       <Route path="/user/support" element={<Dashboard initialSection="support" />} />
       <Route path="/user/settings" element={<Dashboard initialSection="settings" />} />
+      <Route path="/user/developer" element={<Dashboard initialSection="developer" />} />
 
       {/* ─── Admin Routes ─────────────────────────────── */}
       <Route path="/admin/login" element={<AdminAuthProvider><AdminLogin /></AdminAuthProvider>} />

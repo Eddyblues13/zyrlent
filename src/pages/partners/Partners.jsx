@@ -41,8 +41,8 @@ export default function Partners() {
                 },
                 {
                   icon: Zap,
-                  title: 'Real-time Webhooks',
-                  desc: 'Get instant notifications when SMS codes arrive. No polling needed.'
+                  title: 'High-Speed Polling',
+                  desc: 'Poll the status check endpoint every 5 seconds to receive the SMS verification code instantly.'
                 },
                 {
                   icon: Shield,
@@ -89,28 +89,35 @@ export default function Partners() {
                 <span className="ml-2 text-xs text-[#FFFFFF]/50 font-mono">request.js</span>
               </div>
               <pre className="p-6 text-sm font-mono text-[#FFFFFF]/90 overflow-x-auto">
-                <code>{`// Get a virtual number
-const response = await fetch('https://api.zyrlent.com/v1/number', {
-  method: 'POST',
+                <code>{`// 1. Order a virtual phone number for SMS verification
+const response = await fetch('https://zyrlent.com/api/v1/user/buy/activation/nigeria/any/whatsapp', {
+  method: 'GET',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    country: 'US',
-    service: 'whatsapp'
-  })
+    'Accept': 'application/json'
+  }
 });
 
-const { number, id } = await response.json();
+const { id, phone } = await response.json();
+console.log(\`Number purchased: \${phone} (ID: \${id})\`);
 
-// Check for incoming SMS
-const sms = await fetch(\`https://api.zyrlent.com/v1/sms/\${id}\`, {
-  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+// 2. Poll SMS status (check every 5 seconds until status is FINISHED)
+const checkSms = await fetch(\`https://zyrlent.com/api/v1/user/check/\${id}\`, {
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Accept': 'application/json'
+  }
 });
 
-const { code } = await sms.json();
-console.log('Verification code:', code);`}</code>
+const order = await checkSms.json();
+if (order.status === 'FINISHED' && order.sms) {
+  console.log('Verification code:', order.sms[0].code);
+  
+  // 3. Mark the activation order as completed/finished
+  await fetch(\`https://zyrlent.com/api/v1/user/finish/\${id}\`, {
+    headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
+  });
+}`}</code>
               </pre>
             </div>
           </section>
@@ -123,24 +130,24 @@ console.log('Verification code:', code);`}</code>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {[
                 {
-                  name: 'Starter',
-                  price: 'Free',
-                  desc: 'For testing & small projects',
-                  features: ['100 requests/day', '5 countries', 'Email support', 'Basic analytics'],
+                  name: 'Developer Sandbox',
+                  price: 'Free API Access',
+                  desc: 'For personal automation & testing scripts',
+                  features: ['Free key generation', 'Pay-per-number wallet billing', '3 concurrent orders/min limit', 'Standard smart routing access', 'Fuzzy country name resolution', 'Clean JSON response formats'],
                   highlighted: false,
                 },
                 {
-                  name: 'Professional',
-                  price: '₦73,500/mo',
-                  desc: 'For growing businesses',
-                  features: ['10,000 requests/day', '180+ countries', 'Priority support', 'Advanced analytics', 'Webhooks', 'IP whitelisting'],
+                  name: 'Wholesale & SMM Panel',
+                  price: 'Volume Discounts',
+                  desc: 'For high-capacity SMS panel partners',
+                  features: ['Free key generation', 'Discounted wholesale carrier rates', 'Elevated concurrent API limits', 'High-frequency smart routing prioritization', 'Direct 24/7 support channels', 'Detailed dashboard analytics'],
                   highlighted: true,
                 },
                 {
-                  name: 'Enterprise',
-                  price: 'Custom',
-                  desc: 'For large-scale operations',
-                  features: ['Unlimited requests', '180+ countries', 'Dedicated support', 'Custom analytics', 'SLA guarantee', 'Dedicated account manager'],
+                  name: 'Enterprise Custom',
+                  price: 'SLA Solutions',
+                  desc: 'For large-scale verification systems',
+                  features: ['Dedicated routing server options', 'Tailored concurrent request rate limits', 'Custom API integration assistance', 'Dedicated engineer manager support', '99.9% API uptime SLA guarantee', 'Whitelist security protection'],
                   highlighted: false,
                 },
               ].map((plan, i) => (
@@ -188,9 +195,9 @@ console.log('Verification code:', code);`}</code>
                 Get API Key
                 <ArrowRight className="h-5 w-5" />
               </Link>
-              <a href="#" className="w-full sm:w-auto rounded-lg border border-[#FFFFFF]/30 px-8 py-3 font-semibold text-[#FFFFFF] hover:bg-[#FFFFFF]/10 transition text-center">
+              <Link to="/user/developer" className="w-full sm:w-auto rounded-lg border border-[#FFFFFF]/30 px-8 py-3 font-semibold text-[#FFFFFF] hover:bg-[#FFFFFF]/10 transition text-center">
                 Read Documentation
-              </a>
+              </Link>
             </div>
           </section>
 

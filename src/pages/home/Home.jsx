@@ -1,7 +1,9 @@
 'use client'
 
-import { ArrowRight, CheckCircle2, Zap, Shield, Globe, Gift, UserPlus, CreditCard, Smartphone, MessageSquare, Star, User } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowRight, CheckCircle2, Zap, Shield, Globe, Gift, UserPlus, CreditCard, Smartphone, MessageSquare, Star, User, Code, Terminal, BookOpen, Key, Copy, Check } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import phoneImage from '../../assets/phone.jpg'
 import Background from '../../components/Background'
 import Navbar from '../../components/Navbar'
@@ -9,6 +11,126 @@ import Footer from '../../components/Footer'
 import TelegramChat from '../../components/TelegramChat'
 
 export default function Home() {
+  const [apiTab, setApiTab] = useState('curl')
+  const [apiEndpoint, setApiEndpoint] = useState('profile')
+  const [copiedText, setCopiedText] = useState(false)
+
+  const apiBaseUrl = window.location.origin + '/api'
+
+  const homepageEndpoints = {
+    profile: {
+      title: 'Get Account Balance',
+      method: 'GET',
+      path: '/v1/user/profile',
+      desc: 'Retrieve your user profile balance and rating details instantly.',
+      params: [],
+      response: `{
+  "email": "user@example.com",
+  "balance": 1250.00,
+  "rating": 5
+}`
+    },
+    buy: {
+      title: 'Order Virtual Number',
+      method: 'GET',
+      path: '/v1/user/buy/activation/{country}/{operator}/{product}',
+      desc: 'Requests a new virtual number from our dynamic smart carrier router.',
+      params: [
+        { name: 'country', desc: 'Country name or ISO code (e.g. "nigeria", "us", "ng").' },
+        { name: 'operator', desc: 'Carrier name or "any" to automatically select the best carrier.' },
+        { name: 'product', desc: 'The target service slug (e.g. "whatsapp", "telegram", "google").' }
+      ],
+      response: `{
+  "id": 14205,
+  "phone": "2348109876543",
+  "operator": "mtn",
+  "product": "whatsapp",
+  "price": 150.00,
+  "status": "RECEIVED",
+  "expires": "2026-05-23T16:55:00.000000Z",
+  "sms": null,
+  "created_at": "2026-05-23T16:35:00.000000Z",
+  "country": "nigeria"
+}`
+    },
+    check: {
+      title: 'Retrieve SMS OTP',
+      method: 'GET',
+      path: '/v1/user/check/{id}',
+      desc: 'Retrieves SMS verification details. Status changes from "RECEIVED" to "FINISHED" when OTP code arrives.',
+      params: [
+        { name: 'id', desc: 'The unique activation order ID returned in step 1.' }
+      ],
+      response: `{
+  "id": 14205,
+  "phone": "2348109876543",
+  "operator": "mtn",
+  "product": "whatsapp",
+  "price": 150.00,
+  "status": "FINISHED",
+  "sms": [
+    {
+      "created_at": "2026-05-23T16:38:12.000000Z",
+      "sender": "WhatsApp",
+      "text": "Your WhatsApp code is 482-192",
+      "code": "482192"
+    }
+  ]
+}`
+    }
+  }
+
+  const getHomepageCodeSnippet = (lang, endpointId) => {
+    const endpoint = homepageEndpoints[endpointId]
+    let path = endpoint.path
+    if (endpointId === 'buy') {
+      path = path.replace('{country}', 'nigeria').replace('{operator}', 'any').replace('{product}', 'whatsapp')
+    } else if (endpointId === 'check') {
+      path = path.replace('{id}', '14205')
+    }
+    const fullUrl = `${apiBaseUrl}${path}`
+
+    switch (lang) {
+      case 'curl':
+        return `curl -X GET "${fullUrl}" \\\n  -H "Authorization: Bearer YOUR_API_KEY" \\\n  -H "Accept: application/json"`
+      case 'javascript':
+        return `fetch('${fullUrl}', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Accept': 'application/json'
+  }
+})
+.then(res => res.json())
+.then(data => console.log(data));`
+      case 'python':
+        return `import requests
+
+url = "${fullUrl}"
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Accept": "application/json"
+}
+
+response = requests.get(url, headers=headers)
+print(response.json())`
+      case 'php':
+        return `<?php
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, "${fullUrl}");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer YOUR_API_KEY',
+    'Accept: application/json'
+]);
+$result = curl_exec($ch);
+curl_close($ch);
+print_r(json_decode($result, true));`
+      default:
+        return ''
+    }
+  }
+
   return (
     <div className="min-h-screen w-full text-[#FFFFFF] overflow-x-hidden relative">
       <Background />
@@ -212,6 +334,156 @@ export default function Home() {
                   <p className="text-[#FFFFFF]/70 leading-relaxed max-w-[250px]">{item.desc}</p>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* ── Developer API Homepage Section ── */}
+          <section id="api" className="mt-16 mb-20 max-w-5xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(0,255,255,0.3)] bg-[rgba(0,255,255,0.05)] px-4 py-1.5 text-xs font-semibold text-[#00FFFF] uppercase tracking-wider mb-4">
+                <Code className="h-3.5 w-3.5" />
+                Developer Integration
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#FFFFFF]">Powerful REST API for SMS Automation</h2>
+              <p className="mt-4 text-base text-[#FFFFFF]/70 max-w-2xl mx-auto">
+                Integrate Zyrlent's secure virtual numbers directly into your software, SMM panels, or bot scripts. Standardized protocol for flawless drop-in replacement.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+              {/* Left Column: API Features & Selector */}
+              <div className="lg:col-span-5 flex flex-col justify-between gap-6">
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-[rgba(0,255,255,0.15)] bg-[rgba(15,20,60,0.6)] backdrop-blur-sm p-5 space-y-4">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-[#00FFFF]" /> Secure & Scalable
+                    </h3>
+                    <p className="text-sm text-white/70 leading-relaxed">
+                      Our API is secured with advanced cryptographical token validation, rate limit protections, and high-frequency network failover, ensuring 99.9% uptime for automated tasks.
+                    </p>
+                  </div>
+                  
+                  <div className="rounded-2xl border border-white/10 bg-[rgba(15,20,60,0.4)] p-4 space-y-1">
+                    <h4 className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-2.5 px-2">API Endpoints</h4>
+                    {Object.entries(homepageEndpoints).map(([key, ep]) => {
+                      const isActive = apiEndpoint === key
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => setApiEndpoint(key)}
+                          className={`w-full flex items-start gap-3 p-3 rounded-xl text-left transition ${
+                            isActive
+                              ? 'bg-[#00FFFF]/10 border border-[#00FFFF]/20'
+                              : 'hover:bg-white/[0.03] border border-transparent'
+                          }`}
+                        >
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded leading-none ${
+                            ep.method === 'GET' ? 'bg-[#00FFFF]/15 text-[#00FFFF]' : 'bg-green-500/20 text-green-400'
+                          }`}>
+                            {ep.method}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-white">{ep.title}</p>
+                            <p className="text-[10px] text-[#00FFFF]/60 font-mono mt-0.5">{ep.path}</p>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-[#0D1147]/50 to-[#0A0E40]/50 p-5 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-white">Ready to automate?</h4>
+                    <p className="text-xs text-white/50 mt-1">Get your secure API key inside your user profile dashboard.</p>
+                  </div>
+                  <Link to="/signup" className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-[#0A0B3D] text-xs font-bold hover:bg-gray-100 transition shadow-[0_0_12px_rgba(255,255,255,0.2)]">
+                    Get API Key <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Column: Code Playground Sandbox */}
+              <div className="lg:col-span-7 rounded-2xl border border-white/10 bg-[#060829] overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.5)] flex flex-col justify-between">
+                <div>
+                  {/* Playground header */}
+                  <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center px-4 py-2.5 border-b border-white/8 bg-[#090b34] gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                      <span className="text-xs font-bold text-white font-mono">{homepageEndpoints[apiEndpoint].method} {homepageEndpoints[apiEndpoint].path}</span>
+                    </div>
+                    
+                    {/* Language selector */}
+                    <div className="flex bg-white/5 rounded-lg p-0.5 border border-white/6 self-start sm:self-auto">
+                      {[
+                        { id: 'curl', label: 'cURL' },
+                        { id: 'javascript', label: 'JS' },
+                        { id: 'python', label: 'Python' },
+                        { id: 'php', label: 'PHP' }
+                      ].map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setApiTab(tab.id)}
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase transition ${
+                            apiTab === tab.id
+                              ? 'bg-[#00FFFF] text-[#0A0B3D]'
+                              : 'text-white/50 hover:text-white'
+                          }`}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Endpoint Description */}
+                  <div className="p-4 border-b border-white/5 bg-[#080a32]">
+                    <p className="text-xs text-white/70 leading-relaxed">{homepageEndpoints[apiEndpoint].desc}</p>
+                    
+                    {homepageEndpoints[apiEndpoint].params.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        <span className="text-[9px] font-bold text-white/40 uppercase block tracking-wider">Params:</span>
+                        {homepageEndpoints[apiEndpoint].params.map(p => (
+                          <div key={p.name} className="text-[10px] text-white/60">
+                            <code className="text-[#00FFFF] font-mono font-bold mr-1.5">{p.name}</code> — {p.desc}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Code Block */}
+                  <div className="relative">
+                    <pre className="p-4 overflow-x-auto text-[11px] font-mono text-cyan-200/90 bg-[#040624] leading-relaxed max-h-[160px] select-all">
+                      <code>{getHomepageCodeSnippet(apiTab, apiEndpoint)}</code>
+                    </pre>
+                    
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(getHomepageCodeSnippet(apiTab, apiEndpoint))
+                        setCopiedText(true)
+                        toast.success('Snippet copied!')
+                        setTimeout(() => setCopiedText(false), 2000)
+                      }}
+                      className="absolute right-3 top-3 p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white border border-white/8 transition"
+                      title="Copy code snippet"
+                    >
+                      {copiedText ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Expected Response */}
+                <div className="border-t border-white/8">
+                  <div className="px-4 py-2 border-b border-white/5 bg-[#090b34] flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider">Expected JSON Response</span>
+                    <span className="text-[9px] font-mono font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded border border-green-500/15">200 OK</span>
+                  </div>
+                  <pre className="p-4 overflow-x-auto text-[10px] font-mono text-emerald-300/85 bg-[#02041d] leading-relaxed max-h-[140px]">
+                    <code>{homepageEndpoints[apiEndpoint].response}</code>
+                  </pre>
+                </div>
+              </div>
             </div>
           </section>
 
