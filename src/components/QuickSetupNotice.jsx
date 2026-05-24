@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, AlertCircle, Smartphone, Globe, Shield, HelpCircle, Megaphone } from 'lucide-react'
+import { X, AlertCircle, Smartphone, Globe, Shield, HelpCircle, Megaphone, MessageCircle } from 'lucide-react'
 
 export default function QuickSetupNotice({ triggerOpen, onClose }) {
     const [isOpen, setIsOpen] = useState(false)
@@ -75,6 +75,13 @@ export default function QuickSetupNotice({ triggerOpen, onClose }) {
                     <p className="text-sm text-[#FFFFFF]/70 text-center font-medium mb-6">
                         Thank you for choosing Zyrlent.
                     </p>
+
+                    <a href="https://chat.whatsapp.com/IhdM0UROWcD5OZQmKwLnEZ?mode=gi_t"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-3 mb-3 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold text-sm shadow-[0_0_15px_rgba(37,211,102,0.2)] hover:shadow-[0_0_22px_rgba(37,211,102,0.35)] transition-all flex items-center justify-center gap-2">
+                        <MessageCircle className="w-4 h-4" /> Join WhatsApp Channel
+                    </a>
 
                     <button onClick={handleClose}
                         className="w-full py-3 rounded-xl bg-gradient-to-r from-[#33CCFF] to-[#0066CC] text-white font-bold text-sm shadow-[0_0_15px_rgba(0,255,255,0.2)] hover:shadow-[0_0_22px_rgba(0,255,255,0.35)] transition-all">
