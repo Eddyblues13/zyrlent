@@ -185,7 +185,7 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                                                     : <span className="text-white/25 text-[10px] italic">Waiting…</span>
                                                 }
                                             </td>
-                                            <td className="px-4 py-2.5 text-xs font-semibold text-white/70 whitespace-nowrap">{formatNaira(order.total_price || order.price || 0)}</td>
+                                            <td className="px-4 py-2.5 text-xs font-semibold text-white/70 whitespace-nowrap">{formatNaira(order.cost || 0)}</td>
                                             <td className="px-4 py-2.5 text-[10px] font-medium text-white/40 whitespace-nowrap">{timeAgo(order.created_at)}</td>
                                         </tr>
                                     ))}
