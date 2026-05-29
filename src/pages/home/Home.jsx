@@ -516,21 +516,21 @@ print_r(json_decode($result, true));`
               {[
                 {
                   quote: "A total game-changer for our cross-platform testing! The API is flawlessly engineered, but what truly sets them apart is a support team that's as fast as their code, always there when we need them.",
-                  name: "Tyler Max",
-                  role: "Elite",
-                  initials: "TM"
+                  name: "Chinedu Okafor",
+                  role: "Software Engineer",
+                  initials: "CO"
                 },
                 {
                   quote: "The process is so simple, I pick a number, get the code, and I'm verified. No stress at all.",
-                  name: "Martin Oliver",
-                  role: "Starter",
-                  initials: "MO"
+                  name: "Tunde Balogun",
+                  role: "Merchant",
+                  initials: "TB"
                 },
                 {
                   quote: "Fast, secure, and affordable! Zyrlent is the tool my team relies on for client account verification everyday.",
-                  name: "Harper Liam",
-                  role: "Professional",
-                  initials: "HL"
+                  name: "Chioma Nwachukwu",
+                  role: "SMM Specialist",
+                  initials: "CN"
                 }
               ].map((testimonial, i) => (
                 <div key={i} className="rounded-2xl border border-[rgba(0,255,255,0.2)] bg-[rgba(15,20,60,0.6)] backdrop-blur-sm p-8 flex flex-col items-center text-center hover:bg-[rgba(15,20,60,0.8)] transition">
