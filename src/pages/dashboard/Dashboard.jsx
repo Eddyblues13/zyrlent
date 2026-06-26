@@ -7,6 +7,7 @@ import {
     Plus, ChevronRight, LogOut, ChevronDown, Gift, Code
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useCurrency } from '../../context/CurrencyContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import api from '../../lib/axios'
 import Background from '../../components/Background'
@@ -71,6 +72,7 @@ const PATH_TO_SECTION = {
 
 export default function Dashboard({ initialSection }) {
     const { user, isLoading, logout } = useAuth()
+    const { formatNGN } = useCurrency()
     const navigate = useNavigate()
     const location = useLocation()
 
@@ -123,8 +125,8 @@ export default function Dashboard({ initialSection }) {
         )
     }
 
-    const formatNaira = (amount) =>
-        new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount || 0)
+    // formatNaira is kept as the prop name for all child sections; it now converts NGN → user's local currency
+    const formatNaira = formatNGN
 
     const goTo = (sectionId, extra) => {
         if (sectionId === 'overview') {
@@ -215,8 +217,7 @@ export default function Dashboard({ initialSection }) {
                             onClick={() => goTo('fund-wallet')}
                             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border border-white/12 bg-white/6 hover:bg-white/12 transition"
                         >
-                            <span className="text-[#00FFFF] font-bold">₦</span>
-                            <span>{wallet.toLocaleString()}</span>
+                            <span className="text-[#00FFFF] font-bold">{formatNGN(wallet)}</span>
                         </button>
 
                         {/* Notifications */}

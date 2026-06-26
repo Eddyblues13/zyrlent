@@ -75,7 +75,14 @@ export const AuthProvider = ({ children }) => {
             if (referral_code) payload.referral_code = referral_code;
 
             const response = await api.post('/api/register', payload);
-            toast.success(response.data.message || 'Registration successful! Please verify your email.');
+
+            // OTP verification disabled — backend auto-verifies and returns a token
+            if (response.data.access_token) {
+                localStorage.setItem('auth_token', response.data.access_token);
+                setUser(response.data.user);
+            }
+
+            toast.success(response.data.message || 'Registration successful!');
             return { success: true, email: response.data.email };
         } catch (error) {
             toast.error(error.response?.data?.message || 'Registration failed.');

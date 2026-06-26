@@ -6,6 +6,7 @@ import {
 import { ServiceIconWithFallback } from '../../../components/ServiceIcon'
 import adminApi from '../../../lib/adminAxios'
 import toast from 'react-hot-toast'
+import { useCurrency } from '../../../context/CurrencyContext'
 
 const STATUSES = ['All', 'pending', 'waiting', 'completed', 'cancelled', 'expired', 'failed']
 
@@ -80,7 +81,7 @@ const OrderDetailModal = ({ order, onClose, onAction }) => {
                         </div>
                         <div className="space-y-0.5">
                             <span className="text-[10px] text-white/30 font-medium">Cost</span>
-                            <p className="text-sm text-white font-bold">₦{Number(order.cost ?? 0).toLocaleString()}</p>
+                            <p className="text-sm text-white font-bold">{formatNGN(order.cost ?? 0)}</p>
                         </div>
                         <div className="space-y-0.5">
                             <span className="text-[10px] text-white/30 font-medium">User</span>
@@ -173,7 +174,7 @@ const OrderDetailModal = ({ order, onClose, onAction }) => {
                             <button onClick={() => handleAction('refund')} disabled={actionLoading === 'refund'}
                                 className="flex-1 min-w-[120px] px-3 py-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold hover:bg-purple-500/20 disabled:opacity-50 transition flex items-center justify-center gap-1.5">
                                 {actionLoading === 'refund' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <DollarSign className="w-3.5 h-3.5" />}
-                                Refund ₦{Number(order.cost ?? 0).toLocaleString()}
+                                Refund {formatNGN(order.cost ?? 0)}
                             </button>
                         )}
                         {canCancel && (
@@ -191,6 +192,7 @@ const OrderDetailModal = ({ order, onClose, onAction }) => {
 }
 
 export default function ManageOrdersSection() {
+    const { formatNGN } = useCurrency()
     const [orders, setOrders] = useState([])
     const [meta, setMeta] = useState({})
     const [stats, setStats] = useState(null)
@@ -306,7 +308,7 @@ export default function ManageOrdersSection() {
                                                 )}
                                             </td>
                                             <td className="px-5 py-3.5 text-sm text-white/40">{order.country?.flag} {order.country?.name || '—'}</td>
-                                            <td className="px-5 py-3.5 text-sm text-white/50 font-mono">₦{Number(order.cost ?? 0).toLocaleString()}</td>
+                                            <td className="px-5 py-3.5 text-sm text-white/50 font-mono">{formatNGN(order.cost ?? 0)}</td>
                                             <td className="px-5 py-3.5"><StatusBadge status={order.status} /></td>
                                             <td className="px-5 py-3.5 text-xs text-white/20">{new Date(order.created_at).toLocaleDateString()}</td>
                                             <td className="px-5 py-3.5 text-right">
@@ -350,7 +352,7 @@ export default function ManageOrdersSection() {
                                         </div>
                                         <div>
                                             <span className="text-white/25">Cost</span>
-                                            <p className="text-white/50 font-mono">₦{Number(order.cost ?? 0).toLocaleString()}</p>
+                                            <p className="text-white/50 font-mono">{formatNGN(order.cost ?? 0)}</p>
                                         </div>
                                         <div className="col-span-2">
                                             <span className="text-white/25">Date</span>

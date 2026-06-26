@@ -3,10 +3,12 @@ import { Search, Plus, Trash2, Edit3, ToggleLeft, ToggleRight, Download, Loader2
 import adminApi from '../../../lib/adminAxios'
 import { ServiceIconWithFallback } from '../../../components/ServiceIcon'
 import toast from 'react-hot-toast'
+import { useCurrency } from '../../../context/CurrencyContext'
 
 const PER_PAGE = 12
 
 export default function ManageServicesSection() {
+    const { formatNGN } = useCurrency()
     const [services, setServices] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
@@ -209,7 +211,7 @@ export default function ManageServicesSection() {
                                                 <span className="text-sm text-white font-medium truncate">{s.name}</span>
                                                 {isSelected && <Check className="w-3.5 h-3.5 text-[#FF9500] ml-auto flex-shrink-0" />}
                                             </div>
-                                            <p className="text-xs text-white/30">{s.category} · ₦{s.cost}</p>
+                                            <p className="text-xs text-white/30">{s.category} · {formatNGN(s.cost)}</p>
                                         </button>
                                     )
                                 })}
@@ -252,7 +254,7 @@ export default function ManageServicesSection() {
                                                 <span className="text-sm text-white font-medium truncate">{s.name}</span>
                                                 {isSelected && <Check className="w-3.5 h-3.5 text-[#33CCFF] ml-auto flex-shrink-0" />}
                                             </div>
-                                            <p className="text-xs text-white/30">{s.category} · ₦{s.cost} · {s.quantity} avail</p>
+                                            <p className="text-xs text-white/30">{s.category} · {formatNGN(s.cost)} · {s.quantity} avail</p>
                                         </button>
                                     )
                                 })}
@@ -308,7 +310,7 @@ export default function ManageServicesSection() {
                                                 </div>
                                             </td>
                                             <td className="px-5 py-3.5 text-sm text-white/50">{service.category || 'Other'}</td>
-                                            <td className="px-5 py-3.5 text-sm text-white font-medium">₦{Number(service.cost).toLocaleString()}</td>
+                                            <td className="px-5 py-3.5 text-sm text-white font-medium">{formatNGN(service.cost)}</td>
                                             <td className="px-5 py-3.5">
                                                 <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${service.is_active ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
                                                     {service.is_active ? 'Active' : 'Inactive'}
@@ -353,7 +355,7 @@ export default function ManageServicesSection() {
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between mt-3 ml-[44px]">
-                                        <p className="text-sm text-[#FF9500] font-bold">₦{Number(service.cost).toLocaleString()}</p>
+                                        <p className="text-sm text-[#FF9500] font-bold">{formatNGN(service.cost)}</p>
                                         <div className="flex gap-1">
                                             <button onClick={() => handleToggle(service)}
                                                 className="p-2 rounded-lg hover:bg-white/[0.06] text-white/30 hover:text-[#FF9500] transition">

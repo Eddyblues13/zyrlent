@@ -44,7 +44,8 @@ export default function SignUp() {
     const name = form.username;
     const result = await register(name, form.email, form.phone, form.password, form.confirmPassword, referralCode || null)
     if (result.success) {
-      navigate('/verify-email', { state: { email: result.email } })
+      // OTP verification disabled — go straight to the dashboard
+      navigate('/dashboard')
     }
   }
 

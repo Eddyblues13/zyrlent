@@ -11,10 +11,9 @@ import {
 import { ServiceIconWithFallback } from '../../../components/ServiceIcon'
 import adminApi from '../../../lib/adminAxios'
 import toast from 'react-hot-toast'
+import { useCurrency } from '../../../context/CurrencyContext'
 
-/* ── helpers ── */
 const fmt = (n) => Number(n ?? 0).toLocaleString()
-const fmtMoney = (n) => `₦${fmt(n)}`
 
 /* ── reusable stat card ── */
 const StatCard = ({ label, value, icon: Icon, color }) => (
@@ -34,7 +33,7 @@ const ChartTooltip = ({ active, payload, label }) => {
             <p className="text-[10px] text-white/40 mb-1">{label}</p>
             {payload.map((p, i) => (
                 <p key={i} className="text-xs font-bold" style={{ color: p.color }}>
-                    {p.name}: {p.name === 'revenue' ? fmtMoney(p.value) : p.value}
+                    {p.name}: {p.name === 'revenue' ? formatNGN(p.value) : p.value}
                 </p>
             ))}
         </div>
@@ -42,6 +41,7 @@ const ChartTooltip = ({ active, payload, label }) => {
 }
 
 export default function AdminOverviewSection() {
+    const { formatNGN } = useCurrency()
     const [stats, setStats] = useState(null)
     const [loading, setLoading] = useState(true)
 
@@ -79,8 +79,8 @@ export default function AdminOverviewSection() {
         { label: 'Failed Activations', value: fmt(stats?.failed_activations), icon: XCircle, color: '#FF3B30' },
         { label: 'SMS Received Today', value: fmt(stats?.sms_received_today), icon: MessageSquare, color: '#AF52DE' },
         { label: 'Available Numbers', value: fmt(stats?.available_numbers), icon: Phone, color: '#FF6B00' },
-        { label: 'Revenue Today', value: fmtMoney(stats?.revenue_today), icon: DollarSign, color: '#FFD60A' },
-        { label: 'Revenue This Month', value: fmtMoney(stats?.revenue_this_month), icon: TrendingUp, color: '#34C759' },
+        { label: 'Revenue Today', value: formatNGN(stats?.revenue_today), icon: DollarSign, color: '#FFD60A' },
+        { label: 'Revenue This Month', value: formatNGN(stats?.revenue_this_month), icon: TrendingUp, color: '#34C759' },
     ]
 
     return (
@@ -125,7 +125,7 @@ export default function AdminOverviewSection() {
                             <TrendingUp className="w-4 h-4 text-[#FFD60A]" />
                             <h3 className="text-sm font-bold text-white/70">Revenue (7 days)</h3>
                         </div>
-                        <span className="text-xs text-white/30">Total: {fmtMoney(stats?.total_revenue)}</span>
+                        <span className="text-xs text-white/30">Total: {formatNGN(stats?.total_revenue)}</span>
                     </div>
                     <ResponsiveContainer width="100%" height={220}>
                         <AreaChart data={stats?.revenue_chart ?? []}>
@@ -137,7 +137,7 @@ export default function AdminOverviewSection() {
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                             <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.3)' }} axisLine={false} tickLine={false} />
-                            <YAxis tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.2)' }} axisLine={false} tickLine={false} width={40} tickFormatter={v => `₦${(v / 1000).toFixed(0)}k`} />
+                            <YAxis tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.2)' }} axisLine={false} tickLine={false} width={40} tickFormatter={v => formatNGN(v)} />
                             <Tooltip content={<ChartTooltip />} />
                             <Area type="monotone" dataKey="revenue" name="revenue" stroke="#FFD60A" fill="url(#revenueGrad)" strokeWidth={2} />
                         </AreaChart>

@@ -4,10 +4,12 @@ import api from '../../../lib/axios'
 import { ServiceIconWithFallback } from '../../../components/ServiceIcon'
 import toast from 'react-hot-toast'
 import { RentNumberModal } from './RentNumberSection'
+import { useCurrency } from '../../../context/CurrencyContext'
 
 // ─── Overview Section ─────────────────────────────────────────
 // Searchable Dropdown Removed
 export default function OverviewSection({ user, wallet, stats, formatNaira, onNavigate, onWalletUpdate }) {
+    const { currency } = useCurrency()
     const [showBalance, setShowBalance] = useState(true)
     const [recentOrders, setRecentOrders] = useState([])
     const [loadingOrders, setLoadingOrders] = useState(true)
@@ -73,7 +75,7 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                             </button>
                         </div>
                         <h1 className="text-3xl lg:text-4xl font-bold mb-5 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#00FFFF]">
-                            {showBalance ? formatNaira(wallet) : '₦ ••••••'}
+                            {showBalance ? formatNaira(wallet) : `${currency.symbol} ••••••`}
                         </h1>
                         <button
                             onClick={() => onNavigate('fund-wallet')}
@@ -107,7 +109,7 @@ export default function OverviewSection({ user, wallet, stats, formatNaira, onNa
                                 {stat.spin
                                     ? <span className="text-base" style={{ color: stat.color }}>↻</span>
                                     : stat.naira
-                                        ? <span className="text-base font-bold" style={{ color: stat.color }}>₦</span>
+                                        ? <span className="text-base font-bold" style={{ color: stat.color }}>{currency.symbol}</span>
                                         : <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
                                 }
                             </div>

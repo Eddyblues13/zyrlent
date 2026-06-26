@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { Search, Trash2, Edit3, ToggleLeft, ToggleRight, Loader2, X, Globe, ChevronLeft, ChevronRight, Info, Percent } from 'lucide-react'
 import adminApi from '../../../lib/adminAxios'
 import toast from 'react-hot-toast'
+import { useCurrency } from '../../../context/CurrencyContext'
 
 const PER_PAGE = 12
 
 export default function ManageCountriesSection() {
+    const { formatNGN } = useCurrency()
     const [countries, setCountries] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
@@ -88,7 +90,7 @@ export default function ManageCountriesSection() {
         finally { setBulkAdjusting(false) }
     }
 
-    const formatPrice = (p) => `₦${Number(p || 0).toLocaleString()}`
+    const formatPrice = (p) => formatNGN(p || 0)
 
     return (
         <div className="space-y-6">

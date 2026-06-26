@@ -8,6 +8,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import adminApi from '../../../lib/adminAxios'
 import toast from 'react-hot-toast'
+import { useCurrency } from '../../../context/CurrencyContext'
 
 const FILTERS = [
     { key: 'all', label: 'All Users', icon: Users },
@@ -137,7 +138,7 @@ const UserQuickActions = ({ user, onClose, onRefresh }) => {
                                 </div>
                                 <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5">
                                     <span className="text-[10px] text-white/30 block">Balance</span>
-                                    <span className="text-lg font-bold text-[#FF9500]">₦{Number(user.wallet?.balance ?? 0).toLocaleString()}</span>
+                                    <span className="text-lg font-bold text-[#FF9500]">{formatNGN(user.wallet?.balance ?? 0)}</span>
                                 </div>
                                 <div className="p-3 rounded-xl bg-white/[0.04] border border-white/5">
                                     <span className="text-[10px] text-white/30 block">Referral Code</span>
@@ -171,7 +172,7 @@ const UserQuickActions = ({ user, onClose, onRefresh }) => {
                         <>
                             <div className="text-center p-4 rounded-xl bg-white/[0.04] border border-white/5">
                                 <span className="text-[10px] text-white/30 block">Current Balance</span>
-                                <span className="text-2xl font-bold text-[#FF9500]">₦{Number(user.wallet?.balance ?? 0).toLocaleString()}</span>
+                                <span className="text-2xl font-bold text-[#FF9500]">{formatNGN(user.wallet?.balance ?? 0)}</span>
                             </div>
                             <div className="space-y-2.5">
                                 <input type="number" placeholder="Amount" value={creditAmount} onChange={e => setCreditAmount(e.target.value)}
@@ -251,6 +252,7 @@ const UserQuickActions = ({ user, onClose, onRefresh }) => {
 }
 
 export default function ManageUsersSection() {
+    const { formatNGN } = useCurrency()
     const navigate = useNavigate()
     const [users, setUsers] = useState([])
     const [meta, setMeta] = useState({})
@@ -361,7 +363,7 @@ export default function ManageUsersSection() {
                                                 </div>
                                             </td>
                                             <td className="px-5 py-3.5 text-sm text-white/50">{user.orders_count ?? 0}</td>
-                                            <td className="px-5 py-3.5 text-sm text-[#FF9500] font-medium">₦{Number(user.wallet?.balance ?? 0).toLocaleString()}</td>
+                                            <td className="px-5 py-3.5 text-sm text-[#FF9500] font-medium">{formatNGN(user.wallet?.balance ?? 0)}</td>
                                             <td className="px-5 py-3.5 text-xs text-white/20">{new Date(user.created_at).toLocaleDateString()}</td>
                                             <td className="px-5 py-3.5 text-right">
                                                 <div className="flex items-center justify-end gap-1.5">
@@ -408,7 +410,7 @@ export default function ManageUsersSection() {
                                         </div>
                                         <div>
                                             <span className="text-[10px] text-white/25 uppercase">Wallet</span>
-                                            <p className="text-sm text-[#FF9500] font-bold">₦{Number(user.wallet?.balance ?? 0).toLocaleString()}</p>
+                                            <p className="text-sm text-[#FF9500] font-bold">{formatNGN(user.wallet?.balance ?? 0)}</p>
                                         </div>
                                         <div>
                                             <span className="text-[10px] text-white/25 uppercase">Joined</span>

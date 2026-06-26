@@ -12,6 +12,7 @@ import { ServiceIconWithFallback } from '../../components/ServiceIcon'
 import adminApi from '../../lib/adminAxios'
 import Background from '../../components/Background'
 import toast from 'react-hot-toast'
+import { useCurrency } from '../../context/CurrencyContext'
 
 // ─── Reusable Bits ──────────────────────────────────────────
 const StatusBadge = ({ suspended }) => (
@@ -42,6 +43,7 @@ const Card = ({ children, className = '' }) => (
 
 // ─── Main Page ──────────────────────────────────────────
 export default function ViewUserPage() {
+    const { formatNGN } = useCurrency()
     const { id } = useParams()
     const navigate = useNavigate()
     const { admin, isLoading: authLoading } = useAdminAuth()
@@ -303,7 +305,7 @@ export default function ViewUserPage() {
                             {/* Stat Cards Row */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {[
-                                    { label: 'Wallet', value: `₦${balance.toLocaleString()}`, color: '#FF9500' },
+                                    { label: 'Wallet', value: formatNGN(balance), color: '#FF9500' },
                                     { label: 'Orders', value: user.orders_count ?? 0, color: '#0099FF' },
                                     { label: 'Referrals', value: user.referrals_count ?? 0, color: '#34C759' },
                                     { label: 'Tickets', value: user.support_tickets_count ?? 0, color: '#FF3B30' },
@@ -355,7 +357,7 @@ export default function ViewUserPage() {
                                                     </div>
                                                 </div>
                                                 <span className={`text-sm font-bold flex-shrink-0 ml-3 ${t.type === 'credit' ? 'text-emerald-400' : 'text-red-400'}`}>
-                                                    {t.type === 'credit' ? '+' : '-'}₦{Number(t.amount).toLocaleString()}
+                                                    {t.type === 'credit' ? '+' : '-'}{formatNGN(t.amount)}
                                                 </span>
                                             </div>
                                         ))}
@@ -390,7 +392,7 @@ export default function ViewUserPage() {
                         <div className="space-y-6">
                             <Card className="p-6 text-center">
                                 <p className="text-xs text-white/40 mb-1">Current Balance</p>
-                                <p className="text-4xl font-bold text-[#FF9500]">₦{balance.toLocaleString()}</p>
+                                <p className="text-4xl font-bold text-[#FF9500]">{formatNGN(balance)}</p>
                             </Card>
 
                             {!walletAction ? (
@@ -438,7 +440,7 @@ export default function ViewUserPage() {
                                                 </div>
                                             </div>
                                             <span className={`text-sm font-bold flex-shrink-0 ml-3 ${t.type === 'credit' ? 'text-emerald-400' : 'text-red-400'}`}>
-                                                {t.type === 'credit' ? '+' : '-'}₦{Number(t.amount).toLocaleString()}
+                                                {t.type === 'credit' ? '+' : '-'}{formatNGN(t.amount)}
                                             </span>
                                         </div>
                                     ))}

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Gift, Copy, Check, Users, Award, Banknote, Share2, ExternalLink } from 'lucide-react'
 import api from '../../../lib/axios'
+import { useCurrency } from '../../../context/CurrencyContext'
 
 export default function ReferralSection() {
+    const { formatNGN } = useCurrency()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [copied, setCopied] = useState(false)
@@ -72,8 +74,8 @@ export default function ReferralSection() {
 
                     <p className="text-white/70 text-sm leading-relaxed mb-6">
                         Share your referral link with friends. When they join Zyrlent and fund their wallet with at least
-                        <span className="text-[#00FFFF] font-bold"> ₦10,000</span>, you'll receive
-                        <span className="text-green-400 font-bold"> ₦2,000</span> in credits!
+                        <span className="text-[#00FFFF] font-bold"> {formatNGN(10000)}</span>, you'll receive
+                        <span className="text-green-400 font-bold"> {formatNGN(2000)}</span> in credits!
                     </p>
 
                     {/* Referral Link */}
@@ -136,7 +138,7 @@ export default function ReferralSection() {
                 {[
                     { label: 'Friends Invited', value: stats.total_invited, icon: Users, color: 'from-blue-500/20 to-blue-600/10', iconColor: 'text-blue-400', borderColor: 'border-blue-500/20' },
                     { label: 'Qualified', value: stats.total_qualified, icon: Award, color: 'from-purple-500/20 to-purple-600/10', iconColor: 'text-purple-400', borderColor: 'border-purple-500/20' },
-                    { label: 'Credits Earned', value: `₦${(stats.total_earned || 0).toLocaleString()}`, icon: Banknote, color: 'from-green-500/20 to-green-600/10', iconColor: 'text-green-400', borderColor: 'border-green-500/20' },
+                    { label: 'Credits Earned', value: formatNGN(stats.total_earned || 0), icon: Banknote, color: 'from-green-500/20 to-green-600/10', iconColor: 'text-green-400', borderColor: 'border-green-500/20' },
                 ].map((stat) => (
                     <div key={stat.label} className={`rounded-2xl border ${stat.borderColor} bg-gradient-to-br ${stat.color} p-4 text-center`}>
                         <stat.icon className={`w-5 h-5 ${stat.iconColor} mx-auto mb-2`} />
@@ -152,8 +154,8 @@ export default function ReferralSection() {
                 <div className="space-y-4">
                     {[
                         { step: '1', title: 'Invite a Friend', desc: 'Share your unique referral link with friends and family' },
-                        { step: '2', title: 'They Fund Their Wallet', desc: 'Your friend signs up and funds their wallet with at least ₦10,000' },
-                        { step: '3', title: 'Earn ₦2,000 Credits', desc: 'You receive ₦2,000 in referral credits within 24 hours!' },
+                        { step: '2', title: 'They Fund Their Wallet', desc: `Your friend signs up and funds their wallet with at least ${formatNGN(10000)}` },
+                        { step: '3', title: `Earn ${formatNGN(2000)} Credits`, desc: `You receive ${formatNGN(2000)} in referral credits within 24 hours!` },
                     ].map((item) => (
                         <div key={item.step} className="flex items-start gap-3">
                             <div className="w-7 h-7 rounded-full bg-[#00FFFF]/15 flex items-center justify-center flex-shrink-0 border border-[#00FFFF]/20">

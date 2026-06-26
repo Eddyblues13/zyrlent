@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { ChevronLeft, ChevronRight, CheckCircle, XCircle, Loader2, Clock } from 'lucide-react'
 import adminApi from '../../../lib/adminAxios'
 import toast from 'react-hot-toast'
+import { useCurrency } from '../../../context/CurrencyContext'
 
 export default function FundRequestsSection() {
+    const { formatNGN } = useCurrency()
     const [funds, setFunds] = useState([])
     const [meta, setMeta] = useState({})
     const [page, setPage] = useState(1)
@@ -73,7 +75,7 @@ export default function FundRequestsSection() {
                                         </div>
                                     </div>
                                     <div className="text-right flex-shrink-0">
-                                        <p className="text-lg font-bold text-[#FF9500]">₦{Number(f.amount).toLocaleString()}</p>
+                                        <p className="text-lg font-bold text-[#FF9500]">{formatNGN(f.amount)}</p>
                                         <p className="text-xs text-white/20">{new Date(f.created_at).toLocaleString()}</p>
                                     </div>
                                 </div>

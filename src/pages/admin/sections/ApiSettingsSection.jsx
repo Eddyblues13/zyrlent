@@ -9,11 +9,7 @@ import {
 import adminApi from '../../../lib/adminAxios'
 import toast from 'react-hot-toast'
 import { ServiceIconWithFallback } from '../../../components/ServiceIcon'
-
-const fmtNaira = (v) => {
-  const n = Number(v || 0)
-  return '\u20A6' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
+import { useCurrency } from '../../../context/CurrencyContext'
 
 /* ── Per-Provider Markup Selector ── */
 const MARKUP_PRESETS = [0, 5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 300, 500]
@@ -397,6 +393,7 @@ function ProviderForm({ provider, availableTypes, onClose, onSaved }) {
    TAB 2: PRICING & MARKUP
    ══════════════════════════════════════════════════════════ */
 function PricingConfigTab() {
+  const { formatNGN } = useCurrency()
   var [rate, setRate] = useState('')
   var [markup, setMarkup] = useState('')
   var [loading, setLoading] = useState(true)
@@ -473,11 +470,11 @@ function PricingConfigTab() {
               </div>
               <div>
                 <p className="text-[10px] text-white/30">Base (NGN, no markup)</p>
-                <p className="text-sm font-bold text-white/60">{fmtNaira(exampleBase)}</p>
+                <p className="text-sm font-bold text-white/60">{formatNGN(exampleBase)}</p>
               </div>
               <div>
                 <p className="text-[10px] text-white/30">Final Price (with {markup || 0}% markup)</p>
-                <p className="text-sm font-bold text-[#FF9500]">{fmtNaira(exampleFinal)}</p>
+                <p className="text-sm font-bold text-[#FF9500]">{formatNGN(exampleFinal)}</p>
               </div>
             </div>
           </div>
@@ -495,6 +492,7 @@ function PricingConfigTab() {
    TAB 3: FETCH COUNTRIES
    ══════════════════════════════════════════════════════════ */
 function FetchCountriesTab() {
+  const { formatNGN } = useCurrency()
   var [providers, setProviders] = useState([])
   var [selectedProvider, setSelectedProvider] = useState('')
   var [countries, setCountries] = useState([])
@@ -595,7 +593,7 @@ function FetchCountriesTab() {
                       <span className="text-[10px] text-white/30">{country.dial_code}</span>
                       <div className="text-right min-w-[100px]">
                         <span className="text-[10px] text-white/20 block">${country.price_usd?.toFixed(2)}</span>
-                        <span className="text-[11px] text-[#FF9500] font-bold">{fmtNaira(country.price_ngn)}</span>
+                        <span className="text-[11px] text-[#FF9500] font-bold">{formatNGN(country.price_ngn)}</span>
                       </div>
                       {country.already_exists && <span className="text-[9px] text-white/20 uppercase font-bold">Exists</span>}
                     </div>
@@ -784,6 +782,7 @@ function FetchNumbersTab() {
    TAB 5: FETCH PRICING
    ══════════════════════════════════════════════════════════ */
 function FetchPricingTab() {
+  const { formatNGN } = useCurrency()
   var [providers, setProviders] = useState([])
   var [selectedProvider, setSelectedProvider] = useState('')
   var [countryCode, setCountryCode] = useState('')
@@ -858,7 +857,7 @@ function FetchPricingTab() {
                             </div>
                             <div className="text-right">
                               <p className="text-[10px] text-white/25">${p.current_price_usd?.toFixed(2)}/mo</p>
-                              <p className="text-sm font-bold text-[#FF9500]">{fmtNaira(p.current_price_ngn)}<span className="text-[9px] text-white/30 ml-1">/mo</span></p>
+                              <p className="text-sm font-bold text-[#FF9500]">{formatNGN(p.current_price_ngn)}<span className="text-[9px] text-white/30 ml-1">/mo</span></p>
                             </div>
                           </div>
                         )
