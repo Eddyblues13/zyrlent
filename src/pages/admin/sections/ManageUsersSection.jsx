@@ -56,6 +56,7 @@ const UserQuickActions = ({ user, onClose, onRefresh }) => {
     const [suspendReason, setSuspendReason] = useState('')
     const [activeTab, setActiveTab] = useState('info')
     const navigate = useNavigate()
+    const { formatNGN } = useCurrency()
 
     const handleAction = async (action, body = {}) => {
         setActionLoading(action)
