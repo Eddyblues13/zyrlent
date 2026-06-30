@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Wallet, Copy, Check, CreditCard, Building2, Smartphone, AlertCircle, ExternalLink, Zap, RefreshCw, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
+import { Wallet, Copy, Check, AlertCircle, ExternalLink, Zap, RefreshCw, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import api from '../../../lib/axios'
 import toast from 'react-hot-toast'
 import { useCurrency } from '../../../context/CurrencyContext'
@@ -200,30 +200,10 @@ function KoraPayPanel() {
                 </div>
             </div>
 
-            {/* Sub-methods grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {[
-                    { icon: CreditCard, label: 'Card',          sub: 'Visa / MC / Verve',  color: '#1760EF' },
-                    { icon: Building2,  label: 'Bank Transfer',  sub: 'All Nigerian banks',  color: '#00FFFF' },
-                    { icon: Smartphone, label: 'USSD',           sub: '*737# etc.',           color: '#33CCFF' },
-                    { icon: Wallet,     label: 'Bank Account',   sub: 'Direct debit',        color: '#0099FF' },
-                ].map((m, i) => (
-                    <div key={i} className="flex flex-col items-center gap-2 p-3 rounded-xl border border-[rgba(255,255,255,0.07)] bg-[rgba(15,20,60,0.4)] text-center">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${m.color}20` }}>
-                            <m.icon className="w-4 h-4" style={{ color: m.color }} />
-                        </div>
-                        <div>
-                            <p className="text-[11px] font-bold text-white">{m.label}</p>
-                            <p className="text-[9px] text-white/35">{m.sub}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
             {/* Fee notice */}
             <div className="flex items-start gap-2 text-xs text-white/35 px-1">
                 <Zap className="w-3.5 h-3.5 text-[#00FFFF]/60 mt-0.5 flex-shrink-0" />
-                <span>Processing fee: 1.5% (capped at {formatNGN(2000)}) for card &amp; bank. USSD is free.</span>
+                <span>Pay with card, bank transfer, USSD or mobile money on the secure KoraPay checkout.</span>
             </div>
 
             {/* CTA */}
