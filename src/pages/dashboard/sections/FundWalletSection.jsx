@@ -47,22 +47,24 @@ const PAYMENT_METHODS = [
             </div>
         ),
     },
-    {
-        id: 'bank',
-        name: 'Manual Bank Transfer',
-        subtitle: 'Providus Bank · manual confirmation',
-        badge: '5 – 30 min',
-        badgeClass: 'text-amber-400 bg-amber-400/15 border-amber-400/25',
-        accentColor: '#00C364',
-        glowColor: 'rgba(0,195,100,0.18)',
-        logo: (size = 'md') => (
-            <div className={`${size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} rounded-lg bg-[#00C364] flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(0,195,100,0.38)]`}>
-                <Building2 className={`${size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-white`} />
-            </div>
-        ),
-    },
+    // ── Manual Bank Transfer — disabled for now. Keep KoraPay only until we
+    //    add Cryptomus + bank/manual for other countries. ──────────────────
+    // {
+    //     id: 'bank',
+    //     name: 'Manual Bank Transfer',
+    //     subtitle: 'Providus Bank · manual confirmation',
+    //     badge: '5 – 30 min',
+    //     badgeClass: 'text-amber-400 bg-amber-400/15 border-amber-400/25',
+    //     accentColor: '#00C364',
+    //     glowColor: 'rgba(0,195,100,0.18)',
+    //     logo: (size = 'md') => (
+    //         <div className={`${size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} rounded-lg bg-[#00C364] flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(0,195,100,0.38)]`}>
+    //             <Building2 className={`${size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-white`} />
+    //         </div>
+    //     ),
+    // },
     // ── Uncomment / copy to add more ──────────────────────────────────────
-    // { id: 'paystack', name: 'Paystack', subtitle: 'Card · USSD · QR', badge: 'Instant', ... },
+    // { id: 'cryptomus', name: 'Cryptomus', subtitle: 'Crypto · USDT · BTC', badge: 'Instant', ... },
 ]
 
 /* ─── Custom Dropdown ────────────────────────────────────────────────────── */
@@ -429,7 +431,7 @@ export default function FundWalletSection({ wallet, formatNaira }) {
     const renderPanel = () => {
         switch (selectedMethod) {
             case 'korapay': return <KoraPayPanel />
-            case 'bank':    return <BankTransferPanel onSuccess={handleSuccess} />
+            // case 'bank':    return <BankTransferPanel onSuccess={handleSuccess} />
             default:        return null
         }
     }
