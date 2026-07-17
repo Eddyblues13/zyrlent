@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { Wallet, Copy, Check, AlertCircle, ExternalLink, Zap, RefreshCw, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { Wallet, Copy, Check, AlertCircle, ExternalLink, Zap, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Bitcoin, CreditCard } from 'lucide-react'
 import api from '../../../lib/axios'
 import toast from 'react-hot-toast'
 import { useCurrency } from '../../../context/CurrencyContext'
@@ -9,6 +9,7 @@ function formatDate(dateStr) {
 }
 
 function getMethod(tx) {
+    if (tx.reference?.startsWith('crypto_') || tx.description?.toLowerCase().includes('cryptomus')) return 'Cryptomus'
     if (tx.reference?.startsWith('fund_') || tx.description?.toLowerCase().includes('korapay')) return 'KoraPay'
     return 'Bank Transfer'
 }
@@ -27,57 +28,50 @@ function DepositStatusBadge({ status }) {
     )
 }
 
-// NGN amounts — always sent to the API in NGN regardless of display currency
-const QUICK_AMOUNTS = [10000, 15000, 20000, 30000, 50000, 100000]
+// Sensible quick-fund presets per currency (amount is in that currency)
+const QUICK_AMOUNTS_BY_CURRENCY = {
+    NGN: [10000, 15000, 20000, 30000, 50000, 100000],
+    KES: [500, 1000, 2000, 5000, 10000, 20000],
+    GHS: [50, 100, 200, 500, 1000, 2000],
+    ZAR: [100, 200, 500, 1000, 2000, 5000],
+    XOF: [3000, 5000, 10000, 25000, 50000, 100000],
+    XAF: [3000, 5000, 10000, 25000, 50000, 100000],
+    USD: [5, 10, 25, 50, 100, 250],
+    EUR: [5, 10, 25, 50, 100, 250],
+    GBP: [5, 10, 25, 50, 100, 250],
+}
+const quickAmountsFor = (code) => QUICK_AMOUNTS_BY_CURRENCY[code] || QUICK_AMOUNTS_BY_CURRENCY.USD
 
-/* ─── Payment method registry ────────────────────────────────────────────────
-   Add new methods here — the dropdown picks them up automatically.           */
-const PAYMENT_METHODS = [
-    {
-        id: 'korapay',
-        name: 'KoraPay',
-        subtitle: 'Card · Bank Transfer · USSD · Mobile Money',
-        badge: 'Instant',
-        badgeClass: 'text-[#7aabff] bg-[#1760EF]/20 border-[#1760EF]/30',
-        accentColor: '#1760EF',
-        glowColor: 'rgba(23,96,239,0.22)',
-        logo: (size = 'md') => (
-            <div className={`${size === 'sm' ? 'w-7 h-7 text-[10px]' : 'w-9 h-9 text-xs'} rounded-lg bg-[#1760EF] flex items-center justify-center font-black text-white flex-shrink-0 shadow-[0_0_10px_rgba(23,96,239,0.4)]`}>
-                KP
+// Icon for a method row
+function MethodIcon({ method, size = 'md' }) {
+    const box = size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'
+    if (method.kind === 'crypto') {
+        return (
+            <div className={`${box} rounded-lg bg-[#F7931A] flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(247,147,26,0.4)]`}>
+                <Bitcoin className={`${size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-white`} />
             </div>
-        ),
-    },
-    // ── Manual Bank Transfer — disabled for now. Keep KoraPay only until we
-    //    add Cryptomus + bank/manual for other countries. ──────────────────
-    // {
-    //     id: 'bank',
-    //     name: 'Manual Bank Transfer',
-    //     subtitle: 'Providus Bank · manual confirmation',
-    //     badge: '5 – 30 min',
-    //     badgeClass: 'text-amber-400 bg-amber-400/15 border-amber-400/25',
-    //     accentColor: '#00C364',
-    //     glowColor: 'rgba(0,195,100,0.18)',
-    //     logo: (size = 'md') => (
-    //         <div className={`${size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} rounded-lg bg-[#00C364] flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(0,195,100,0.38)]`}>
-    //             <Building2 className={`${size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-white`} />
-    //         </div>
-    //     ),
-    // },
-    // ── Uncomment / copy to add more ──────────────────────────────────────
-    // { id: 'cryptomus', name: 'Cryptomus', subtitle: 'Crypto · USDT · BTC', badge: 'Instant', ... },
-]
+        )
+    }
+    return (
+        <div className={`${box} rounded-lg bg-[#1760EF] flex items-center justify-center flex-shrink-0 shadow-[0_0_10px_rgba(23,96,239,0.4)]`}>
+            <CreditCard className={`${size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-white`} />
+        </div>
+    )
+}
 
 /* ─── Custom Dropdown ────────────────────────────────────────────────────── */
-function PaymentMethodDropdown({ selected, onSelect }) {
+function PaymentMethodDropdown({ methods, selected, onSelect }) {
     const [open, setOpen] = useState(false)
     const ref = useRef(null)
-    const current = PAYMENT_METHODS.find(m => m.id === selected) ?? PAYMENT_METHODS[0]
+    const current = methods.find(m => m.id === selected) ?? methods[0]
 
     useEffect(() => {
         const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
         document.addEventListener('mousedown', handler)
         return () => document.removeEventListener('mousedown', handler)
     }, [])
+
+    if (!current) return null
 
     return (
         <div className="relative" ref={ref}>
@@ -88,12 +82,12 @@ function PaymentMethodDropdown({ selected, onSelect }) {
                 className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(15,20,60,0.6)] hover:border-[rgba(255,255,255,0.22)] transition-all group"
                 style={{ boxShadow: open ? `0 0 18px ${current.accentColor}22` : undefined }}
             >
-                {current.logo('sm')}
+                <MethodIcon method={current} size="sm" />
                 <div className="flex-1 text-left min-w-0">
-                    <p className="text-sm font-bold text-white leading-tight">{current.name}</p>
+                    <p className="text-sm font-bold text-white leading-tight truncate">{current.title}</p>
                     <p className="text-[11px] text-white/35 truncate mt-0.5">{current.subtitle}</p>
                 </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${current.badgeClass}`}>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 text-white/60 border-white/15 bg-white/5">
                     {current.badge}
                 </span>
                 <ChevronDown className={`w-4 h-4 text-white/35 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
@@ -101,8 +95,8 @@ function PaymentMethodDropdown({ selected, onSelect }) {
 
             {/* Dropdown panel */}
             {open && (
-                <div className="absolute top-full left-0 right-0 mt-2 z-50 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(8,10,46,0.97)] backdrop-blur-xl shadow-[0_16px_48px_rgba(0,0,0,0.6)] overflow-hidden">
-                    {PAYMENT_METHODS.map((method, i) => {
+                <div className="absolute top-full left-0 right-0 mt-2 z-50 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(8,10,46,0.97)] backdrop-blur-xl shadow-[0_16px_48px_rgba(0,0,0,0.6)] overflow-hidden max-h-[360px] overflow-y-auto">
+                    {methods.map((method, i) => {
                         const isSelected = method.id === selected
                         return (
                             <button
@@ -113,12 +107,12 @@ function PaymentMethodDropdown({ selected, onSelect }) {
                                     i > 0 ? 'border-t border-white/[0.06]' : ''
                                 } ${isSelected ? 'bg-white/[0.05]' : 'hover:bg-white/[0.04]'}`}
                             >
-                                {method.logo('sm')}
+                                <MethodIcon method={method} size="sm" />
                                 <div className="flex-1 min-w-0">
-                                    <p className={`text-sm font-bold leading-tight ${isSelected ? 'text-white' : 'text-white/75'}`}>{method.name}</p>
+                                    <p className={`text-sm font-bold leading-tight truncate ${isSelected ? 'text-white' : 'text-white/75'}`}>{method.title}</p>
                                     <p className="text-[11px] text-white/35 truncate mt-0.5">{method.subtitle}</p>
                                 </div>
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${method.badgeClass}`}>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 text-white/50 border-white/12 bg-white/5">
                                     {method.badge}
                                 </span>
                                 {isSelected && (
@@ -135,21 +129,24 @@ function PaymentMethodDropdown({ selected, onSelect }) {
     )
 }
 
-/* ─── KoraPay Panel ──────────────────────────────────────────────────────── */
-function KoraPayPanel() {
-    const { formatNGN } = useCurrency()
+/* ─── Shared Fund Panel ──────────────────────────────────────────────────────
+   Handles amount entry in a given currency, then hands off to a gateway.
+   `onSubmit(amount)` must resolve to a checkout URL (or throw).            */
+function FundPanel({ currencyCode, currencySymbol, quickAmounts, note, ctaLabel, ctaGradient, footer, onSubmit }) {
     const [amount, setAmount] = useState('')
     const [loading, setLoading] = useState(false)
+    const amt = parseFloat(amount)
+    const valid = amt > 0
 
-    const handlePay = async () => {
-        if (!amount || parseFloat(amount) < 100) return
+    const submit = async () => {
+        if (!valid) return
         setLoading(true)
         try {
-            const res = await api.post('/api/wallet/korapay/initialize', { amount: parseFloat(amount) })
-            if (res.data.checkout_url) {
-                window.location.href = res.data.checkout_url
+            const url = await onSubmit(amt)
+            if (url) {
+                window.location.href = url
             } else {
-                toast.error('Could not get payment link')
+                toast.error('Could not start payment. Please try again.')
                 setLoading(false)
             }
         } catch (err) {
@@ -163,72 +160,110 @@ function KoraPayPanel() {
             {/* Amount Input */}
             <div>
                 <label className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2.5 block">
-                    Amount — paid in NGN via KoraPay
+                    Amount to pay ({currencyCode})
                 </label>
                 <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#00FFFF] font-bold text-lg">₦</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#00FFFF] font-bold text-base">{currencySymbol}</span>
                     <input
                         type="number"
-                        min="100"
+                        min="0"
                         placeholder="0.00"
                         value={amount}
                         onChange={e => setAmount(e.target.value)}
-                        className="w-full pl-10 pr-4 py-4 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white text-xl font-semibold placeholder-white/20 focus:outline-none focus:border-[rgba(0,255,255,0.4)] transition"
+                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white text-xl font-semibold placeholder-white/20 focus:outline-none focus:border-[rgba(0,255,255,0.4)] transition"
                     />
                 </div>
-                {/* Local currency equivalent hint */}
-                {amount && parseFloat(amount) >= 100 && (
-                    <p className="text-xs text-white/35 mt-1.5 pl-1">
-                        ≈ <span className="text-white/60 font-semibold">{formatNGN(parseFloat(amount))}</span> in your local currency
-                    </p>
-                )}
-                {/* Quick amounts shown in local currency */}
+
+                {/* Quick amounts (in the selected currency) */}
                 <div className="flex flex-wrap gap-2 mt-3">
-                    {QUICK_AMOUNTS.map(a => (
+                    {quickAmounts.map(a => (
                         <button
                             key={a}
+                            type="button"
                             onClick={() => setAmount(String(a))}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition flex flex-col items-center gap-0.5 ${amount === String(a)
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${amount === String(a)
                                 ? 'bg-[rgba(0,255,255,0.15)] text-[#00FFFF] border border-[rgba(0,255,255,0.4)]'
                                 : 'bg-[rgba(255,255,255,0.05)] text-white/50 border border-[rgba(255,255,255,0.08)] hover:bg-white/10'
                             }`}
                         >
-                            <span>{formatNGN(a)}</span>
-                            <span className="text-[9px] opacity-50">₦{a.toLocaleString()}</span>
+                            {currencySymbol}{a.toLocaleString()}
                         </button>
                     ))}
                 </div>
             </div>
 
-            {/* Fee notice */}
+            {/* Note */}
             <div className="flex items-start gap-2 text-xs text-white/35 px-1">
                 <Zap className="w-3.5 h-3.5 text-[#00FFFF]/60 mt-0.5 flex-shrink-0" />
-                <span>Pay with card, bank transfer, USSD or mobile money on the secure KoraPay checkout.</span>
+                <span>{note}</span>
+            </div>
+
+            {/* Credited-in-NGN reminder */}
+            <div className="flex items-start gap-2 text-[11px] text-white/30 px-1 -mt-2">
+                <AlertCircle className="w-3.5 h-3.5 text-white/25 mt-0.5 flex-shrink-0" />
+                <span>Your wallet is credited in Naira (₦) at the current exchange rate.</span>
             </div>
 
             {/* CTA */}
             <button
-                onClick={handlePay}
-                disabled={!amount || parseFloat(amount) < 100 || loading}
-                className="w-full py-4 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-[#1760EF] via-[#33CCFF] to-[#0099FF] text-white shadow-[0_0_20px_rgba(23,96,239,0.3)] hover:shadow-[0_0_30px_rgba(23,96,239,0.5)] hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+                onClick={submit}
+                disabled={!valid || loading}
+                className={`w-full py-4 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-2 text-white shadow-[0_0_20px_rgba(23,96,239,0.3)] hover:shadow-[0_0_30px_rgba(23,96,239,0.5)] hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none ${ctaGradient}`}
             >
                 {loading ? (
                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                     <>
                         <ExternalLink className="w-4 h-4" />
-                        Pay with KoraPay
-                        {amount && parseFloat(amount) >= 100
-                            ? ` · ${formatNGN(parseFloat(amount))} (₦${parseFloat(amount).toLocaleString()})`
-                            : ''}
+                        {ctaLabel}
+                        {valid ? ` · ${currencySymbol}${amt.toLocaleString()}` : ''}
                     </>
                 )}
             </button>
 
-            <p className="text-center text-xs text-white/25">
-                Secured by <span className="text-[#1760EF] font-semibold">KoraPay</span> · 256-bit SSL
-            </p>
+            <p className="text-center text-xs text-white/25">{footer}</p>
         </div>
+    )
+}
+
+/* ─── Cryptomus (crypto) Panel ───────────────────────────────────────────── */
+function CryptomusPanel() {
+    const { currency } = useCurrency()
+    const code = currency.code || 'USD'
+
+    return (
+        <FundPanel
+            currencyCode={code}
+            currencySymbol={currency.symbol || '$'}
+            quickAmounts={quickAmountsFor(code)}
+            note="Pay with USDT, BTC, BCH, ETH, LTC and more on the secure Cryptomus checkout."
+            ctaLabel="Pay with Crypto"
+            ctaGradient="bg-gradient-to-r from-[#F7931A] via-[#f7a838] to-[#e07d0a]"
+            footer={<>Secured by <span className="text-[#F7931A] font-semibold">Cryptomus</span> · confirmed on-chain</>}
+            onSubmit={async (amt) => {
+                const res = await api.post('/api/wallet/cryptomus/initialize', { amount: amt, currency: code })
+                return res.data.checkout_url
+            }}
+        />
+    )
+}
+
+/* ─── Kora (per-country) Panel ───────────────────────────────────────────── */
+function KoraCountryPanel({ method }) {
+    return (
+        <FundPanel
+            currencyCode={method.currency}
+            currencySymbol={method.currency === 'NGN' ? '₦' : ''}
+            quickAmounts={quickAmountsFor(method.currency)}
+            note={`Pay via ${method.labels} on the secure KoraPay checkout.`}
+            ctaLabel="Pay with KoraPay"
+            ctaGradient="bg-gradient-to-r from-[#1760EF] via-[#33CCFF] to-[#0099FF]"
+            footer={<>Secured by <span className="text-[#1760EF] font-semibold">KoraPay</span> · 256-bit SSL</>}
+            onSubmit={async (amt) => {
+                const res = await api.post('/api/wallet/korapay/initialize', { amount: amt, country: method.country })
+                return res.data.checkout_url
+            }}
+        />
     )
 }
 
@@ -292,7 +327,7 @@ function BankTransferPanel({ onSuccess }) {
                     </p>
                 )}
                 <div className="flex flex-wrap gap-2 mt-3">
-                    {QUICK_AMOUNTS.map(a => (
+                    {quickAmountsFor('NGN').map(a => (
                         <button
                             key={a}
                             onClick={() => setAmount(String(a))}
@@ -384,11 +419,44 @@ function BankTransferPanel({ onSuccess }) {
 /* ─── Main Component ─────────────────────────────────────────────────────── */
 export default function FundWalletSection({ wallet, formatNaira }) {
     const { formatNGN } = useCurrency()
-    const [selectedMethod, setSelectedMethod] = useState('korapay')
+    const [selectedMethod, setSelectedMethod] = useState('cryptomus')
+    const [koraCountries, setKoraCountries] = useState([])
     const [deposits, setDeposits] = useState([])
     const [loading, setLoading] = useState(true)
     const [page, setPage] = useState(1)
     const [meta, setMeta] = useState({ last_page: 1, total: 0 })
+
+    // Build the payment-method list: Cryptomus first, then a row per Kora country
+    const methods = useMemo(() => {
+        const crypto = {
+            id: 'cryptomus',
+            kind: 'crypto',
+            title: 'Cryptomus',
+            subtitle: 'USDT · BTC · BCH · ETH · LTC + More',
+            badge: 'Crypto',
+            accentColor: '#F7931A',
+        }
+        const kora = koraCountries.map(c => ({
+            id: `kora_${c.code}`,
+            kind: 'kora',
+            country: c.code,
+            currency: c.currency,
+            labels: c.labels,
+            title: `Kora — ${c.flag} ${c.name}`,
+            subtitle: `${c.currency} · ${c.labels}`,
+            badge: c.currency,
+            accentColor: '#1760EF',
+        }))
+        return [crypto, ...kora]
+    }, [koraCountries])
+
+    const currentMethod = methods.find(m => m.id === selectedMethod) ?? methods[0]
+
+    useEffect(() => {
+        api.get('/api/wallet/korapay/countries')
+            .then(({ data }) => setKoraCountries(data.countries || []))
+            .catch(() => {})
+    }, [])
 
     const fetchDeposits = async (p = 1) => {
         setLoading(true)
@@ -409,11 +477,10 @@ export default function FundWalletSection({ wallet, formatNaira }) {
     const handleSuccess = () => { setPage(1); fetchDeposits(1) }
 
     const renderPanel = () => {
-        switch (selectedMethod) {
-            case 'korapay': return <KoraPayPanel />
-            // case 'bank':    return <BankTransferPanel onSuccess={handleSuccess} />
-            default:        return null
-        }
+        if (!currentMethod) return null
+        if (currentMethod.kind === 'crypto') return <CryptomusPanel />
+        if (currentMethod.kind === 'kora') return <KoraCountryPanel method={currentMethod} />
+        return null
     }
 
     return (
@@ -444,14 +511,14 @@ export default function FundWalletSection({ wallet, formatNaira }) {
             {/* Payment Method Dropdown */}
             <div>
                 <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2.5">Payment Method</p>
-                <PaymentMethodDropdown selected={selectedMethod} onSelect={setSelectedMethod} />
+                <PaymentMethodDropdown methods={methods} selected={selectedMethod} onSelect={setSelectedMethod} />
             </div>
 
             {/* Divider */}
             <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-white/[0.07]" />
-                <span className="text-[10px] font-semibold text-white/25 uppercase tracking-widest">
-                    {PAYMENT_METHODS.find(m => m.id === selectedMethod)?.name}
+                <span className="text-[10px] font-semibold text-white/25 uppercase tracking-widest truncate max-w-[60%]">
+                    {currentMethod?.title}
                 </span>
                 <div className="flex-1 h-px bg-white/[0.07]" />
             </div>
