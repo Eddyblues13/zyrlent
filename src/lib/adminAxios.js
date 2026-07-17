@@ -20,7 +20,11 @@ adminApi.interceptors.request.use((config) => {
 adminApi.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        // A 401 on the login request is a failed login attempt — let the caller
+        // handle it (show the error toast). Only force a redirect for session
+        // expiry on already-authenticated requests.
+        const isLoginRequest = error.config?.url?.includes('/api/admin/login');
+        if (error.response?.status === 401 && !isLoginRequest) {
             localStorage.removeItem('admin_token');
             window.location.href = '/admin/login';
         }
